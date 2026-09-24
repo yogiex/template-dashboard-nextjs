@@ -5,7 +5,7 @@ import { env } from "@/lib/env";
 export const siteConfig = {
   name: "Dashboard",
   description: "Template dashboard Next.js dengan shadcn/ui",
-  url: env.appUrl,
+  url: env.NEXT_PUBLIC_APP_URL,
 } as const;
 
 export type NavItem = {
@@ -31,3 +31,8 @@ export const sidebarNav: NavGroup[] = [
     ],
   },
 ];
+
+export const publicNav = [
+  { title: "Syarat & Ketentuan", href: "/terms" },
+  { title: "Kebijakan Privasi", href: "/privacy" },
+] as const;

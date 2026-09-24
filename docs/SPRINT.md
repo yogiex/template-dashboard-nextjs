@@ -121,6 +121,8 @@ Dashboard menampilkan sidebar, topbar sticky, user placeholder, dan area konten 
 | 2 | 1 hari | Breadcrumbs, command menu, error pages |
 | 3 | 1–2 hari | DataTable pattern |
 
+- [ ] (sprint-4) Jika user login membuka `/`, tampilkan landing dengan CTA "Buka Dashboard" (bukan Masuk/Daftar) — cek session di PublicHeader (server component, bisa `await auth()`)
+
 ## Keputusan Desain
 
 1. Gunakan komponen shadcn sidebar resmi, bukan membuat sidebar dari nol.
