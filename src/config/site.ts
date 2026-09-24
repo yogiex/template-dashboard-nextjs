@@ -1,15 +1,17 @@
-import type { LucideIcon } from "lucide-react";
-import { LayoutDashboard, Settings, Users } from "lucide-react";
+import { LayoutDashboard, Settings, Users, type LucideIcon } from "lucide-react";
+
+import { env } from "@/lib/env";
 
 export const siteConfig = {
   name: "Dashboard",
-  description: "Template dashboard Next.js",
+  description: "Template dashboard Next.js dengan shadcn/ui",
+  url: env.appUrl,
 } as const;
 
 export type NavItem = {
   title: string;
   href: string;
-  icon?: LucideIcon;
+  icon: LucideIcon;
   badge?: string;
   disabled?: boolean;
 };
