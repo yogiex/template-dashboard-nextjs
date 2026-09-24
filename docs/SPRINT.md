@@ -5,9 +5,19 @@ Rencana kerja membangun layout dashboard template. Setiap sprint menghasilkan pe
 ## Definition of Done
 
 - [ ] Mengikuti `docs/CONVENTIONS.md` dan `CLAUDE.md`.
+- [ ] **Secure by design** — input tervalidasi Zod di server, auth dicek di setiap action/handler, dan tidak ada data sensitif di response atau error.
+- [ ] **Error handling RFC 9457** — semua failure path memakai taxonomy dari `docs/ERROR-HANDLING.md`, bukan try-catch asal, `console.error`, atau throw string.
 - [ ] `npm run lint` dan `npm run build` berhasil.
 - [ ] Diuji desktop, mobile, light mode, dan dark mode.
 - [ ] Perubahan di-commit dengan Conventional Commit.
+
+## ⚡ Cross-Cutting Requirements
+
+| Requirement | Ditegakkan oleh | Dicek di |
+|---|---|---|
+| Secure by design | `docs/SECURITY.md` dan `CLAUDE.md` | Review tiap task |
+| Konsistensi pola | `docs/CONVENTIONS.md` dan `docs/ARCHITECTURE.md` | Review tiap task |
+| Error handling RFC 9457 | `docs/ERROR-HANDLING.md` dan `src/lib/error.ts` | Tiap action, handler, dan UI |
 
 ## Sprint 0 — Fondasi
 
@@ -21,6 +31,7 @@ Rencana kerja membangun layout dashboard template. Setiap sprint menghasilkan pe
 - [x] Security headers di `next.config.ts`.
 - [x] `.env.example` untuk `NEXT_PUBLIC_APP_URL`.
 - [x] `src/lib/env.ts` untuk akses environment typed.
+- [x] `src/lib/error.ts`, `src/lib/api.ts`, dan `src/lib/logger.ts` sebagai fondasi taxonomy error.
 
 ### 0.3 Dark mode
 
@@ -55,22 +66,28 @@ Rencana kerja membangun layout dashboard template. Setiap sprint menghasilkan pe
 - [ ] Trigger sidebar, separator, theme toggle, dan user dropdown.
 - [ ] User dropdown masih placeholder tanpa auth.
 
-### 1.4 PageShell
+### 1.4 PageShell dan state contract
 
 - [ ] `src/components/layout/page-shell.tsx`.
 - [ ] Props `title`, `description`, `children`, dan `actions`.
 - [ ] Dashboard placeholder memakai PageShell.
+- [ ] `src/components/custom/error-state.tsx` untuk pesan generik dan retry.
+- [ ] `src/components/custom/empty-state.tsx` untuk data kosong yang bukan error.
+- [ ] `app/error.tsx` dan `app/not-found.tsx` menjadi bagian kontrak error, bukan ditunda ke Sprint 2.
 
 ## Sprint 2 — Polish
 
 - [ ] Breadcrumbs dari pathname.
 - [ ] Command menu dengan shortcut Cmd/Ctrl+K.
 - [ ] Placeholder users dan settings pages.
-- [ ] Custom `error.tsx` dan `not-found.tsx`.
+- [ ] Error pages sudah menjadi bagian Sprint 1.
 
 ## Sprint 3 — DataTable Pattern
 
 - [ ] Feature user dengan schema, types, mock service, dan actions.
+- [ ] Service dan action wajib melempar atau memetakan error ke `AppError` dari taxonomy.
+- [ ] Form memakai envelope `{ success, error }` dan menampilkan `fieldErrors` serta pesan kode secara seragam.
+- [ ] Tabel punya empty state dan error state yang berbeda.
 - [ ] Tabel client dengan sort, search, filter role, pagination, dan loading skeleton.
 - [ ] Validasi `searchParams` di page sebelum service dipanggil.
 
