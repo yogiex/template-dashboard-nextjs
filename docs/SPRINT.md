@@ -46,41 +46,62 @@ Rencana kerja membangun layout dashboard template. Setiap sprint menghasilkan pe
 
 ### 1.1 Route group
 
-- [ ] `src/app/(dashboard)/layout.tsx`.
-- [ ] `src/app/(dashboard)/dashboard/page.tsx`.
-- [ ] `src/app/(dashboard)/dashboard/loading.tsx`.
-- [ ] Redirect route root ke `/dashboard` atau hapus page default.
+- [x] `src/app/(dashboard)/layout.tsx`.
+- [x] `src/app/(dashboard)/dashboard/page.tsx`.
+- [x] `src/app/(dashboard)/dashboard/loading.tsx`.
+- [x] Landing publik tersedia di `/`; route dashboard sudah dibuat.
 
 ### 1.2 Sidebar desktop dan mobile
 
-- [ ] Tambahkan komponen shadcn sidebar.
-- [ ] `src/components/layout/app-sidebar.tsx` membaca `sidebarNav`.
-- [ ] `SidebarProvider` dipasang di dashboard layout.
-- [ ] Active state memakai `usePathname`.
-- [ ] Collapse state memakai cookie shadcn.
-- [ ] Mobile sidebar tampil sebagai Sheet.
+- [x] Tambahkan komponen shadcn sidebar.
+- [x] `src/components/layout/app-sidebar.tsx` membaca `sidebarNav`.
+- [x] `SidebarProvider` dipasang di dashboard layout.
+- [x] Active state memakai `usePathname`.
+- [x] Collapse state memakai cookie shadcn.
+- [x] Mobile sidebar tampil sebagai Sheet.
 
 ### 1.3 Topbar
 
-- [ ] `src/components/layout/site-header.tsx` sticky.
-- [ ] Trigger sidebar, separator, theme toggle, dan user dropdown.
-- [ ] User dropdown masih placeholder tanpa auth.
+- [x] `src/components/layout/site-header.tsx` sticky.
+- [x] Trigger sidebar, separator, theme toggle, dan user dropdown.
+- [x] User dropdown masih placeholder tanpa auth.
 
 ### 1.4 PageShell dan state contract
 
-- [ ] `src/components/layout/page-shell.tsx`.
-- [ ] Props `title`, `description`, `children`, dan `actions`.
-- [ ] Dashboard placeholder memakai PageShell.
-- [ ] `src/components/custom/error-state.tsx` untuk pesan generik dan retry.
-- [ ] `src/components/custom/empty-state.tsx` untuk data kosong yang bukan error.
-- [ ] `app/error.tsx` dan `app/not-found.tsx` menjadi bagian kontrak error, bukan ditunda ke Sprint 2.
+- [x] `src/components/layout/page-shell.tsx`.
+- [x] Props `title`, `description`, `children`, dan `actions`.
+- [x] Dashboard placeholder memakai PageShell.
+- [x] `src/components/custom/error-state.tsx` untuk pesan generik dan retry.
+- [x] `src/components/custom/empty-state.tsx` untuk data kosong yang bukan error.
+- [x] `app/error.tsx` dan `app/not-found.tsx` menjadi bagian kontrak error, bukan ditunda ke Sprint 2.
 
-## Sprint 2 — Polish
+## Sprint 2 — Breadcrumbs Dinamis + Command Menu
 
-- [ ] Breadcrumbs dari pathname.
-- [ ] Command menu dengan shortcut Cmd/Ctrl+K.
-- [ ] Placeholder users dan settings pages.
-- [ ] Error pages sudah menjadi bagian Sprint 1.
+- [x] Resolver breadcrumb pure dengan prioritas config, manual labels, humanize fallback, sanitasi, dan depth limit.
+- [x] Breadcrumb dinamis dari `usePathname` dengan `aria-current` pada halaman aktif.
+- [x] Command menu dengan shortcut Ctrl/Cmd+K, cleanup listener, pencarian lokal, dan navigasi dari config.
+- [x] Integrasi `BreadcrumbNav` dan `CommandMenu` ke `SiteHeader`.
+- [x] Error state tanpa hasil, disabled menu, dan navigasi tanpa raw HTML.
+
+### 2.3 Placeholder Pages — Hardening Pass
+
+- [x] `src/lib/search-params.ts` memvalidasi `q`, `page`, dan `pageSize` dengan batas aman serta fallback never-throw.
+- [x] `error.tsx` route group dashboard menjaga sidebar dan topbar tetap aktif.
+- [x] `not-found.tsx` route group dashboard memakai shell dashboard.
+- [x] `loading.tsx` route group dashboard menyediakan skeleton layout.
+- [x] `users/page.tsx` menjadi pola referensi list page dengan query tervalidasi.
+- [x] `users/[id]/page.tsx` menjadi pola detail page dengan `notFound()` netral.
+
+## Fase 2 — CMS Settings (setelah auth + DB jalan)
+
+| Sprint | Item |
+|---|---|
+| C1 | DB schema: tabel settings + navigation_items (Drizzle) |
+| C2 | Settings service (Zod parse + fallback default) + actions (RBAC admin) |
+| C3 | /settings General: nama, tagline, favicon & logo upload |
+| C4 | /settings Navigation: menu manager CRUD + nested sub-item |
+| C5 | /settings Login Page: editor konten login |
+| C6 | Sidebar & halaman publik membaca dari DB (service switch) |
 
 ## Sprint 3 — DataTable Pattern
 
@@ -118,10 +139,11 @@ Dashboard menampilkan sidebar, topbar sticky, user placeholder, dan area konten 
 |---|---:|---|
 | 0 | ½ hari | Konfigurasi, env, security headers, dark mode |
 | 1 | 1–2 hari | Shell dashboard lengkap |
-| 2 | 1 hari | Breadcrumbs, command menu, error pages |
+| 2 — CMS Settings | 1–2 hari | Polish navigasi dan halaman pengaturan CMS |
 | 3 | 1–2 hari | DataTable pattern |
 
-- [ ] (sprint-4) Jika user login membuka `/`, tampilkan landing dengan CTA "Buka Dashboard" (bukan Masuk/Daftar) — cek session di PublicHeader (server component, bisa `await auth()`)
+- [x] PublicHeader memakai CTA anonim ke `/login` dan `/register`; session nyata belum tersedia.
+- [ ] (sprint-4) Jika autentikasi dan route dashboard selesai, tampilkan CTA "Buka Dashboard" hanya setelah session nyata terverifikasi di server.
 
 ## Keputusan Desain
 
