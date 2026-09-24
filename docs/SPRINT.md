@@ -19,7 +19,7 @@ Rencana kerja membangun layout dashboard template. Setiap sprint menghasilkan pe
 | Konsistensi pola | `docs/CONVENTIONS.md` dan `docs/ARCHITECTURE.md` | Review tiap task |
 | Error handling RFC 9457 | `docs/ERROR-HANDLING.md` dan `src/lib/error.ts` | Tiap action, handler, dan UI |
 
-## Sprint 0 — Fondasi
+## 🎯 Sprint 0 — Fondasi ✅ SELESAI
 
 ### 0.1 Konfigurasi aplikasi terpusat
 

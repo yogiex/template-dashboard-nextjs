@@ -14,6 +14,14 @@ Template minimal untuk membangun dashboard Next.js berbasis App Router. Template
 - Security header dasar pada seluruh route.
 - Dokumentasi setup, arsitektur, konvensi, keamanan, dan performa.
 - Route dasar di `src/app/`.
+- Dark mode dengan `next-themes` dan pilihan Light, Dark, serta System.
+- Fondasi RFC 9457 dengan taxonomy error, `problemResponse`, dan logger terstruktur.
+- Konfigurasi aplikasi terpusat di `src/config/site.ts`.
+
+## Status Sprint
+
+- [x] Dark mode
+- [ ] Layout dashboard (sidebar + topbar) — Sprint 1 berikutnya
 
 ## Stack
 
