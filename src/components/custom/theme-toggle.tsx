@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { Check, Laptop, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
