@@ -17,6 +17,7 @@ Template minimal untuk membangun dashboard Next.js berbasis App Router. Template
 - Dark mode dengan `next-themes` dan pilihan Light, Dark, serta System.
 - Fondasi RFC 9457 dengan taxonomy error, `problemResponse`, dan logger terstruktur.
 - Konfigurasi aplikasi terpusat di `src/config/site.ts`.
+- Notifications UI di topbar dengan unread count dan status dibaca tersimpan lokal per browser.
 
 ## Status
 
@@ -32,6 +33,8 @@ Template minimal untuk membangun dashboard Next.js berbasis App Router. Template
 - [x] DataTable server-driven `/users` dengan schema → service → actions  ← Sprint 3
 - [x] CRUD form reference create/edit user dengan RHF + Zod + fieldErrors  ← Sprint F2
 - [x] Roles UI reference dengan role summary dan matriks permission read-only  ← Sprint F3
+- [x] Notifications UI di topbar dengan schema, mock service, localStorage read state, dan unread count  ← Sprint F4
+- [ ] Integrasi notification backend untuk delivery, sinkronisasi lintas perangkat, dan enforcement
 - [ ] Fase 2: CMS settings panel (GOALS.md) — nama app, favicon, menu manager
 
 ## Stack
@@ -131,6 +134,7 @@ Folder `src/features/`, `src/components/`, dan `src/lib/` sudah dibuat. Service 
 | Dokumen | Isi |
 | --- | --- |
 | [Setup](docs/SETUP.md) | Prasyarat, instalasi, environment variable, command, dan checklist setup |
+| [Integration Handbook](docs/INTEGRATION.md) | **Panduan recycle: menghubungkan backend asli, checklist 30 menit** |
 | [Arsitektur](docs/ARCHITECTURE.md) | Prinsip, lifecycle request, RSC, Client Component, service layer, data flow, dan cache |
 | [Konvensi](docs/CONVENTIONS.md) | Naming, komponen, styling, TypeScript, route, data, API, dan Git |
 | [Keamanan](docs/SECURITY.md) | Checklist OWASP, authorization, input, secret, session, logging, dan SSRF |
@@ -146,14 +150,15 @@ Template ini dirancang untuk dijadikan fondasi aplikasi baru, bukan aplikasi das
 1. **Buat salinan project atau repository baru.** Jangan mengubah history repository asal. Ganti nama package, metadata, branding, dan konfigurasi deployment sesuai aplikasi.
 2. **Verifikasi fondasi.** Jalankan `npm ci`, `npm run lint`, dan `npm run build` sebelum menambah fitur.
 3. **Tentukan kebutuhan fitur.** Tuliskan use case, actor, sumber data, aturan authorization, kebutuhan environment, dan state UI yang diperlukan.
-4. **Buat struktur seperlunya.** Tambahkan route di `src/app/`, komponen bersama di `src/components/`, dan logika domain di `src/features/<fitur>/` sesuai tanggung jawabnya.
-5. **Tambahkan service layer di server.** Semua akses database/API internal, session, permission, dan ownership check harus berada di server, bukan di komponen client atau presentasional.
-6. **Tambahkan autentikasi bila dibutuhkan.** Pilih library auth, definisikan session dan route privat, lalu lakukan guard awal sekaligus pemeriksaan ulang pada setiap boundary sensitif.
-7. **Tambahkan database bila dibutuhkan.** Pilih ORM atau driver, schema, migrasi, environment server, adapter, dan transaction boundary.
-8. **Tambahkan komponen UI seperlunya.** Gunakan Tailwind token yang ada. shadcn dapat digunakan melalui generator, tetapi hasil generate harus ditinjau dan dependency yang ditambahkan harus dicatat.
-9. **Tambahkan validasi dan keamanan.** Validasi params, search params, form, body, cookie, dan input eksternal di server. Jangan mengirim secret, token, atau entity database mentah ke client.
-10. **Tambahkan state loading, error, empty, dan not-found.** Letakkan fallback sedekat mungkin dengan segment atau bagian data yang lambat.
-11. **Uji dan dokumentasikan.** Tambahkan test sesuai risiko, perbarui dokumentasi, jalankan lint/build/test, lalu catat konfigurasi environment baru di `.env.example` tanpa secret.
+4. **Ikuti `docs/INTEGRATION.md` untuk menghubungkan backend-mu.**
+5. **Buat struktur seperlunya.** Tambahkan route di `src/app/`, komponen bersama di `src/components/`, dan logika domain di `src/features/<fitur>/` sesuai tanggung jawabnya.
+6. **Tambahkan service layer di server.** Semua akses database/API internal, session, permission, dan ownership check harus berada di server, bukan di komponen client atau presentasional.
+7. **Tambahkan autentikasi bila dibutuhkan.** Pilih library auth, definisikan session dan route privat, lalu lakukan guard awal sekaligus pemeriksaan ulang pada setiap boundary sensitif.
+8. **Tambahkan database bila dibutuhkan.** Pilih ORM atau driver, schema, migrasi, environment server, adapter, dan transaction boundary.
+9. **Tambahkan komponen UI seperlunya.** Gunakan Tailwind token yang ada. shadcn dapat digunakan melalui generator, tetapi hasil generate harus ditinjau dan dependency yang ditambahkan harus dicatat.
+10. **Tambahkan validasi dan keamanan.** Validasi params, search params, form, body, cookie, dan input eksternal di server. Jangan mengirim secret, token, atau entity database mentah ke client.
+11. **Tambahkan state loading, error, empty, dan not-found.** Letakkan fallback sedekat mungkin dengan segment atau bagian data yang lambat.
+12. **Uji dan dokumentasikan.** Tambahkan test sesuai risiko, perbarui dokumentasi, jalankan lint/build/test, lalu catat konfigurasi environment baru di `.env.example` tanpa secret.
 
 Contoh alur request yang diharapkan:
 
