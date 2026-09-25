@@ -28,7 +28,10 @@ Template minimal untuk membangun dashboard Next.js berbasis App Router. Template
 - [x] Layout dashboard (sidebar + topbar)  ← Sprint 1
 - [x] Breadcrumb dinamis + command menu Ctrl/Cmd+K  ← Sprint 2
 - [x] Dashboard content: KPI cards, lazy-loaded charts, dan activity table  ← Sprint 2.5
+- [x] Settings `/settings/general` dan `/settings/appearance` dengan brand color switcher  ← Sprint F1
 - [x] DataTable server-driven `/users` dengan schema → service → actions  ← Sprint 3
+- [x] CRUD form reference create/edit user dengan RHF + Zod + fieldErrors  ← Sprint F2
+- [x] Roles UI reference dengan role summary dan matriks permission read-only  ← Sprint F3
 - [ ] Fase 2: CMS settings panel (GOALS.md) — nama app, favicon, menu manager
 
 ## Stack

@@ -120,14 +120,38 @@ Rencana kerja membangun layout dashboard template. Setiap sprint menghasilkan pe
 - [x] Tabel server-driven dengan sort, search, filter role, pagination, dan loading skeleton.
 - [x] Validasi `searchParams` di page sebelum service dipanggil.
 
-## Sprint 4+ — Backlog
+## Sprint F1 — Settings + Appearance
 
-- Auth dan keputusan database.
-- RBAC helper.
-- DB nyata menggantikan mock service.
-- Charts dengan dynamic import.
-- Notifications dropdown.
-- i18n bila diperlukan.
+- [x] `src/config/appearance.ts` menjadi satu sumber warna preset dengan whitelist CSS variables.
+- [x] Schema/service settings memakai Zod, localStorage adapter, dan fallback default.
+- [x] Brand color picker menerapkan override `--primary`, `--ring`, dan sidebar variables.
+- [x] Anti-flash script memakai preset konstanta server-generated sebelum hydration.
+- [x] `/settings/general` jujur read-only dari `siteConfig`; `/settings/appearance` menyimpan preferensi lokal.
+
+## Sprint F2 — CRUD Form Pattern
+
+- [x] `createUserSchema` dan `updateUserSchema` memakai aturan field yang sama.
+- [x] `createUser` dan `updateUser` memvalidasi ulang payload serta business rule email unik.
+- [x] Create/update action memakai rate limit, session placeholder, RBAC admin, envelope, dan revalidasi.
+- [x] `UserFormDialog` dapat dipakai untuk create maupun edit dengan RHF + Zod.
+- [x] `fieldErrors` server disuntikkan ke field form; dialog tetap terbuka saat gagal.
+- [x] Halaman `/users` memakai `CreateUserButton` dan row action Edit.
+
+## Sprint F3 — Roles UI
+
+- [x] Kontrak role statis admin/editor/viewer, deskripsi, permission key, dan matrix read-only.
+- [x] Service frontend-only menghitung user per role dari mock user service.
+- [x] Boundary action read-only memakai session placeholder, admin guard, rate limit, envelope, dan audit log.
+- [x] Halaman `/roles` menampilkan overview role, jumlah user, dan matriks izin.
+- [x] Menu sidebar `Roles` terhubung ke route `/roles` serta ikut tersedia pada consumer navigasi.
+- [ ] Permission enforcement dan role mutation membutuhkan backend RBAC; UI ini bukan pengganti authorization.
+
+## Sprint F4+ — Frontend-Only Backlog
+
+- User detail/profile page.
+- Notifications UI.
+- `docs/INTEGRATION.md` untuk mengganti mock service dengan API.
+- Auth backend, database, ORM, dan Better Auth di luar scope template.
 
 ## Komponen shadcn Kumulatif
 
@@ -150,8 +174,8 @@ Dashboard menampilkan sidebar, topbar sticky, user placeholder, dan area konten 
 | 2 — CMS Settings | 1–2 hari | Polish navigasi dan halaman pengaturan CMS |
 | 3 | 1–2 hari | DataTable pattern |
 
-- [x] PublicHeader memakai CTA anonim ke `/login` dan `/register`; session nyata belum tersedia.
-- [ ] (sprint-4) Jika autentikasi dan route dashboard selesai, tampilkan CTA "Buka Dashboard" hanya setelah session nyata terverifikasi di server.
+- [x] PublicHeader memakai CTA anonim ke `/login` dan `/register`; session production belum tersedia.
+- [ ] (backend-plug) Jika recycler menghubungkan auth, tampilkan CTA "Buka Dashboard" hanya setelah session diverifikasi di server.
 
 ## Keputusan Desain
 
