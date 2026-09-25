@@ -2,7 +2,7 @@
 
 Template minimal untuk membangun dashboard Next.js berbasis App Router. Template ini menyediakan fondasi Next.js, React, TypeScript, Tailwind CSS, konfigurasi ESLint, security header dasar, dan dokumentasi arsitektur serta standar implementasi.
 
-> **Status saat ini:** proyek masih berada pada tahap fondasi. Autentikasi, database, service layer, dashboard UI, dan fitur produksi belum diimplementasikan.
+> **Status saat ini:** fondasi aplikasi, UI publik, UI autentikasi, shell dashboard, dan dashboard content visual tersedia. Integrasi autentikasi production, database, RBAC, dan fitur produksi belum diimplementasikan.
 
 ## Fitur Saat Ini
 
@@ -18,10 +18,18 @@ Template minimal untuk membangun dashboard Next.js berbasis App Router. Template
 - Fondasi RFC 9457 dengan taxonomy error, `problemResponse`, dan logger terstruktur.
 - Konfigurasi aplikasi terpusat di `src/config/site.ts`.
 
-## Status Sprint
+## Status
 
-- [x] Dark mode
-- [ ] Layout dashboard (sidebar + topbar) — Sprint 1 berikutnya
+- [x] Setup Next.js + shadcn/ui + dokumentasi standar
+- [x] Dark mode + security headers + error taxonomy (RFC 9457)
+- [x] Auth UI routes (`/login`, `/register`, `/forgot-password`, `/reset-password`, `/check-email`, `/invite/[token]`, `/verify-email`), config-driven dan tanpa session production
+- [x] Public pages (`/`, `/terms`, `/privacy`)
+- [x] PublicHeader memakai CTA anonim yang valid ke `/login` dan `/register`; session production belum tersedia
+- [x] Layout dashboard (sidebar + topbar)  ← Sprint 1
+- [x] Breadcrumb dinamis + command menu Ctrl/Cmd+K  ← Sprint 2
+- [x] Dashboard content: KPI cards, lazy-loaded charts, dan activity table  ← Sprint 2.5
+- [x] DataTable server-driven `/users` dengan schema → service → actions  ← Sprint 3
+- [ ] Fase 2: CMS settings panel (GOALS.md) — nama app, favicon, menu manager
 
 ## Stack
 
@@ -32,7 +40,7 @@ Template minimal untuk membangun dashboard Next.js berbasis App Router. Template
 | TypeScript | `^5`, strict mode dan alias `@/*` |
 | Tailwind CSS | `^4`, dikonfigurasi melalui PostCSS |
 | ESLint | `^9` dengan `eslint-config-next` |
-| shadcn/ui | Konfigurasi generator tersedia; komponen belum diimplementasikan |
+| shadcn/ui | Komponen UI dasar tersedia melalui generator; primitive dapat diperluas |
 | Node.js | Minimal `20.9.0` |
 | npm | Rekomendasi `10` atau lebih baru |
 
@@ -100,7 +108,11 @@ Struktur aktual saat ini:
 ├── docs/                       # dokumentasi standar implementasi
 ├── public/                     # aset statik
 ├── src/
-│   └── app/                    # App Router, layout, dan route dasar
+│   ├── app/                    # App Router, layouts, dan routes
+│   ├── components/              # Layout, custom, dan UI primitives
+│   ├── config/                  # Config aplikasi dan halaman
+│   ├── features/                # Feature modules dan service layer
+│   └── lib/                     # Error, environment, logger, dan utilities
 ├── components.json             # konfigurasi shadcn
 ├── eslint.config.mjs           # konfigurasi lint
 ├── next.config.ts              # konfigurasi Next.js dan security headers
@@ -109,7 +121,7 @@ Struktur aktual saat ini:
 └── tsconfig.json               # TypeScript dan alias @/*
 ```
 
-Struktur target seperti `src/features/`, `src/components/`, `src/lib/`, dan service layer **belum dibuat**. Folder tersebut hanya boleh dibuat ketika ada fitur nyata yang membutuhkan tanggung jawab tersebut.
+Folder `src/features/`, `src/components/`, dan `src/lib/` sudah dibuat. Service layer dan fitur domain berkembang sesuai kebutuhan nyata, bukan sebagai target yang harus diisi dengan data dummy.
 
 ## Dokumentasi
 
@@ -119,6 +131,7 @@ Struktur target seperti `src/features/`, `src/components/`, `src/lib/`, dan serv
 | [Arsitektur](docs/ARCHITECTURE.md) | Prinsip, lifecycle request, RSC, Client Component, service layer, data flow, dan cache |
 | [Konvensi](docs/CONVENTIONS.md) | Naming, komponen, styling, TypeScript, route, data, API, dan Git |
 | [Keamanan](docs/SECURITY.md) | Checklist OWASP, authorization, input, secret, session, logging, dan SSRF |
+| [GOALS](docs/GOALS.md) | Visi, objective, fase, dan success criteria CMS-like |
 | [Performa](docs/PERFORMANCE.md) | Budget performa, rendering, data fetching, cache, bundle, dan monitoring |
 | [Security Presets](SECURITY_PRESETS.md) | Ringkasan baseline keamanan dan kontrol yang masih perlu ditambahkan |
 | [Contributing](CONTRIBUTING.md) | Workflow kontribusi, format commit, dan checklist pull request |
@@ -152,6 +165,7 @@ Server Component digunakan secara default. Tambahkan `"use client"` hanya pada b
 Baseline yang sudah diterapkan:
 
 - `X-DNS-Prefetch-Control: on`
+- `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload` (aktif pada deployment HTTPS)
 - `X-Frame-Options: DENY`
 - `X-Content-Type-Options: nosniff`
 - `Referrer-Policy: strict-origin-when-cross-origin`
@@ -159,14 +173,14 @@ Baseline yang sudah diterapkan:
 
 Control keamanan berikut **belum diimplementasikan**:
 
-- Autentikasi dan session.
+- Autentikasi dan session production.
 - RBAC, permission, ownership check, dan guard route privat.
 - Database, schema, migrasi, dan parameterized query.
-- Validasi input boundary dan rate limiting.
 - Content Security Policy (CSP).
-- Logging keamanan terstruktur dan monitoring.
-- Secret manager serta validator environment server.
-- Dependency audit pipeline dan update otomatis.
+- Monitoring keamanan dan audit dependency.
+- Secret manager untuk runtime production.
+
+Fondasi yang sudah tersedia mencakup validasi input pada UI auth, rate limiting in-memory untuk auth UI, logger terstruktur, dan typed environment. Auth/session production belum tersedia.
 
 Jangan menganggap security header yang tersedia sebagai pengganti autentikasi, authorization, validasi input, atau threat model. Lihat [docs/SECURITY.md](docs/SECURITY.md).
 
@@ -180,14 +194,15 @@ Status di bawah memisahkan fondasi yang sudah tersedia dari pekerjaan yang belum
 | React, TypeScript strict, Tailwind CSS, ESLint | **Selesai** | Fondasi dan konfigurasi tersedia |
 | Security header dasar | **Selesai** | Dikonfigurasi di `next.config.ts` |
 | Dokumentasi arsitektur dan standar implementasi | **Selesai** | Tersedia di `docs/` |
-| Dashboard shell, sidebar, topbar, dan navigasi | **Belum diimplementasikan** | Struktur target bukan bagian yang sudah tersedia |
-| Komponen shadcn/ui | **Belum diimplementasikan** | `components.json` tersedia, tetapi komponen belum di-generate |
+| Dashboard shell, sidebar, topbar, dan navigasi | **Sebagian tersedia** | Shell, sidebar, topbar, `/dashboard`, `/users`, `/settings` tersedia; layout mobile dan detail navigasi menunggu verifikasi browser |
+| Komponen shadcn/ui | **Sebagian tersedia** | Primitive UI auth dan layout dasar tersedia |
+| UI autentikasi | **Sebagian tersedia** | Login/register/forgot/reset tersedia; service masih placeholder |
 | Autentikasi dan session | **Belum diimplementasikan** | Library, guard, cookie, dan authorization belum ada |
 | Database, ORM, schema, dan migrasi | **Belum diimplementasikan** | Belum ada koneksi atau service database |
-| Service layer dan fitur domain | **Belum diimplementasikan** | Folder fitur/service dibuat saat kebutuhan nyata muncul |
-| Server Actions dan Route Handler | **Belum diimplementasikan** | Endpoint dan mutasi belum tersedia |
-| Loading, error, empty state, dan not-found | **Belum diimplementasikan** | Hanya fallback bawaan yang mungkin tersedia dari framework |
-| Validasi input dan rate limiting | **Belum diimplementasikan** | Wajib ditambahkan pada boundary sensitif |
+| Service layer dan fitur domain | **Sebagian tersedia** | Feature auth dan contract service tersedia |
+| Server Actions dan Route Handler | **Sebagian tersedia** | Auth Server Actions tersedia; endpoint database belum |
+| Loading, error, empty state, dan not-found | **Sebagian tersedia** | Root fallback tersedia; coverage per segment belum lengkap |
+| Validasi input dan rate limiting | **Sebagian tersedia** | Auth UI schema dan in-memory limiter tersedia |
 | CSP, logging keamanan, audit dependency, monitoring | **Belum diimplementasikan** | Persyaratan keamanan untuk fitur produksi |
 | CI/CD dan deployment | **Belum diimplementasikan** | Belum ada pipeline otomatis yang ditentukan dalam template |
 

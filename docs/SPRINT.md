@@ -103,14 +103,22 @@ Rencana kerja membangun layout dashboard template. Setiap sprint menghasilkan pe
 | C5 | /settings Login Page: editor konten login |
 | C6 | Sidebar & halaman publik membaca dari DB (service switch) |
 
+### 2.5 Dashboard Content — KPI, Charts, Activity
+
+- [x] Config metadata KPI dan ikon berada di `src/config/dashboard.ts`.
+- [x] Schema Zod dan mock service tervalidasi di `src/features/dashboard`.
+- [x] KPI cards, revenue chart, traffic chart, dan activity table tersedia di `/dashboard`.
+- [x] Recharts dimuat secara lazy melalui client dynamic wrappers.
+- [x] Loading dashboard mencerminkan tiga zona dan fallback empty state aman.
+
 ## Sprint 3 — DataTable Pattern
 
-- [ ] Feature user dengan schema, types, mock service, dan actions.
-- [ ] Service dan action wajib melempar atau memetakan error ke `AppError` dari taxonomy.
-- [ ] Form memakai envelope `{ success, error }` dan menampilkan `fieldErrors` serta pesan kode secara seragam.
-- [ ] Tabel punya empty state dan error state yang berbeda.
-- [ ] Tabel client dengan sort, search, filter role, pagination, dan loading skeleton.
-- [ ] Validasi `searchParams` di page sebelum service dipanggil.
+- [x] Feature user dengan schema, types, mock service, dan actions.
+- [x] Service dan action wajib melempar atau memetakan error ke `AppError` dari taxonomy.
+- [x] Form memakai envelope `{ success, error }` dan menampilkan `fieldErrors` serta pesan kode secara seragam.
+- [x] Tabel punya empty state dan error state yang berbeda.
+- [x] Tabel server-driven dengan sort, search, filter role, pagination, dan loading skeleton.
+- [x] Validasi `searchParams` di page sebelum service dipanggil.
 
 ## Sprint 4+ — Backlog
 
