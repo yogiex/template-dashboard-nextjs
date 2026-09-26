@@ -1,0 +1,73 @@
+name: Code Graph
+
+on:
+  pull_request:
+    branches:
+      - dev
+  push:
+    branches:
+      - dev
+
+concurrency:
+  group: code-graph-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  graph:
+    name: graph (madge dependency graph)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      # Kegagalan generator (madge) tetap fatal; hanya laporan arsitektur di bawah yang non-blocking.
+      - name: Generate graph
+        run: npm run graph
+      - name: Upload graph.json
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-graph
+          path: src/features/code-graph/data/graph.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Report architecture summary
+        continue-on-error: true
+        run: |
+          node -e '
+            const fs = require("node:fs");
+            const file = process.argv[1];
+            let raw;
+            try {
+              raw = fs.readFileSync(file, "utf-8");
+            } catch (error) {
+              console.log(`::warning::graph.json tidak bisa dibaca (${file}): ${error.message}`);
+              process.exit(0);
+            }
+            let graph;
+            try {
+              graph = JSON.parse(raw);
+            } catch (error) {
+              console.log(`::warning::graph.json bukan JSON valid: ${error.message}`);
+              process.exit(0);
+            }
+            const stats = graph?.stats ?? {};
+            const cycles = Array.isArray(graph?.cycles) ? graph.cycles : [];
+            const violationEdges = Number(stats.violationEdges ?? 0);
+            const boundaryViolations = Number(stats.boundaryViolations ?? 0);
+            console.log(`::notice::nodes=${graph?.nodes?.length ?? 0} edges=${graph?.edges?.length ?? 0}`);
+            console.log(`::warning::violationEdges=${violationEdges} (tidak memblokir CI)`);
+            console.log(`::warning::boundaryViolations=${boundaryViolations} (tidak memblokir CI)`);
+            console.log(`::warning::cycles=${cycles.length} (tidak memblokir CI)`);
+          ' src/features/code-graph/data/graph.json
