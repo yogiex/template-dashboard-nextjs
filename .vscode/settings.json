@@ -1,0 +1,71 @@
+{
+  "editor.formatOnSave": false,
+  "editor.formatOnPaste": false,
+  "editor.formatOnType": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.codeActionsOnSaveTimeout": 5000,
+  "editor.detectIndentation": false,
+  "editor.insertSpaces": true,
+  "editor.tabSize": 2,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": "active",
+  "editor.rulers": [100],
+  "editor.inlayHints.enabled": "on",
+  "editor.linkedEditing": true,
+  "editor.unicodeHighlight.ambiguousCharacters": false,
+  "editor.unicodeHighlight.invisibleCharacters": false,
+  "editor.acceptSuggestionOnEnter": "smart",
+  "editor.suggest.preview": true,
+
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "files.exclude": {
+    "**/.next": true,
+    "**/node_modules": true,
+    "**/tsconfig.tsbuildinfo": true,
+    "**/package-lock.json": true
+  },
+
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.format.enable": false,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.preferences.preferTypeOnlyAutoImports": true,
+  "typescript.suggest.preferences.includeInlayParameterNameHints": "all",
+  "typescript.suggest.preferences.includeInlayParameterNameHintsWhenArgumentMatchesName": false,
+  "typescript.suggest.preferences.includeInlayFunctionParameterTypeHints": true,
+  "typescript.suggest.preferences.includeInlayVariableTypeHints": true,
+  "typescript.suggest.preferences.includeInlayVariableTypeHintsWhenTypeMatchesName": false,
+  "typescript.suggest.preferences.includeInlayPropertyDeclarationTypeHints": true,
+  "typescript.suggest.preferences.includeInlayFunctionLikeReturnTypeHints": true,
+  "typescript.suggest.preferences.includeInlayEnumMemberValueHints": true,
+  "typescript.suggest.preferences.includeInlayIndexSignatureParameterNameHints": "all",
+
+  "javascript.format.enable": false,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+
+  "eslint.useFlatConfig": true,
+  "eslint.validate": ["javascript", "typescript", "typescriptreact", "json", "jsonc"],
+  "eslint.format.enable": false,
+  "eslint.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+
+  "diffEditor.renderSideBySide": true,
+  "diffEditor.ignoreTrimWhitespace": false,
+
+  "search.exclude": {
+    "**/.next": true,
+    "**/node_modules": true
+  },
+  "search.useIgnoreFiles": true,
+
+  "git.autofetch": true,
+  "git.enableSmartCommit": false,
+  "git.suggestSmartCommit": false,
+  "git.confirmSync": true
+}

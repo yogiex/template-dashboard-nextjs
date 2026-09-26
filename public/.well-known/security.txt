@@ -1,0 +1,48 @@
+# security.txt — RFC 9116
+# Baris "Field: value" adalah isi yang dibaca parser. Baris komentar (diawali
+# "#") diabaikan parser dan aman dipakai untuk penjelasan, selama tidak
+# berubah menjadi nilai field.
+#
+# File statis tidak bisa membaca NEXT_PUBLIC_APP_URL, jadi nilai field di bawah
+# harus disalin manual dari konstanta `securityTxtConfig` di
+# `src/config/site.ts` (sumber kebenaran yang didokumentasikan, termasuk tanda
+# `isPlaceholder`). Sinkronkan kedua file setiap kali domain/kontak berubah.
+
+# PENTING — placeholder, ganti sebelum deploy:
+# security@example.com adalah domain contoh yang dicadangkan RFC 2606 dan tidak
+# milik siapa pun. Pemilik repo WAJIB mengganti seluruh file ini dengan kontak
+# keamanan miliknya (alamat email, PGP fingerprint, atau form yang diawasi).
+Contact: mailto:security@example.com
+
+# Kedaluwarsa satu tahun dari 2026-09-25. Perbarui setiap tahun; kalau lewat
+# tanggal ini, parser akan menandai file sebagai kedaluwarsa.
+Expires: 2027-09-25
+
+# Bahasa yang dikuasai tim keamanan.
+Preferred-Languages: id, en
+
+# URL canonical. Saat ini siteConfig.url (src/config/site.ts) memakai default
+# http://localhost:3000, jadi canonical ditulis apa adanya. GANTI dengan domain
+# production (https) sebelum deploy bersama placeholder di atas.
+Canonical: http://localhost:3000/.well-known/security.txt
+
+# Halaman kebijakan. Repo ini punya route lokal (src/app/(public)/privacy),
+# jadi path relatif dipakai; relative reference di-resolve terhadap URL file ini.
+Policy: /privacy
+
+# Acknowledgments: halaman pengakuan bug bounty TIDAK ADA di repo ini,
+# jadi field ini sengaja dibiarkan kosong (opsional menurut RFC 9116).
+# Aktifkan hanya setelah membuat halaman pengakuan, contoh:
+# Acknowledgments: /security/acknowledgments
+
+# ---- Catatan pemeliharaan (di luar blok field di atas) ----
+# Kapan harus di-update:
+# - sebelum deploy pertama ke domain publik (ganti contact, canonical, expires);
+# - minimal sekali per tahun, tepat sebelum tanggal Expires;
+# - setiap kali contact keamanan (email, tim, PGP key) berubah;
+# - setiap kali route /privacy dipindah atau diganti, agar Policy tetap valid.
+# File ini tidak menggantikan kontak pelaporan yang sebenarnya: repo ini belum
+# punya bagian "Reporting security issues" di README/CONTRIBUTING maupun
+# docs/SECURITY.md, jadi pemili repo WAJIB menambahkan kanal pelaporan (mis.
+# SECURITY.md + form Issue privat) selain file ini. security.txt hanya memberi
+# mesin pemindai (scanner/CA/researcher) titik kontak yang terstandardisasi.

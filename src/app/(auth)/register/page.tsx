@@ -1,26 +1,31 @@
 import type { Metadata } from "next";
 
+import { REGISTER_PAGE_CONFIG } from "@/config/register-page";
 import { AuthShell } from "@/features/auth/components/auth-shell";
 import { RegisterForm } from "@/features/auth/components/register-form";
-import { getLoginPageConfig } from "@/features/auth/service";
+import { getAuthPageConfig } from "@/features/auth/service";
 
 export const metadata: Metadata = {
   title: "Daftar",
+  description: "Buat akun baru untuk mulai mengelola dashboard Anda.",
+  alternates: { canonical: "/register" },
 };
 
 export default async function RegisterPage() {
-  const config = await getLoginPageConfig();
+  const config = await getAuthPageConfig();
 
   return (
     <AuthShell config={config}>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Buat akun</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Isi data berikut untuk memulai. Email harus unik.
+        <header className="space-y-2">
+          <h1 className="text-2xl font-bold tracking-tight">
+            {REGISTER_PAGE_CONFIG.title}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {REGISTER_PAGE_CONFIG.description}
           </p>
-        </div>
-        <RegisterForm submitLabel="Daftar" signInLabel="Sudah punya akun? Masuk" />
+        </header>
+        <RegisterForm config={REGISTER_PAGE_CONFIG} />
       </div>
     </AuthShell>
   );

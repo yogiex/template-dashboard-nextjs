@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,19 +21,27 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { loginAction, type ActionState } from "@/features/auth/actions";
+import {
+  loginAction,
+  type LoginActionState,
+} from "@/features/auth/actions";
 import { PasswordInput } from "@/features/auth/components/password-input";
 import {
   loginFormSchema,
   type LoginFormValues,
-  type LoginPageConfig,
+  type LoginPageFormConfig,
 } from "@/features/auth/schema";
 
 interface LoginFormProps {
-  config: LoginPageConfig;
+  config: LoginPageFormConfig;
+}
+
+function isLoginField(field: string): field is keyof LoginFormValues {
+  return field === "email" || field === "password" || field === "rememberMe";
 }
 
 export function LoginForm({ config }: LoginFormProps) {
+  const router = useRouter();
   const form = useForm<
     z.input<typeof loginFormSchema>,
     unknown,
@@ -45,23 +54,54 @@ export function LoginForm({ config }: LoginFormProps) {
       rememberMe: false,
     },
   });
-  const [actionError, setActionError] = useState<ActionState | null>(null);
-  const { form: formConfig } = config;
+  const [actionError, setActionError] = useState<LoginActionState | null>(null);
+  const [success, setSuccess] = useState(false);
+  const formConfig = config;
   const isSubmitting = form.formState.isSubmitting;
+  const error =
+    actionError && !actionError.success && !actionError.mfaRequired
+      ? actionError.error
+      : null;
+  const hasFieldErrors = Object.keys(error?.fieldErrors ?? {}).length > 0;
+  const showGeneralError = error !== null && !hasFieldErrors;
 
   const onSubmit = async (values: LoginFormValues) => {
     setActionError(null);
-    const result = await loginAction(values);
+    setSuccess(false);
 
-    if (!result.success) {
+    try {
+      const result = await loginAction(values);
+
+      if (result.success) {
+        setSuccess(true);
+        return;
+      }
+
+      // Step 2: kredensial benar tapi MFA aktif. Token sudah disimpan di cookie
+      // httpOnly oleh server action, jadi tidak ada token yang lewat URL.
+      if (result.mfaRequired) {
+        router.push(result.nextPath);
+        return;
+      }
+
       setActionError(result);
       for (const [field, messages] of Object.entries(
         result.error.fieldErrors ?? {}
       )) {
-        if (messages[0]) {
-          form.setError(field as keyof LoginFormValues, { message: messages[0] });
+        const message = messages[0];
+        if (message && isLoginField(field)) {
+          form.setError(field, { message });
         }
       }
+    } catch (submitError) {
+      console.error("[login-form] submit failed", submitError);
+      setActionError({
+        success: false,
+        error: {
+          code: "INTERNAL_ERROR",
+          message: "Terjadi kesalahan. Silakan coba lagi.",
+        },
+      });
     }
   };
 
@@ -69,13 +109,21 @@ export function LoginForm({ config }: LoginFormProps) {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4"
+        className="space-y-5"
         noValidate
         aria-busy={isSubmitting}
       >
-        {actionError && !actionError.success && !actionError.error.fieldErrors ? (
+        {showGeneralError ? (
           <Alert variant="destructive" role="alert">
-            <AlertDescription>{actionError.error.message}</AlertDescription>
+            <AlertDescription>{error?.message}</AlertDescription>
+          </Alert>
+        ) : null}
+
+        {success ? (
+          <Alert role="status">
+            <AlertDescription>
+              Berhasil masuk (mock). Di produksi Anda akan diarahkan ke dashboard.
+            </AlertDescription>
           </Alert>
         ) : null}
 
@@ -83,7 +131,7 @@ export function LoginForm({ config }: LoginFormProps) {
           control={form.control}
           name="email"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="space-y-2">
               <FormLabel>{formConfig.emailLabel}</FormLabel>
               <FormControl>
                 <Input
@@ -91,6 +139,7 @@ export function LoginForm({ config }: LoginFormProps) {
                   autoComplete="email"
                   autoFocus
                   placeholder={formConfig.emailPlaceholder}
+                  className="h-10"
                   {...field}
                 />
               </FormControl>
@@ -103,12 +152,12 @@ export function LoginForm({ config }: LoginFormProps) {
           control={form.control}
           name="password"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="space-y-2">
               {formConfig.showForgotPassword ? (
                 <div className="flex items-center justify-between">
                   <FormLabel>{formConfig.passwordLabel}</FormLabel>
                   <Link
-                    href="/forgot-password"
+                    href={formConfig.forgotPasswordHref}
                     className="text-sm text-muted-foreground underline-offset-4 hover:underline"
                   >
                     {formConfig.forgotPasswordLabel}
@@ -121,6 +170,7 @@ export function LoginForm({ config }: LoginFormProps) {
                 <PasswordInput
                   autoComplete="current-password"
                   placeholder={formConfig.passwordPlaceholder}
+                  className="h-10"
                   {...field}
                 />
               </FormControl>

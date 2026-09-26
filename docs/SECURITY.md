@@ -35,9 +35,14 @@ Setiap bagian membedakan kondisi saat ini dari pekerjaan yang masih harus dilaku
 - `X-Frame-Options: DENY`
 - `X-Content-Type-Options: nosniff`
 - `Referrer-Policy: strict-origin-when-cross-origin`
+- `X-Permitted-Cross-Domain-Policies: none`
 - `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+- `Cross-Origin-Opener-Policy: same-origin`
+- `Cross-Origin-Resource-Policy: same-origin`
+- `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`
+- `Content-Security-Policy` statis (`default-src 'self'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, `frame-ancestors 'none'`), dengan `script-src`/`style-src` memakai `'unsafe-inline'` dan `'unsafe-eval'` hanya di development
 
-**Persyaratan mendatang.** CSP belum diaktifkan. CSP dengan nonce, domain koneksi, dan resource pihak ketiga harus disesuaikan setelah autentikasi dan integrasi produksi tersedia. CSP harus ditambahkan dan diuji sebelum production apabila aplikasi membutuhkan policy ketat. Jangan menganggap daftar header di atas sebagai pengganti CSP atau validasi output.
+**Persyaratan mendatang.** CSP yang aktif bersifat statis dan memuat `'unsafe-inline'`; itu pilihan sadar demi static generation (nonce memaksa seluruh halaman menjadi dynamic). Saat backend dan integrasi produksi tersedia, ganti dengan pola nonce di `proxy.ts`, tambahkan origin connect/font/image yang dipakai integrasi, dan uji ulang. Jangan menganggap daftar header di atas sebagai pengganti escaping, validasi output, atau otorisasi.
 
 ### Authorization
 
@@ -114,6 +119,18 @@ Setiap bagian membedakan kondisi saat ini dari pekerjaan yang masih harus dilaku
 - Set timeout, redirect policy, ukuran response, dan ukuran request yang masuk akal.
 - Jangan meneruskan cookie atau header authorization ke origin yang tidak dipercaya.
 - Resolusi DNS dan tujuan host harus ikut ditinjau untuk mencegah bypass allowlist melalui redirect atau DNS rebinding.
+
+## Cookie consent
+
+**Sudah diterapkan sebagai mekanisme, bukan sebagai jaminan hukum.** Banner di `src/components/custom/cookie-consent.tsx` menyimpan pilihan pengguna (`accepted` / `rejected`) di `localStorage` dengan key berversi `cookie-consent-v1` melalui `src/features/cookie-consent/`. Copy seluruhnya ada di `src/config/cookie-consent.ts`.
+
+Yang perlu diketahui saat menutup atau me-review:
+
+- Template **tidak memuat analytics, ads, error tracking, maupun tracker pihak ketiga apa pun**. Consent di sini adalah affordance UX, bukan tameng hukum; ia tidak membuat aplikasi otomatis complies dengan GDPR atau UU PDP.
+- Banner tidak memblokir halaman, tidak memakai `dangerouslySetInnerHTML`, dan tidak melakukan request keluar. Satu-satunya efek eksternal adalah `CustomEvent` lokal `cookie-consent:change` di `window`.
+- Setiap consent state hanya dibalik oleh pilihan pengguna sendiri, bukan oleh cookie pihak ketiga. Jangan membaca consent dari banner sebagai bukti persetujuan yang sah secara hukum.
+- Penegakan yang sebenarnya berada di sisi integrator: analytics atau tracker baru **wajib** dimuat hanya setelah `detail.choice === "accepted"` (default harus menahan skrip), dan daftar kategori cookie harus jujur dengan yang benar-benar dipakai.
+- Copy banner menyatakan template tidak memakai pelacak pihak ketiga. Instance yang menambahkan tracker wajib memperbarui copy tersebut agar tidak menyesatkan.
 
 ## Error handling
 

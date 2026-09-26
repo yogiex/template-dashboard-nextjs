@@ -9,6 +9,14 @@
 - `console.log` dan `console.error` dilarang; semua logging menggunakan `logger`.
 - `error.tsx` menampilkan pesan generik dan retry tanpa detail teknis.
 
+## Aturan Content-Driven UI (lihat docs/GOALS.md)
+
+- DILARANG hardcode teks UI, item menu, atau konten halaman di komponen.
+- Semua konten dari: `src/config/*.ts` (fase 1) atau service settings (fase 2).
+- Config baru WAJIB punya: skema Zod + default values + type export.
+- Ikon di config disimpan sebagai STRING (icon map), bukan komponen.
+- Config dari sumber mana pun harus lolos parse Zod; gagal → fallback default.
+
 ## Required Documents
 
 - Security: `docs/SECURITY.md`

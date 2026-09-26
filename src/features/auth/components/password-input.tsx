@@ -35,17 +35,16 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
           id={id}
           aria-describedby={describedBy || undefined}
           type={isVisible ? "text" : "password"}
-          className={cn("pr-10", className)}
+          className={cn("pr-11", className)}
         />
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          tabIndex={-1}
           aria-label={isVisible ? "Sembunyikan password" : "Tampilkan password"}
           aria-pressed={isVisible}
           onClick={() => setIsVisible((visible) => !visible)}
-          className="absolute right-0 top-0 h-full w-10 text-muted-foreground hover:bg-transparent hover:text-foreground"
+          className="absolute top-1/2 right-1 size-8 -translate-y-1/2 rounded-md p-0 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100"
         >
           {isVisible ? (
             <EyeOff className="h-4 w-4" aria-hidden="true" />

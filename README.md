@@ -34,6 +34,7 @@ Template minimal untuk membangun dashboard Next.js berbasis App Router. Template
 - [x] CRUD form reference create/edit user dengan RHF + Zod + fieldErrors  ← Sprint F2
 - [x] Roles UI reference dengan role summary dan matriks permission read-only  ← Sprint F3
 - [x] Notifications UI di topbar dengan schema, mock service, localStorage read state, dan unread count  ← Sprint F4
+- [x] Advanced theme palette dengan custom hex, skala semantic/chart, live preview, dan import/export JSON  ← Sprint F6
 - [ ] Integrasi notification backend untuk delivery, sinkronisasi lintas perangkat, dan enforcement
 - [ ] Fase 2: CMS settings panel (GOALS.md) — nama app, favicon, menu manager
 

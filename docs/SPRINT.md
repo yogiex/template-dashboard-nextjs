@@ -139,19 +139,150 @@ Rencana kerja membangun layout dashboard template. Setiap sprint menghasilkan pe
 
 ## Sprint F3 — Roles UI
 
-- [x] Kontrak role statis admin/editor/viewer, deskripsi, permission key, dan matrix read-only.
-- [x] Service frontend-only menghitung user per role dari mock user service.
-- [x] Boundary action read-only memakai session placeholder, admin guard, rate limit, envelope, dan audit log.
-- [x] Halaman `/roles` menampilkan overview role, jumlah user, dan matriks izin.
-- [x] Menu sidebar `Roles` terhubung ke route `/roles` serta ikut tersedia pada consumer navigasi.
+- [x] `src/config/roles.ts` menjadi catalog permission frontend statis dan whitelist.
+- [x] `features/role/schema.ts` memvalidasi role ID, `userCount`, dan permission ID terhadap whitelist.
+- [x] `features/role/service.ts` memakai `safeParse` never-throw dan fallback role kosong.
+- [x] Halaman `/roles` menampilkan 3 kartu role, jumlah user, dan matriks izin terkelompok per resource.
+- [x] `PermissionToggle` read-only, aksesibel, dan siap dihubungkan ke action backend.
+- [x] Menu sidebar `Roles` terhubung ke route `/roles` serta consumer navigasi.
 - [ ] Permission enforcement dan role mutation membutuhkan backend RBAC; UI ini bukan pengganti authorization.
 
-## Sprint F4+ — Frontend-Only Backlog
+## Sprint F4 — Notifications UI
+
+- [x] Schema membatasi ID, panjang field, timestamp, jumlah notifikasi, dan `href` ke path internal.
+- [x] Service memakai validasi Zod dan never-throw dengan fallback kosong; daftar notifikasi masih mock frontend.
+- [x] `useNotifications` memuat status read dari localStorage dan menjadi satu pemilik state notifikasi interaktif.
+- [x] Dropdown notifikasi terhubung ke topbar, menampilkan unread count, skeleton, empty state, dan aksi tandai dibaca.
+- [x] Preferensi hanya disimpan lokal per browser dan tidak merupakan persistence production.
+
+## Sprint F6 — Advanced Theme Palette
+
+- [x] `src/lib/color.ts` mengonversi hex ke OKLCH tanpa dependency dan menghasilkan 11 variabel semantic/chart.
+- [x] `ALLOWED_THEME_VARS` dan schema membatasi key serta shape `oklch()`/`light-dark()` dari localStorage/import.
+- [x] Custom color picker, preset palette, reset, live preview, dan export/import JSON terhubung di Appearance.
+- [x] `color-scheme`, token semantic shadcn, chart variables, dan anti-flash script memakai kontrak theme yang sama.
+- [x] Light/dark palette memakai `light-dark()`; preset dan custom color tetap kompatibel.
+- [ ] Penyimpanan lokal dan import/export bukan sinkronisasi lintas perangkat; backend/CSP production berada di luar scope.
+
+## Sprint F7 — Code Dependency Graph
+
+Tooling untuk maintainer: memetakan dependensi `src/` lalu memvisualisasikannya
+di `/settings/code-graph`. Ini bukan bagian dari CMS goals (`docs/GOALS.md` §5)
+dan tidak masuk success criteria §4.
+
+### F7.1 Generator
+
+- [x] `scripts/code-graph.sh` mengorkestrasi madge, cek siklus, dan transform; path dihitung dari `BASH_SOURCE` sehingga bisa dipanggil dari direktori mana pun.
+- [x] `scripts/code-graph-transform.js` menormalkan output `madge --json` menjadi kontrak `CodeGraphData` (`types.ts`): `label`, `type` dari ekstensi, `boundary` dari directive, `deps` per node.
+- [x] Kategori mengikuti layout asli repo termasuk route group (`app/(dashboard)`, `app/(auth)`, `app/(public)`).
+- [x] Dua pemeriksaan arsitektur: `violation` (lib ke feature) dan `boundaryViolation` (server-only ke client).
+- [x] Siklus dari `madge --circular` diratakan jadi satu string per siklus sehingga `cycles.length` berarti jumlah siklus.
+- [x] `npm run graph`, `graph:quick`, dan `graph:features` terdaftar di `package.json`.
+- [x] `graph.json` sengaja tidak masuk `.gitignore` supaya ikut ter-commit dan halaman tetap render tanpa menjalankan script.
+
+### F7.2 Halaman
+
+- [x] Halaman static di `src/app/(dashboard)/settings/code-graph`; `graph.json` dibaca dari disk saat render, divalidasi dengan Zod longgar, dan jatuh ke empty state bila file hilang atau bentuknya salah.
+- [x] `force-static` sengaja tidak dipakai — tidak ada route yang memakainya di repo ini dan `cacheComponents` tidak aktif (`ARCHITECTURE.md` §9).
+- [x] Canvas React Flow dimuat lazy lewat `next/dynamic` dengan `ssr: false`; skeleton mencerminkan grid akhir supaya tidak ada layout shift.
+- [x] Layout dagre arah `LR`, filter kategori plus search path, filter khusus violation, MiniMap, dan detail sheet per node.
+- [x] Warna kategori dan edge berasal dari `lib/color.ts` (`light-dark()`), bukan hex atau kelas Tailwind hardcode.
+- [x] Seluruh copy dari `src/config/code-graph.ts`.
+
+### F7.3 Yang masih di luar scope
+
+- [ ] `violation` hanya mencakup arah lib ke feature. Aturan yang lebih ketat di `AGENTS.md` (shared code di `lib`/`components` tidak boleh meng-import feature) belum dideteksi.
+- [ ] `graph.json` masih dibangun manual lewat `npm run graph`; belum ada pre-commit hook atau build step yang menghasilkan otomatis.
+- [ ] Halaman belum punya guard authz. Membaca peta arsitektur setara membocorkan struktur internal, jadi perlu pemeriksaan yang sama seperti `/settings/logs` saat backend tersedia.
+- [ ] Belum ada test untuk `lib/layout.ts` atau `lib/color.ts`; `src/lib/color.test.ts` sudah menjadi pola yang bisa diikuti.
+
+## Sprint 7.1 — Audit Foundation ✅ SELESAI (dengan koreksi dari rencana)
+
+Rencana asli menyebut Sprint 7.1 sebagai "Audit Foundation" dan mengira modul audit belum ada. Setelah diverifikasi terhadap kode, **`src/features/audit/` sudah ada dan lebih matang dari rencana**, dan UI pembacanya juga sudah ada. Catatan di bawah menyebut apa yang benar-benar dikerjakan, apa yang tersingkir karena desain yang lebih baik sudah ada lebih dulu, dan apa yang masih hilang. Detail kontrak ada di `docs/AUDIT.md`.
+
+### 7.1 Sudah ada sebelumnya, bukan hasil sprint ini
+
+- [x] `src/features/audit/schema.ts` — kontrak Zod (`AUDIT_CATEGORIES`, `AUDIT_SEVERITIES`, `AUDIT_RESULTS`, `auditEventInputSchema`, `auditQuerySchema`).
+- [x] `src/features/audit/types.ts` — re-export tipe + `IntegrityReport`.
+- [x] `src/features/audit/lib/log-audit.ts` — `logAudit()` sebagai satu-satunya pintu tulis, dibungkus `try/catch` yang tidak pernah melempar.
+- [x] `src/features/audit/lib/store.ts` — store in-memory di `globalThis`, hash chain, batas 5000 entry, `droppedEntries`.
+- [x] `src/features/audit/lib/integrity.ts` — `computeEntryHash()`, `verifyChain()`, `buildIntegrityReport()`.
+- [x] `src/features/audit/lib/categories.ts` — `AUDIT_ACTIONS`, satu-satunya sumber nama `action` (27 konstanta). Nilai string dibekukan sebagai kontrak.
+- [x] `src/features/audit/lib/severity.ts` — `DEFAULT_SEVERITY` dan `normalizeSeverity()`; lantai severity per kategori, hanya `security` yang punya lantai di atas `info`.
+- [x] `src/features/audit/actions.ts` — jalur baca lewat Server Action: `queryAuditEventsAction()` dan `getAuditOverviewAction()`.
+- [x] Test: `lib/store.test.ts`, `lib/log-audit.test.ts`, `lib/integrity.test.ts`, `lib/severity.test.ts`.
+- [x] `src/features/audit/service.ts` — `queryAuditEvents()`, `getAuditSummary()`, `verifyAuditIntegrity()` (`import "server-only"`).
+- [x] `src/lib/redact.ts` — redaksi bersama, sudah ada dan sudah dipakai log, metrik, dan UEBA.
+- [x] `src/lib/request-context.ts` — `getRequestContext()` / `getSafeRequestContext()` yang sudah meng-hash IP dan memotong user-agent.
+- [x] UI pembaca `/settings/logs` — `src/app/(dashboard)/settings/logs/page.tsx` sudah `force-dynamic` dan sudah memanggil `getLogOverview()` serta `verifyAuditIntegrity()` langsung.
+
+### 7.2 Item rencana yang TIDAK jadi — tersingkir oleh desain yang lebih baik
+
+| Direncanakan | Yang benar-benar ada | Alasan |
+|---|---|---|
+| `features/audit/queue.ts` | `features/audit/lib/store.ts` | Antrean hanya akan menjadi lapisan write-only di depan sebuah array. Yang benar-benar dibutuhkan adalah append berantai dengan state `head`, dan `store.ts` + `log-audit.ts` sudah mengimplementasikan itu. Layer tambahan menambah hop tanpa menambah jaminan. |
+| `features/audit/redact.ts` | `src/lib/redact.ts` | Redaksi tidak milik audit. `redactTags()` sudah dipakai `src/lib/logger.ts`, `src/lib/request-context.ts`, `src/features/observability/`, dan `src/features/ueba/lib/anomaly.ts`. Menaruhnya di `features/audit/` akan membuat siklus import dan memaksa modul metrik bergantung pada fitur audit. `log-audit.ts` memanggil `redactTags()` yang sama, jadi aturannya tidak bisa berbeda antar sink. |
+| Halaman audit baru | `/settings/logs` yang sudah ada | Halaman kedua yang membaca store yang sama hanya jadi dua presentasi dari satu data tanpa sumber tambahan. Kekurangan yang nyata bukan "tidak ada UI", melainkan tidak adanya filter di UI — lihat 7.4. |
+| Adapter persistence / skema DB | store in-memory, dengan catatan target di `store.ts:11-12` | Belum ada backend, jadi adapter DB hanya menambah interface tanpa implementasi. Catatan target (tabel `audit_events` dengan kolom `hash`/`previous_hash` dan index `(timestamp, category, actor_id)`) sudah ditulis di tempat yang benar. |
+
+Nama file di rencana juga perlu dikoreksi karena berbeda dari implementasi: entrypoint tulisnya `lib/log-audit.ts`, bukan `log-audit.ts` di root fitur.
+
+### 7.3 Call site yang benar-benar ada (hasil `grep -rn "logAudit(" src/`)
+
+- [x] `src/features/auth/actions.ts` — 9 call site, category `auth` dan `security`.
+- [x] `src/features/user/actions.ts` — 4 call site, category `authz` dan `data`.
+- [x] `src/features/log-management/lib/disposal-queue.ts` — 3 call site, category `log`.
+- [x] `src/features/contact/actions.ts` — 2 call site, category `data` dan `security`.
+- [x] `src/features/organization/actions.ts` — 1 call site, category `data`.
+- [x] Lima dari enam kategori punya call site nyata; kategori `config` belum dipakai.
+- [x] Tidak ada call site di `features/role/` maupun `features/roles/`. Klaim lama bahwa audit dipakai di `roles/` tidak benar.
+- [x] Call site yang sudah ada masih menulis `action` sebagai literal mentah, bukan konstanta `AUDIT_ACTIONS`. Migrasi itu belum dikerjakan; `auditEventInputSchema` juga masih menerima string bebas, bukan enum.
+
+### 7.4 Yang benar-benar masih hilang
+
+- [ ] **Tidak durable.** Store in-memory satu proses. Hilang saat restart/deploy, dan tidak konsisten di deployment multi-replica. Lihat `docs/AUDIT.md` §"Apa yang Mock dan Tidak Durable".
+- [ ] **Guard authz sudah ada tapi masih dekoratif.** `actions.ts:99-107` sudah menjalankan `requireSession()` → `requireRole(session, "admin")` → `enforceRateLimit(session.id, purpose)`, jadi urutan dan bentuk pemeriksaannya sudah sama dengan action lain. Tetapi `requireSession()` di `src/lib/rbac.ts:15-17` masih mengembalikan `{ id: "usr_placeholder", role: "admin" }` untuk semua pemanggil, sehingga tidak ada yang ditolak. `actions.ts:88-98` sendiri menandai ini `TODO(Sprint 7.3)`. `features/audit/service.ts` dan route `/settings/logs` tetap tanpa guard sama sekali.
+- [ ] **Cakupan test belum tuntas.** `store`, `log-audit`, `integrity`, dan `severity` sudah ada test, tetapi `actions.ts` dan `service.ts` belum, dan `verifyChain()` pada store yang sudah overflow belum tercakup.
+- [ ] **Filter UI belum dipakai.** `auditQuerySchema` sudah mendukung `category`, `severity`, `result`, `action`, `actorId`, `from`/`to`, dan paginasi 10–100; `/settings/logs` hanya mengirim `pageSize`.
+- [ ] **`userAgent` pada event tidak dipotong ke 120 karakter** dan `actor.email`/`actor.role` tidak masuk redaksi — hanya `metadata` yang disapu. Ini celah privasi yang diketahui, bukan hal yang bisa diasumsikan aman.
+- [ ] **Verifikasi rantai memberi false positive setelah overflow.** Begitu store melewati 5000 entry, `verifyChain()` melaporkan `brokenAtIndex: 0` karena entry pertama yang tersisa masih memegang `previousHash` milik entry yang sudah di-`splice`, sedangkan `verifyChain()` selalu mulai dari `null`. Komentar di `store.ts:59-60` menganggapnya "verifikasi parsial"; perilakunya bukan begitu. Perlu diperbaiki atau didokumentasikan di UI.
+- [ ] **Jejak "terakhir diverifikasi" NOOP di production.** `verifyIntegrityWithTimestamp()` mengembalikan state lama tanpa memverifikasi bila `NODE_ENV === "production"`, jadi panel integrity di production akan permanen menampilkan "belum pernah diverifikasi".
+- [ ] **Tidak ada alerting atas rantai rusak.** `src/features/log-management/lib/disposal.ts:117` menyatakan sendiri bahwa ini belum ada.
+
+## Sprint 7.3 — UI Pembaca Audit Log ✅ SELESAI
+
+Menutup celah "Filter UI belum dipakai" di §7.4 dengan satu route pembaca baru,
+`/settings/audit`, yang berjalan paralel dengan `/settings/logs`: `/settings/logs`
+tetap fokus pada retensi, disposal, dan integritas; `/settings/audit` fokus pada
+**menjelajah event dengan filter**. Keduanya membaca store yang sama.
+
+### 7.3.1 Yang dikirim
+
+- [x] `src/app/(dashboard)/settings/audit/page.tsx` — Server Component di bawah layout settings, jadi tanpa `PageShell` dan tanpa `<main>` tambahan (§14.6); `force-dynamic` dan `robots: { index: false, follow: false }`.
+- [x] Halaman hanya meratakan `searchParams` (Promise di Next 16) dan meneruskannya ke `queryAuditEvents()`; validasi, coercion, dan batas `page`/`pageSize` tetap milik `auditQuerySchema`.
+- [x] `baseQuery` untuk `AuditPagination` berisi kunci filter aktif tanpa `page`.
+- [x] `src/app/(dashboard)/settings/audit/loading.tsx` — skeleton yang mencerminkan tiga zona: baris filter, blok tabel, dan baris paginasi.
+- [x] `src/config/audit-page.ts` — satu sumber copy untuk judul, label kolom, label filter, dan label paginasi (§14.7).
+- [x] Komponen di `src/features/audit/components/`: `audit-filters.tsx` (client, URL-driven), `audit-table.tsx`, `audit-pagination.tsx`, plus `audit-badge.tsx` dan `audit-detail-sheet.tsx`.
+- [x] `src/features/audit/components/audit-filters.test.tsx` — perilaku URL yang didorong `next/navigation` (mock), bukan trivia implementasi.
+- [x] `docs/ARCHITECTURE.md` §3.1, §14.7, dan §15 disinkronkan.
+
+### 7.3.2 Sengaja di luar scope
+
+- [ ] RBAC `audit:read` untuk page dan `features/audit/service.ts` — masih Sprint 8 bersama guard `/settings/logs`; `requireSession()` masih placeholder.
+- [ ] CSV export dari hasil filter.
+- [ ] Real-time tail (refresh/polling event baru).
+- [ ] Filter tanggal `from`/`to` di UI. Schema sudah menerima keduanya dan halamannya sudah meneruskannya, tapi tidak ada kontrol tanggal di filter bar.
+- [ ] UI verifikasi hash chain. `verifyAuditIntegrity()` masih hanya dipakai `/settings/logs`, dan false positive setelah overflow (§7.4) harus diperbaiki lebih dulu.
+- [ ] UI retention/disposal audit; disposisi log masih milik `/settings/logs`.
+- [ ] Stat row dari `getAuditSummary()`: perlu label baru di `AUDIT_PAGE_CONFIG` dulu, jadi tidak ditambahkan di sprint ini.
+
+## Sprint F5+ — Frontend-Only Backlog
 
 - User detail/profile page.
-- Notifications UI.
 - `docs/INTEGRATION.md` untuk mengganti mock service dengan API.
 - Auth backend, database, ORM, dan Better Auth di luar scope template.
+- [ ] Delivery, sinkronisasi lintas perangkat, dan enforcement notifikasi membutuhkan backend; UI ini bukan pengganti authorization.
 
 ## Komponen shadcn Kumulatif
 

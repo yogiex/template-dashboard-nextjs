@@ -6,24 +6,66 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "graph": "./scripts/code-graph.sh",
+    "graph:quick": "./scripts/code-graph.sh --no-cycles",
+    "graph:features": "SRC_DIR=src/features ./scripts/code-graph.sh",
+    "prepare": "husky",
+    "lint:staged": "lint-staged",
+    "commit": "node scripts/commit.mjs"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,mjs}": [
+      "eslint --fix"
+    ]
   },
   "dependencies": {
+    "@base-ui/react": "^1.8.0",
+    "@dagrejs/dagre": "^3.1.1",
+    "@hookform/resolvers": "^5.9.1",
+    "@xyflow/react": "^12.12.0",
+    "class-variance-authority": "^0.7.1",
+    "cmdk": "^1.1.1",
+    "cn": "^0.4.0",
     "lucide-react": "^1.48.0",
     "next": "16.3.6",
     "next-themes": "^0.4.6",
     "pino": "^10.3.1",
+    "qrcode.react": "^4.2.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "react-hook-form": "^7.88.0",
+    "recharts": "^3.8.0",
+    "server-only": "^0.0.1",
+    "sonner": "^2.0.8",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@clack/prompts": "^1.8.1",
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^4.7.0",
+    "@vitest/coverage-v8": "^3.2.7",
     "eslint": "^9",
     "eslint-config-next": "16.3.6",
+    "husky": "^9.1.7",
+    "jsdom": "^30.1.1",
+    "lint-staged": "^17.5.1",
+    "madge": "^8.0.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^3.2.7"
   }
 }

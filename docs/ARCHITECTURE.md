@@ -38,111 +38,327 @@ npm run start   # menjalankan hasil production build
 
 ## 3. Struktur Folder
 
-### 3.1 Struktur aktual saat ini
+### 3.1 Struktur aktual repository
 
-Repository masih berupa template awal, sehingga kode aplikasi yang benar-benar ada saat penulisan dokumen ini adalah:
+Struktur berikut mencerminkan file source dan konfigurasi yang ada di working tree saat dokumentasi ini diperbarui. Folder generated seperti `node_modules/`, `.next/`, dan `tsconfig.tsbuildinfo` sengaja tidak dicantumkan sebagai bagian source aplikasi.
 
 ```text
 .
-├── docs/
-│   ├── ARCHITECTURE.md       # panduan ini
-│   ├── CONVENTIONS.md        # naming dan aturan implementasi
-│   ├── PERFORMANCE.md        # budget dan aturan performa
-│   ├── SECURITY.md           # kontrol keamanan detail
-│   └── SETUP.md              # prasyarat, environment, dan commands
+├── .dockerignore
+├── .env.example
+├── .gitignore
+├── AGENTS.md
+├── CLAUDE.md
+├── CONTRIBUTING.md
+├── Dockerfile
+├── docker-compose.yml
+├── components.json
+├── eslint.config.mjs
+├── next-env.d.ts
+├── next.config.ts
+├── package.json
+├── package-lock.json
+├── postcss.config.mjs
+├── README.md
+├── scripts/
+│   ├── code-graph.sh
+│   └── code-graph-transform.js
+├── SECURITY_PRESETS.md
+├── tsconfig.json
+    ├── docs/
+    │   ├── ARCHITECTURE.md
+    │   ├── AUDIT.md
+    │   ├── CONVENTIONS.md
+│   ├── ERROR-HANDLING.md
+│   ├── GOALS.md
+│   ├── INTEGRATION.md
+│   ├── PERFORMANCE.md
+│   ├── SECURITY.md
+│   ├── SETUP.md
+│   └── SPRINT.md
+├── nginx/
+│   └── nginx.conf
 ├── public/
+│   ├── .well-known/
+│   │   └── security.txt
 │   ├── file.svg
 │   ├── globe.svg
 │   ├── next.svg
 │   ├── vercel.svg
-│   └── window.svg            # aset statik yang dapat diakses melalui URL publik
-├── src/
-│   └── app/
-│       ├── favicon.ico       # metadata aset App Router
-│       ├── globals.css       # global stylesheet dan token
-│       ├── layout.tsx        # root layout, fonts, dan metadata
-│       └── page.tsx          # route /
-├── components.json           # konfigurasi generator shadcn
-├── eslint.config.mjs         # konfigurasi lint
-├── next.config.ts            # konfigurasi Next.js dan security headers
-├── package.json
-├── postcss.config.mjs        # pipeline PostCSS
-└── tsconfig.json             # TypeScript dan alias @/*
+│   └── window.svg
+└── src/
+    ├── app/
+    │   ├── (auth)/
+    │   │   ├── layout.tsx
+    │   │   ├── check-email/page.tsx
+    │   │   ├── forgot-password/page.tsx
+    │   │   ├── invite/[token]/page.tsx
+    │   │   ├── login/page.tsx
+    │   │   ├── register/page.tsx
+    │   │   ├── reset-password/page.tsx
+    │   │   └── verify-email/page.tsx
+    │   ├── (dashboard)/
+    │   │   ├── layout.tsx
+    │   │   ├── loading.tsx
+    │   │   ├── error.tsx
+    │   │   ├── not-found.tsx
+    │   │   ├── dashboard/
+    │   │   │   ├── page.tsx
+    │   │   │   └── loading.tsx
+    │   │   ├── roles/
+    │   │   │   ├── page.tsx
+    │   │   │   └── loading.tsx
+    │   │   ├── settings/
+    │   │   │   ├── layout.tsx
+    │   │   │   ├── page.tsx
+    │   │   │   ├── general/page.tsx
+    │   │   │   ├── appearance/page.tsx
+    │   │   │   ├── code-graph/page.tsx
+    │   │   │   └── audit/
+    │   │   └── users/
+    │   │       ├── page.tsx
+    │   │       ├── loading.tsx
+    │   │       └── [id]/page.tsx
+│   ├── (public)/
+│   │   ├── layout.tsx
+│   │   ├── page.tsx
+│   │   ├── about/page.tsx
+│   │   ├── contact/page.tsx
+│   │   ├── privacy/page.tsx
+│   │   └── terms/page.tsx
+│   ├── api/
+│   │   └── health/
+│   │       ├── route.ts
+│   │       ├── live/route.ts
+│   │       ├── metrics/route.ts
+│   │       └── ready/route.ts
+│   ├── error.tsx
+    │   ├── favicon.ico
+    │   ├── globals.css
+    │   ├── layout.tsx
+    │   ├── maintenance/page.tsx
+    │   ├── not-found.tsx
+    │   ├── robots.ts
+    │   └── sitemap.ts
+    ├── components/
+    │   ├── custom/
+    │   │   ├── command-menu.tsx
+    │   │   ├── custom-color-picker.tsx
+    │   │   ├── empty-state.tsx
+    │   │   ├── error-state.tsx
+    │   │   ├── theme-color-picker.tsx
+    │   │   ├── theme-io.tsx
+    │   │   ├── theme-preview.tsx
+    │   │   └── theme-toggle.tsx
+    │   ├── layout/
+    │   │   ├── app-sidebar.tsx
+    │   │   ├── app-sidebar-footer.tsx
+    │   │   ├── app-sidebar-header.tsx
+    │   │   ├── breadcrumb-nav.tsx
+    │   │   ├── nav-main.tsx
+    │   │   ├── page-shell.tsx
+    │   │   ├── public-footer.tsx
+    │   │   ├── public-header.tsx
+    │   │   ├── settings-nav.tsx
+    │   │   ├── site-header.tsx
+    │   │   ├── theme-provider.tsx
+    │   │   └── user-menu.tsx
+    │   └── ui/
+    │       ├── alert-dialog.tsx
+    │       ├── alert.tsx
+    │       ├── badge.tsx
+    │       ├── breadcrumb.tsx
+    │       ├── button.tsx
+    │       ├── card.tsx
+    │       ├── chart.tsx
+    │       ├── checkbox.tsx
+    │       ├── command.tsx
+    │       ├── dialog.tsx
+    │       ├── form.tsx
+    │       ├── input-group.tsx
+    │       ├── input.tsx
+    │       ├── label.tsx
+    │       ├── select.tsx
+    │       ├── separator.tsx
+    │       ├── sheet.tsx
+    │       ├── sidebar.tsx
+    │       ├── skeleton.tsx
+    │       ├── sonner.tsx
+    │       ├── table.tsx
+    │       ├── textarea.tsx
+    │       └── tooltip.tsx
+    ├── config/
+    │   ├── appearance.ts
+    │   ├── auth-pages.ts
+    │   ├── code-graph.ts
+    │   ├── dashboard.ts
+    │   ├── login-page.ts
+    │   ├── public-pages.ts
+    │   ├── register-page.ts
+    │   ├── roles.ts
+    │   └── site.ts
+    ├── features/
+    │   ├── audit/
+    │   │   ├── components/
+    │   │   │   ├── audit-filters.tsx
+    │   │   │   ├── audit-pagination.tsx
+    │   │   │   └── audit-table.tsx
+    │   │   ├── lib/
+    │   │   │   ├── categories.ts
+    │   │   │   ├── integrity.test.ts
+    │   │   │   ├── integrity.ts
+    │   │   │   ├── log-audit.test.ts
+    │   │   │   ├── log-audit.ts
+    │   │   │   ├── severity.test.ts
+    │   │   │   ├── severity.ts
+    │   │   │   ├── store.test.ts
+    │   │   │   └── store.ts
+    │   │   ├── schema.ts
+    │   │   ├── service.ts
+    │   │   ├── types.ts
+    │   │   └── actions.ts
+    │   ├── auth/
+    │   │   ├── actions.ts
+    │   │   ├── schema.ts
+    │   │   ├── service.ts
+    │   │   └── components/
+    │   │       ├── auth-info-panel.tsx
+    │   │       ├── auth-shell.tsx
+    │   │       ├── forgot-password-form.tsx
+    │   │       ├── login-form.tsx
+    │   │       ├── login-icon-map.ts
+    │   │       ├── login-footer-links.tsx
+    │   │       ├── password-input.tsx
+    │   │       ├── password-strength-meter.tsx
+    │   │       ├── register-form.tsx
+    │   │       └── reset-password-form.tsx
+    │   ├── code-graph/
+    │   │   ├── types.ts
+    │   │   └── components/
+    │   │       └── code-graph.tsx
+    │   ├── contact/
+    │   │   ├── actions.ts
+    │   │   ├── schema.ts
+    │   │   └── components/contact-form.tsx
+    │   ├── dashboard/
+    │   │   ├── schema.ts
+    │   │   ├── service.ts
+    │   │   └── components/
+    │   │       ├── activity-table.tsx
+    │   │       ├── chart-section.tsx
+    │   │       ├── kpi-section.tsx
+    │   │       ├── revenue-chart.tsx
+    │   │       ├── revenue-chart-client.tsx
+    │   │       ├── stat-card.tsx
+    │   │       ├── traffic-chart.tsx
+    │   │       └── traffic-chart-client.tsx
+    │   ├── landing/
+    │   │   └── components/
+    │   │       ├── cta-section.tsx
+    │   │       ├── faq-accordion.tsx
+    │   │       ├── feature-grid.tsx
+    │   │       ├── hero-section.tsx
+    │   │       └── step-list.tsx
+    │   ├── legal/
+    │   │   └── components/legal-article.tsx
+    │   ├── notification/
+    │   │   ├── schema.ts
+    │   │   ├── service.ts
+    │   │   ├── components/
+    │   │   │   ├── notification-button.tsx
+    │   │   │   ├── notification-item.tsx
+    │   │   │   └── notification-list.tsx
+    │   │   └── hooks/use-notifications.ts
+    │   ├── role/
+    │   │   ├── schema.ts
+    │   │   ├── service.ts
+    │   │   └── components/
+    │   │       ├── permission-matrix.tsx
+    │   │       ├── permission-toggle.tsx
+    │   │       ├── role-card.tsx
+    │   │       └── role-list.tsx
+    │   ├── roles/
+    │   │   ├── actions.ts
+    │   │   ├── schema.ts
+    │   │   ├── service.ts
+    │   │   ├── types.ts
+    │   │   └── components/
+    │   │       ├── permission-matrix.tsx
+    │   │       ├── permission-toggle.tsx
+    │   │       ├── role-card.tsx
+    │   │       ├── role-list.tsx
+    │   │       └── roles-overview.tsx
+    │   ├── settings/
+    │   │   ├── schema.ts
+    │   │   ├── service.ts
+    │   │   ├── components/mode-toggle-section.tsx
+    │   │   ├── hooks/use-appearance.ts
+    │   │   └── lib/apply-settings.ts
+    │   └── user/
+    │       ├── actions.ts
+    │       ├── schema.ts
+    │       ├── service.ts
+    │       ├── types.ts
+    │       └── components/
+    │           ├── create-user-button.tsx
+    │           ├── data-table-pagination.tsx
+    │           ├── data-table-toolbar.tsx
+    │           ├── user-form-dialog.tsx
+    │           ├── user-row-actions.tsx
+    │           └── user-table.tsx
+    ├── hooks/
+    │   └── use-mobile.ts
+    └── lib/
+        ├── api.ts
+        ├── color.ts
+        ├── env.ts
+        ├── error.ts
+        ├── health.ts
+        ├── logger.ts
+        ├── logger-client.ts
+        ├── parse-breadcrumb.ts
+        ├── password-strength.ts
+        ├── rbac.ts
+        ├── rate-limit.ts
+        └── search-params.ts
 ```
 
-Folder di bawah ini adalah struktur target yang belum seluruhnya dibuat. Dokumentasi tidak boleh menyatakan folder tersebut sudah terimplementasi.
+### 3.2 Catatan struktur aktual
 
-### 3.2 Struktur target
+- Route group `(public)`, `(auth)`, dan `(dashboard)` tidak menambahkan prefix pada URL.
+- `src/app/` adalah routing dan composition; logic domain tetap berada di `src/features/`.
+- `src/components/ui/` berisi primitive UI, sedangkan `src/components/custom/` dan `src/components/layout/` berisi komposisi aplikasi.
+- `src/config/` menyimpan konfigurasi aplikasi non-secret. Jangan menyimpan credential di sini.
+- `src/features/auth/`, `user/`, `roles/`, `dashboard/`, `notification/`, `settings/`, `legal/`, `landing/`, `contact/`, dan `audit/` merepresentasikan domain yang sudah memiliki route atau UI.
+- Peta di §3.1 **belum lengkap** dan diperbarui bertahap per domain, bukan hasil enumerasi otomatis. Yang sudah ada di working tree tapi belum terpetakan di blok di atas: `src/features/log-management/`, `src/features/observability/`, `src/features/ueba/`, `src/features/organization/`, `src/app/(dashboard)/settings/logs/`, serta beberapa helper di `src/lib/` (`redact.ts`, `request-context.ts`, `runtime-metrics.ts`, `trace-context.ts`, `totp.ts`). Ketiadaan entry bukan bukti file tidak ada; verifikasi langsung di working tree. Karena beberapa task berjalan paralel, blok ini perlu disinkronkan sekali lagi setelah semuanya selesai.
+- `src/features/audit/` adalah fondasi audit log untuk seluruh repo dan **sudah aktif dipakai**, bukan stub. Aturannya: semua penulisan wajib lewat `logAudit()` di `lib/log-audit.ts`; `appendAuditEvent()` di `lib/store.ts` tidak boleh dipanggil dari luar `logAudit()`. Nama `action` dibekukan sebagai kontrak di `lib/categories.ts` (`AUDIT_ACTIONS`), dan `lib/severity.ts` memaksa lantai severity per kategori. Jalur baca lewat `actions.ts` sudah memakai `requireSession()` → `requireRole()` → `enforceRateLimit()`, tetapi `requireSession()` masih placeholder sehingga guard itu belum menjadi security boundary. Store-nya in-memory dengan hash chain dan batas 5000 entry, jadi audit log bukan sumber kebenaran dan bukan durable. Detail kontrak, batas redaksi, dan daftar yang masih mock ada di `docs/AUDIT.md`.
+- Helper redaksi yang dipakai audit **bukan** milik fitur audit: `redactTags()`, `redactEvidence()`, `hashIp()`, `maskEmail()`, dan `truncateUserAgent()` semuanya ada di `src/lib/redact.ts` karena dipakai bersama oleh `src/lib/logger.ts`, `src/lib/request-context.ts`, `features/observability/`, `features/ueba/`, dan `features/audit/`. Menaruinya di `features/audit/` akan membuat siklus import dan membuat aturan redaksi bisa berbeda antar sink.
+- `src/features/code-graph/` hanya berisi `types.ts` + satu client leaf `components/code-graph.tsx`. Data statisnya dibaca build-time dari `src/features/code-graph/data/graph.json`, yang dihasilkan `scripts/code-graph.sh` (`npm run graph`, alat `madge`) lewat `scripts/code-graph-transform.js`. Tidak ada service, schema, atau action: use case-nya hanya membaca satu file output analisis statis, bukan data user. Halaman `/settings/code-graph` memvalidasi bentuk JSON dengan `zod` dan jatuh ke empty state bila file tidak ada atau tidak valid.
+- `src/features/landing/` hanya dipakai oleh landing page `(public)/page.tsx`. Section landing adalah Server Component; FAQ memakai `<details>` native sehingga tidak menambah client boundary.
+- `src/features/contact/` memiliki `schema.ts` + `actions.ts` (server action dengan rate limit) + satu client leaf `components/contact-form.tsx`. Tidak ada Route Handler karena use case-nya form submit dari UI.
+- Config auth sudah dipisah per domain agar tidak ada dua sumber kebenaran: `config/auth-pages.ts` (branding + footer bersama untuk seluruh route auth), `config/login-page.ts` (form login), `config/register-page.ts` (form register). Service mengekspos `getAuthPageConfig()`; nama lama `getLoginPageConfig()` sudah dihapus.
+- Saat ini terdapat folder `role/` dan `roles/` dengan overlap fungsi. Audit dan konsolidasikan sebelum production agar tidak ada dua sumber kebenaran untuk permission/role.
+- `src/lib/` berisi helper lintas fitur. Modul yang membutuhkan server-only boundary harus menjaga import client secara eksplisit.
+- `src/app/api/health/` adalah satu-satunya Route Handler di repo ini. Berisi probe operasional (§15) dan tidak punya domain feature; logika bersama ada di `src/lib/health.ts`.
+- `Dockerfile`, `docker-compose.yml`, `nginx/`, dan `.dockerignore` adalah deployment support; `public/` hanya berisi aset statis.
+- `docs/` adalah dokumentasi operasional dan arsitektur, bukan runtime source.
 
-```text
-src/
-├── app/                       # entry point routing dan framework
-│   ├── (public)/              # segment route publik; parentheses tidak masuk URL
-│   ├── (auth)/                # login, register, reset password
-│   ├── (dashboard)/           # shell dashboard dan route privat
-│   │   ├── layout.tsx         # shell, sidebar, topbar, guard server
-│   │   ├── loading.tsx        # fallback saat seluruh segment dimuat
-│   │   ├── error.tsx          # error boundary segment dashboard
-│   │   ├── not-found.tsx      # fallback 404 dalam segment
-│   │   ├── page.tsx           # dashboard overview
-│   │   └── users/
-│   │       ├── page.tsx       # list users
-│   │       ├── loading.tsx
-│   │       ├── error.tsx
-│   │       ├── [userId]/      # params dinamis selalu untrusted
-│   │       │   ├── page.tsx
-│   │       │   ├── not-found.tsx
-│   │       │   └── loading.tsx
-│   │       └── actions.ts     # Server Actions segment/user
-│   ├── api/                   # Route Handler untuk kontrak HTTP eksplisit
-│   │   └── health/route.ts
-│   ├── favicon.ico
-│   ├── global-error.tsx       # kegagalan root layout; harus punya html/body
-│   ├── globals.css
-│   ├── layout.tsx             # document root, providers, metadata
-│   ├── not-found.tsx          # fallback root 404
-│   └── page.tsx               # landing page
-├── components/
-│   ├── custom/                # komposisi aplikasi di atas komponen UI
-│   ├── layout/                # sidebar, topbar, navigation shell
-│   └── ui/                    # komponen shadcn hasil generator
-├── config/                    # konstanta navigasi, site, dan environment non-secret
-├── features/
-│   └── <fitur>/
-│       ├── components/        # komponen khusus domain
-│       ├── hooks/             # hook khusus domain
-│       ├── schemas.ts         # validator input/output boundary
-│       ├── service.ts         # server-only DAL untuk use case domain
-│       ├── service.test.ts
-│       └── types.ts           # tipe internal/DTO yang aman
-├── hooks/                     # hook React generik yang reusable
-├── proxy.ts                   # opsional; sejajar dengan app/ karena project memakai src/
-└── lib/
-    ├── auth/                  # konfigurasi library auth dan helper server
-    ├── db/                    # koneksi/query adapter; tidak diimpor client
-    ├── env.ts                 # validasi environment server
-    ├── logger.ts              # logger terstruktur server
-    ├── security/              # authorization/RBAC/ownership helpers
-    └── utils.ts               # utilitas murni tanpa React
-```
-
-**Seluruh pohon pada 3.2 adalah struktur target yang belum dibuat.** Komentar, guard, feature, dan folder di dalamnya adalah rancangan implementasi, bukan klaim bahwa file tersebut sudah tersedia. Hanya struktur pada 3.1 yang menggambarkan kondisi repository saat ini.
-
-Struktur aktual dapat lebih sederhana sampai ada kebutuhan. Tambahkan folder hanya ketika memiliki tanggung jawab yang jelas; jangan membuat direktori kosong sebagai arsitektur teoretis.
+Folder generated seperti `.next/`, `node_modules/`, dan `tsconfig.tsbuildinfo` tidak masuk dalam inventaris source. Jangan commit generated output kecuali memang menjadi bagian dari strategi repository yang disepakati.
 
 ### 3.3 Tanggung jawab folder
 
 | Area | Boleh | Tidak boleh |
 | --- | --- | --- |
 | `app/` | Routing, layout, metadata, Server Action entry, Route Handler, special files | Menulis query kompleks langsung di komponen atau membocorkan logic domain ke komponen |
-| `components/ui/` | Primitive shadcn yang dihasilkan generator | Edit manual dan business logic |
-| `components/custom/` | Komposisi, variasi visual, adapter client-only | Akses database langsung |
-| `components/layout/` | Shell dan navigasi lintas halaman | Mengambil semua data dashboard secara prematur tanpa alasan |
-| `features/<fitur>/` | Use case, schema, service, DTO, komponen, dan test domain | Ketergantungan siklik antar fitur |
-| `lib/db/` | Koneksi, ORM adapter, transaksi | Diekspor ke client bundle |
-| `lib/security/` | Auth context, RBAC, ownership policy | Menyimpan secret di source |
-| `lib/utils.ts` | Fungsi murni lintas fitur | Query, I/O, secret access, atau state global mutable |
-| `hooks/` | Reusable client behavior | Akses database atau server-only module |
+| `components/ui/` | Primitive UI yang dapat digunakan ulang | Business logic, akses data langsung, atau menyimpan secret |
+| `components/custom/` | Komposisi, variasi visual, adapter client-only | Akses database atau secret secara langsung |
+| `components/layout/` | Shell, sidebar, topbar, navigasi, dan state presentasional lintas halaman | Mengambil semua data dashboard secara prematur tanpa alasan |
+| `config/` | Konstanta site, navigasi, appearance, dan copy UI non-secret | Credential, token, atau data environment sensitif |
+| `features/<fitur>/` | Use case, schema, service, DTO, komponen, dan action domain | Ketergantungan siklik antar fitur atau query dari komponen presentasional |
+| `lib/` | Helper lintas fitur, error contract, env validation, logger, RBAC, dan utilitas murni |Secret, query database, atau modul server-only yang diimpor client |
+
+`src/lib/logger.ts` (pino + `redactTags()`) melakukan `import "server-only"`, jadi ia hanya boleh masuk ke server. Modul yang butuh diagnostik di browser — misalnya service `localStorage` pada `features/settings` dan `features/notification`, yang diimpor oleh client component — memakai `src/lib/logger-client.ts` sebagai gantinya. `logger-client` sengaja tidak mencetak `context` apa pun, sehingga tidak ada jalur PII ke console browser; ia juga bukan pengganti audit log, hanya diagnostik.
+| `hooks/` | Reusable client behavior | Akses database, secret, atau server-only module |
 
 ### 3.4 Aturan dependensi
 
@@ -722,9 +938,11 @@ React meng-escape teks secara normal, tetapi raw HTML tetap berbahaya. Jangan me
 - `X-Frame-Options: DENY`;
 - `X-Content-Type-Options: nosniff`;
 - `Referrer-Policy: strict-origin-when-cross-origin`;
-- `Permissions-Policy: camera=(), microphone=(), geolocation=()`.
+- `Permissions-Policy: camera=(), microphone=(), geolocation=()`;
+- `X-Permitted-Cross-Domain-Policies: none`, `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Resource-Policy: same-origin`, `Strict-Transport-Security`;
+- `Content-Security-Policy` statis, dengan `'unsafe-inline'` untuk script/style (nonce akan mematikan static generation di App Router) dan `'unsafe-eval'` hanya di development.
 
-Header adalah defense tambahan, bukan pengganti escaping, auth, atau validasi. CSP belum aktif pada template dan harus ditambahkan setelah kebutuhan production diketahui serta diuji.
+Header adalah defense tambahan, bukan pengganti escaping, auth, atau validasi. CSP yang aktif sengaja longgar pada script/style; pola nonce di `proxy.ts` adalah upgrade berikutnya setelah kebutuhan production diketahui, dan harus diuji terhadap fonts, Next.js, dan integrasi pihak ketiga.
 
 ### 10.5 Server-only boundary
 
@@ -755,6 +973,8 @@ Di self-host multi-instance, gunakan `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` yang s
 ### 10.7 Logging dan privacy
 
 Log event auth success/failure, perubahan role, export/download, dan akses data sensitif. Gunakan request ID, actor ID, resource ID, timestamp, dan hasil. Redact password, token, cookie, authorization, full payload, dan PII yang tidak diperlukan. Jangan log raw exception response dari database jika dapat mengandung query/value; simpan correlation ID dan detail terklasifikasi di secure log sink.
+
+Implementasi requirements tersebut di repo ini sudah ada di `src/features/audit/`: satu pintu tulis `logAudit()` yang tidak pernah melempar exception, redaksi `metadata` melalui `redactTags()` yang sama dengan metrik, dan hash chain SHA-256 per entry dengan verifikasi `verifyChain()`. Yang **belum** ada adalah durability, guard authz saat baca, dan alerting. Baca `docs/AUDIT.md` sebelum menambah call site atau mengandalkan audit log sebagai bukti.
 
 ## 11. Route dan Feature Organization
 
@@ -814,6 +1034,8 @@ Mock data harus memaksa DTO hanya memiliki field public yang diharapkan. Jangan 
 
 Log harus aman dari privacy dan dapat dicari berdasarkan request ID. Error monitoring production diberi environment label agar tidak mencampur development error.
 
+Yang sudah ada di template: `src/lib/logger.ts` (pino + `redactTags()`), event store in-memory di `src/features/observability/`, audit trail berantai hash di `src/features/audit/` (lihat `docs/AUDIT.md`), dan tiga probe pada `src/app/api/health/` (§15). Yang belum ada: exporter ke sink eksternal, counter request HTTP, durasi render, dan cache hit/miss. Seluruh angka metrik **dan seluruh histori audit** saat ini hilang setiap restart, jadi jangan menjadikannya sumber alerting produksi sebelum store digantikan.
+
 ## 13. Checklist Arsitektur Fitur Baru
 
 ### Struktur dan boundary
@@ -852,3 +1074,184 @@ Log harus aman dari privacy dan dapat dicari berdasarkan request ID. Error monit
 - [ ] SSRF, open redirect, raw HTML, dan dangerous URL telah ditinjau.
 - [ ] Security header, CSP, cookie, dan deployment config sesuai environment.
 - [ ] Lint, type/build, test, dan observability diperiksa sebelum merge.
+
+## 14. Konvensi Implementasi di Project Ini
+
+Bagian ini menerjemahkan prinsip di atas menjadi aturan yang sudah terbukti dipakai di working tree. Ikuti sebelum menulis atau me-review kode baru.
+
+### 14.1 Stack UI: Base UI, bukan Radix `asChild`
+
+Primitive di `src/components/ui/` dibungkus dari `@base-ui/react`. Karena itu tombol yang berisi link memakai prop `render`, bukan `asChild`:
+
+```tsx
+import { Button } from "@/components/ui/button";
+
+<Button size="sm" render={<Link href="/login" />}>
+  Masuk
+</Button>
+```
+
+Jangan menulis `<Button asChild><Link …></Button>`; pola itu milik Radix dan tidak bekerja di sini. Bandingkan `src/components/layout/public-header.tsx` sebagai referensi.
+
+### 14.2 Form: spacing dan tinggi input
+
+`FormItem` di `src/components/ui/form.tsx:60` **tidak memiliki class default**. Akibatnya setiap pemanggil wajib memberi spacing sendiri, dan tanpa itu label, input, dan pesan error akan menempel:
+
+```tsx
+<FormItem className="space-y-2">
+  <FormLabel>…</FormLabel>
+  <FormControl>
+    <Input className="h-10" … />
+  </FormControl>
+  <FormMessage />
+</FormItem>
+```
+
+Aturan turunan yang sudah diseragamkan:
+
+- jarak antar field di level form: `space-y-5`;
+- jarak label → input → pesan di dalam satu field: `space-y-2`;
+- tinggi input form auth/kontak: `h-10` agar sama dengan tinggi tombol submit (`Input` default `h-8`, lihat `src/components/ui/input.tsx:11`).
+
+Pola ini sudah diterapkan di `login-form.tsx`, `register-form.tsx`, `forgot-password-form.tsx`, `reset-password-form.tsx`, dan `contact-form.tsx`. Ikuti, jangan improvisasi ukuran per form.
+
+### 14.3 Error handling di form client
+
+Semua form client mengikuti satu pola yang berasal dari `login-form.tsx`:
+
+```tsx
+const error = actionError && !actionError.success ? actionError.error : null;
+const hasFieldErrors = Object.keys(error?.fieldErrors ?? {}).length > 0;
+const showGeneralError = error !== null && !hasFieldErrors;
+```
+
+- Jangan memakai `!actionError.error.fieldErrors` untuk mendeteksi "tidak ada field error": objek `{}` bersifat truthy sehingga alert umum justru tidak pernah tampil.
+- Iterasi `Object.entries(errors)` harus memakai `messages?.[0]`.
+- Every submit dibungkus `try/catch` dan melakukan `console.error("[<nama-form>] submit failed", error)`, karena error event handler tidak ditangkap error boundary (lihat §8.2).
+- Kirim error per-field dengan tipe yang sudah narrowed oleh type guard (`isLoginField`, `FIELDS.includes`), bukan `as keyof Values` tanpa narrowing.
+
+### 14.4 Schema: assertion bukan cara menutup tipe
+
+Dilarang memakai assertion seperti `false as true` untuk membuat compiler lulus. Wenn sebuah field bertipe literal (`z.literal(true)`), ubah schema-nya agar tipe widenable:
+
+```ts
+acceptTerms: z.boolean().refine((value) => value === true, {
+  message: "Anda harus menyetujui syarat & ketentuan",
+});
+```
+
+Dengan begitu `defaultValues` memakai `false` tanpa casting, dan validasi server tetap sama ketatnya.
+
+### 14.5 TypeScript
+
+- `strict` aktif; hindari `any` dan non-null assertion pada data yang bisa `undefined`.
+- Gunakan `z.input<typeof schema>` untuk nilai form dan `z.infer` untuk hasil server ketika schema punya `default()` atau transform.
+- Union error memakai tipe yang valid dari `ERROR_CODES` di `src/lib/error.ts`. `INTERNAL_ERROR` adalah kode generic yang benar untuk kegagalan tak terduga; jangan mengarang kode baru di client.
+
+### 14.6 Ownership landmark `<main>`
+
+`PageShell` (`src/components/layout/page-shell.tsx:21`) sudah merender `<main>` sendiri dan hanya boleh dipakai di dalam `(dashboard)`. `AuthShell` juga merender `<main>`. Sebaliknya, `(public)/layout.tsx` sudah memiliki `<main>`, sehingga halaman di `(public)` **tidak boleh** memakai `PageShell` maupun membungkus kontennya dengan `<main>` tambahan.
+
+### 14.7 Copywriting: config-driven
+
+Seluruh teks user-facing yang ditampilkan oleh komponen di `src/features/` diambil dari `src/config/`, bukan ditulis inline:
+
+| Config | Isi | Dipakai oleh |
+| --- | --- | --- |
+| `config/site.ts` | nama, URL, nav sidebar, `publicNavConfig`, `publicHeaderConfig` | header/footer publik, sidebar dashboard |
+| `config/auth-pages.ts` | branding + footer bersama (semua route auth) | `AuthShell`, `AuthInfoPanel`, 7 route `(auth)` |
+| `config/login-page.ts` | copy form login | `LoginForm` |
+| `config/register-page.ts` | copy form register | `RegisterForm` |
+| `config/public-pages.ts` | copy landing, `aboutConfig`, `contactConfig`, `footerConfig` | `(public)/*` |
+| `config/dashboard.ts`, `config/roles.ts`, `config/appearance.ts` | data dashboard, katalog role, token tema | fitur dashboard/roles/settings |
+| `config/cookie-consent.ts` | copy banner persetujuan cookie + label privacy | `components/custom/cookie-consent.tsx` |
+| `config/audit-page.ts` | copy halaman `/settings/audit` (judul, label kolom/filter/paginasi, `basePath`, `filterKeys`) | `features/audit/components/audit-filters.tsx`, `audit-table.tsx`, `audit-pagination.tsx`, `audit-badge.tsx`, `audit-detail-sheet.tsx`, dan page-nya |
+
+Konsekuensinya: menambah halaman atau mengganti brand berarti menambah key di config, bukan menyunting komponen.
+
+### 14.8 Design token dan tema
+
+- Warna didefinisikan sebagai token semantic shadcn di `src/app/globals.css` (`:root` untuk light warm-ivory, `.dark` untuk dark). Nilai primary/chart/sideral_primary dalam satu keluarga emerald agar konsisten.
+- Hook `@theme inline` memetakan token ke `--color-*`; utility tekstual (`bg-primary`, `text-muted-foreground`, `border-border`) selalu dipakai, bukan warna hex langsung.
+- Light theme sengaja memakai ivory hangat, bukan `oklch(1 0 0)`, agar tidak menyilaukan. Ubah melalui token, bukan melalui arbitrary value.
+- `@utility bg-noise`, `bg-grid`, dan `bg-panel-grid` hanya untuk layer dekoratif; semua diberi `aria-hidden` dan `pointer-events-none`.
+- Animasi reveal memakai `animate-reveal*` di `globals.css` dan selalu prepping `motion-reduce:`.
+- Font: `Plus_Jakarta_Sans` (`--font-jakarta`) dan `Geist_Mono` (`--font-geist-mono`), dimuat di `src/app/layout.tsx` dan dipetakan lewat `--font-sans`/`--font-mono`.
+
+### 14.9 Halaman publik
+
+- Halaman dalam `(public)` adalah Server Component, static, dan compose seksi dari `src/features/landing/components/` atau config langsung. Tidak ada chart, editor, atau library client di route publik.
+- Header publik memuat nav utama (desktop saja, `hidden md:flex`), theme toggle, dan CTA akun. `ThemeToggle` adalah satu-satunya client leaf di header.
+- Footer publik digenerate dari `footerConfig` dan **hanya memuat link yang benar-benar ada**; jangan menambahkan placeholder `href="#"`.
+- Metadata: `title`, `description`, `alternates.canonical`, dan `openGraph`. Route `(auth)` tidak perlu canonical dan tetap `noindex` lewat `(auth)/layout.tsx`.
+- `sitemap.ts` memakai konstanta `LAST_MODIFIED`, bukan `new Date()`, agar crawler tidak menganggap semua halaman berubah tiap request. Tambahkan route baru ke sitemap saat dibuat.
+
+### 14.10 Link anchor
+
+Section yang menjadi tujuan navigasi harus punya `id` stabil (`#features`, `#faq`) supaya `href="/#features"` bekerja. Saat menambah section baru yang dirujuk footer atau nav, tambahkan `id` tersebut.
+
+### 14.11 Client leaf generik: `CopyButton` dan `useRecentPages`
+
+- `src/components/custom/copy-button.tsx` adalah client leaf yang membungkus `Button` (Base UI, tanpa `asChild`). Ia hanya menyalin teks: `navigator.clipboard.writeText` dengan fallback `document.execCommand("copy")` untuk konteks non-secure, feedback berupa tukar ikon + `role="status"`, reset ±2 detik, dan timeout dibersihkan saat unmount. Nilai yang disalin tidak masuk `aria-label` dan tidak pernah di-log; semua copy ada di `config/copy-button.ts`.
+- `src/hooks/use-recent-pages.ts` menyimpan "terbaru dikunjungi" di `localStorage` untuk `CommandMenu`. Penulisan hanya menerima path yang ada di `sidebarNav` (persis atau segmen turunannya), dedupe by href, most-recent-first, maks 8 entri, payload dibatasi, dan payload dari storage divalidasi ulang dengan Zod. Pembacaan memakai `useSyncExternalStore` dengan snapshot ter-cache, sehingga tidak ada `setState` sinkron di dalam effect.
+- Rekaman kunjungan dilakukan oleh `CommandMenu` sendiri lewat `usePathname()`, jadi tidak ada client component per halaman dan tidak ada provider tree baru. Jangan menambah boundary client baru hanya untuk fitur ini.
+
+### 14.12 Banner persetujuan cookie
+
+- `src/components/custom/cookie-consent.tsx` adalah client leaf yang di-mount di root `src/app/layout.tsx` (bukan di `(public)`), sehingga consent terkumpul sebelum route mana pun dirender dan tidak perlu diduplikasi per route group. Tradeoff: banner juga muncul di `(auth)` dan `(dashboard)`; secara hukum route tersebut tidak dikecualikan hanya karena berada di balik login.
+- Root layout tetap Server Component; jangan tambahkan `"use client"` di sana. Leaf ini tidak memakai `<main>`, jadi landmark §14.6 tidak berubah.
+- `localStorage` dibaca sebagai external store lewat `useSyncExternalStore` dengan server snapshot `null` (pola yang sama dengan `useRecentPages`, §14.11). Jangan menggantinya dengan `setState` sinkron di dalam effect: itu memicu hydration mismatch dan lint error `react-hooks/set-state-in-effect`.
+- Bentuk data dan key berversi ada di `src/features/cookie-consent/schema.ts`, validasi di `service.ts` (Zod, `try/catch`). Naikkan versi key saat format berubah agar user diminta memilih ulang.
+- Banner tidak memblokir halaman: `fixed`, tanpa overlay, tanpa focus trap, `aria-modal="false"`, dapat ditutup dengan Escape, dan menghormati `prefers-reduced-motion` lewat `animate-reveal motion-reduce:animate-none`.
+- Ini consent *mekanisme*, bukan analytics. Jangan menambahkan skrip pelacak ke repo ini; integrator analytics cukup listen ke `CustomEvent` `cookie-consent:change` dan wajib default memblokir skrip sampai `accepted`. Lihat `docs/SECURITY.md` §Cookie consent.
+
+## 15. Peta Route, Fitur, dan Entry Point
+
+| Route | Render | Config | Client leaf | Data |
+| --- | --- | --- | --- | --- |
+| `/` | `(public)/page.tsx` | `landingConfig` | tidak ada | statis |
+| `/about` | `(public)/about/page.tsx` | `aboutConfig` | tidak ada | statis |
+| `/contact` | `(public)/contact/page.tsx` | `contactConfig` | `features/contact/components/contact-form.tsx` | server action `sendContactMessage` |
+| `/privacy`, `/terms` | `(public)/*/page.tsx` | `legalDocuments` | tidak ada | statis |
+| `/login` | `(auth)/login/page.tsx` | `getAuthPageConfig()` + `LOGIN_PAGE_FORM_CONFIG` | `login-form.tsx` | `loginAction` |
+| `/register` | `(auth)/register/page.tsx` | `getAuthPageConfig()` + `REGISTER_PAGE_CONFIG` | `register-form.tsx` | `registerAction` |
+| `/forgot-password` | `(auth)/forgot-password/page.tsx` | `getAuthPageConfig()` | `forgot-password-form.tsx` | `forgotPasswordAction` |
+| `/reset-password` | `(auth)/reset-password/page.tsx` | `getAuthPageConfig()` | `reset-password-form.tsx` | `verifyResetToken` + `resetPasswordAction` |
+| `/check-email`, `/verify-email`, `/invite/[token]` | `(auth)/*` | `getAuthPageConfig()` | sesuai kebutuhan | server |
+| `/dashboard`, `/users`, `/roles`, `/settings` | `(dashboard)/*` | `config/dashboard.ts`, `config/roles.ts` | tabel/chart client | service per fitur |
+| `/settings/code-graph` | `(dashboard)/settings/code-graph/page.tsx` | `codeGraphConfig` | `features/code-graph/components/code-graph.tsx` | build-time read `src/features/code-graph/data/graph.json` |
+| `/settings/logs` | `(dashboard)/settings/logs/page.tsx` | `LOG_MANAGEMENT_PAGE_CONFIG` | tidak ada | `getLogOverview()` + `verifyAuditIntegrity()`, `force-dynamic` |
+| `/settings/audit` | `(dashboard)/settings/audit/page.tsx` | `AUDIT_PAGE_CONFIG` | `audit-filters.tsx` (URL-driven), `audit-pagination.tsx` | `queryAuditEvents()`, `force-dynamic` |
+| `/maintenance` | `app/maintenance/page.tsx` | — | tidak ada | statis |
+| `/api/health` | `app/api/health/route.ts` | — | tidak ada | `src/lib/health.ts`, force-dynamic, no-store |
+| `/api/health/live` | `app/api/health/live/route.ts` | — | tidak ada | idem; liveness, selalu 200 selama proses hidup |
+| `/api/health/ready` | `app/api/health/ready/route.ts` | — | tidak ada | idem; readiness, 503 bila invariant lokal gagal |
+| `/api/health/metrics` | `app/api/health/metrics/route.ts` | — | tidak ada | idem; 404 kecuali `HEALTH_METRICS_ENABLED=true` |
+| `/.well-known/security.txt` | `public/.well-known/security.txt` | `securityTxtConfig` | tidak ada | statis (RFC 9116) |
+
+Aturan saat menambah route: satu table row per route, dan semua entry harus benar-benar ada di working tree.
+
+Catatan `/api/health*`: ketiga probe adalah endpoint publik tanpa autentikasi secara desain, karena load balancer, uptime monitor, dan scraper melakukan polling dari luar aplikasi dan tidak membawa credential. Konsekuensinya, response hanya berisi boolean/angka agregat — tidak ada secret, nilai environment, path file, pesan exception, atau stack trace (§4.5, §10.4). `GET` mengembalikan `200` saat `ok` dan `503` saat `degraded`, dengan `Cache-Control: no-store`; `HEAD` mengembalikan status yang sama tanpa body. Helper bersama ada di `src/lib/health.ts`, dan versi aplikasi dibaca dari `package.json`, bukan string yang ditulis tangan. Yang diperiksa hanya invarian lokal yang benar-benar ada di repo (logger terpasang, `NEXT_PUBLIC_APP_URL` valid, store metrik terbaca, dan keberadaan `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` di production). Tidak ada probe database, cache, atau layanan eksternal karena aplikasi ini frontend-only. `security.txt` dilayani sebagai aset statis dari `public/`, bukan Route Handler; field-nya harus disalin manual dari `securityTxtConfig` di `src/config/site.ts` dan masih berisi placeholder.
+
+Catatan `/settings/logs`: ini satu-satunya route yang membaca audit store, dan render-nya `force-dynamic` karena semua angka berasal dari store in-memory yang berubah tiap request. `verifyAuditIntegrity()` dipanggil langsung dari page sehingga report integritas dihitung ulang di server, bukan diambil dari teks statis; `IntegrityPanel` juga menampilkan jejak `lastVerifiedAt` dari `features/log-management/lib/schedule.ts`, yang **sengaja NOOP di production** (`NODE_ENV === "production"` mengembalikan state lama tanpa memverifikasi), jadi di production panel itu akan permanen menampilkan "belum pernah diverifikasi". Route ini juga **belum punya guard authz** di page maupun di `features/audit/service.ts`. Detailnya di `docs/AUDIT.md`.
+
+Catatan `/settings/audit`: route pembaca event audit yang bisa difilter. Halaman hanya menormalisasi `searchParams` mentah (array diratakan ke string pertama) lalu menyerahkan objek itu ke `queryAuditEvents()`; validasi, coercion `page`/`pageSize`, dan batas nilainya tetap milik `auditQuerySchema`, jadi query rusak tidak melempar dan hanya menghasilkan halaman kosong. `baseQuery` yang dikirim ke `AuditPagination` berisi kunci filter aktif **tanpa** `page` (§4.1). Route ini `force-dynamic` karena membaca store in-memory, tidak memakai `PageShell` (§14.6), tidak punya stat row dari `getAuditSummary()` (belum ada copy di config, §14.7), dan **belum punya guard authz** — sama seperti `/settings/logs`, termasuk di `features/audit/service.ts`. Copy seluruhnya dari `AUDIT_PAGE_CONFIG`; `AuditFilters` hanya client leaf di halaman ini dan menulis state ke URL, bukan ke server.
+
+Catatan output `npm run build`: `/login` dan `/reset-password` dirender dynamic (`ƒ`) karena membaca `searchParams` (`?reset=success` dan `?token=`). Route publik lain tetap static (`○`). Jangan memaksa `searchParams` itu dibaca di client hanya demi mengembalikan route ke static — dynamic di sini memang dibutuhkan untuk state UI yang benar.
+
+## 16. Gap yang Diketahui (status per 2026-09)
+
+Verifier terhadap kode, bukan klaim dokumentasi lain:
+
+1. **Tidak ada backend.** `loginAction` memakai kredensial mock (`demo@example.com` / `password123`); `registerUser` dan `resetPassword` belum menyimpan apa pun. `src/features/auth/service.ts` masih memakai store in-memory untuk reset token.
+2. **Tidak ada session nyata.** `ThemeProvider` ada, tetapi autentikasi dan RBAC enforcement belum diimplementasikan; `src/lib/rbac.ts` dan `src/features/roles/` belum dipanggil dari boundary server.
+3. **Tidak ada automated test.** `package.json` hanya memiliki `dev`, `build`, `start`, `lint`. Test runner perlu ditambahkan sebelum template dianggap production-ready.
+4. **`role/` dan `roles/` tumpang tindih** dan belum dikonsolidasikan.
+5. **CSP masih statis dan longgar.** `next.config.ts` sudah mengirim CSP, tetapi `script-src`/`style-src` memakai `'unsafe-inline'` demi static generation. Pola nonce di `proxy.ts` belum dipakai.
+6. **Teks legal masih placeholder** bertanggal 2025 di `src/config/public-pages.ts`.
+7. **Kontak belum punya kanal nyata.** `sendContactMessage` hanya memvalidasi, me-rate-limit, dan mencatat log (`delivery: "log-only"`).
+8. **Health check hanya bersifat lokal.** `/api/health`, `/api/health/live`, dan `/api/health/ready` memeriksa invarian lokal, bukan dependensi eksternal, karena memang tidak ada dependensi seperti itu (§15). `/api/health/metrics` masih membaca store in-memory dan mati secara default. `public/.well-known/security.txt` sudah ada, tetapi `Contact` masih `security@example.com` (placeholder) dan README/CONTRIBUTING belum punya kanal pelaporan.
+8. **Consent cookie baru berupa mekanisme.** `CookieConsent` menyimpan dan memublikasikan pilihan, tetapi repo ini tidak punya analytics, jadi belum ada yang benar-benar tunduk pada pilihan itu. Integrator yang menambah tracker wajib mengimplementasikan pemblokiran default sebelum `accepted`.
+9. **Audit log ada dan dipakai, tetapi tidak durable dan tidak dijaga.** `src/features/audit/` sudah aktif: `logAudit()` dipakai di `features/auth/`, `features/user/`, `features/contact/`, `features/organization/`, dan `features/log-management/`, dan `/settings/logs` sudah menampilkannya. Yang belum ada: persistence (store in-memory 5000 entry, hilang saat restart/deploy, tidak konsisten multi-replica), authz nyata saat baca (`requireSession()` di `src/lib/rbac.ts` masih placeholder sehingga guard di `features/audit/actions.ts` tidak menolak siapa pun; `features/audit/service.ts` dan route `/settings/logs` tidak punya guard sama sekali), alerting atas rantai hash yang rusak, dan test untuk `actions.ts`/`service.ts`. Selain itu `verifyChain()` melaporkan `brokenAtIndex: 0` secara permanen setelah store overflow karena entry pertama yang tersisa masih memegang `previousHash` yang sudah tidak ada. Rinciannya di `docs/AUDIT.md`.
+
+Setiap gap di atas harus dihapus dari daftar ini ketika sudah terimplementasi, dan dokumentasinya diperbarui pada commit yang sama.

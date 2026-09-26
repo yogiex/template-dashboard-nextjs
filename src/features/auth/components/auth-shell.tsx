@@ -3,19 +3,34 @@ import { ArrowLeft } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { AuthInfoPanel } from "@/features/auth/components/auth-info-panel";
-import type { LoginPageConfig } from "@/features/auth/schema";
+import { LoginFooterLinks } from "@/features/auth/components/login-footer-links";
+import type { AuthPageConfig } from "@/features/auth/schema";
 
 interface AuthShellProps {
-  config: LoginPageConfig;
+  config: AuthPageConfig;
   children: ReactNode;
 }
 
 export function AuthShell({ config, children }: AuthShellProps) {
+  const footerLinks = config.footer?.links ?? [];
+
   return (
     <main className="grid min-h-svh lg:grid-cols-2">
-      <div className="hidden lg:block">
+      <aside className="relative hidden overflow-hidden bg-emerald-950 lg:block">
+        <div
+          aria-hidden="true"
+          className="bg-panel-grid pointer-events-none absolute inset-0"
+        />
+        <div
+          aria-hidden="true"
+          className="bg-emerald-500/20 pointer-events-none absolute -top-1/4 -right-1/4 size-[500px] rounded-full blur-[120px]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-1/4 -left-1/4 size-[400px] rounded-full bg-lime-400/10 blur-[100px]"
+        />
         <AuthInfoPanel config={config} />
-      </div>
+      </aside>
 
       <div className="relative flex flex-col px-6 py-8">
         <Link
@@ -35,20 +50,7 @@ export function AuthShell({ config, children }: AuthShellProps) {
           {children}
         </div>
 
-        <nav
-          aria-label="Footer"
-          className="flex justify-center gap-4 text-xs text-muted-foreground"
-        >
-          {config.footer.links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="underline-offset-4 hover:underline"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
+        <LoginFooterLinks links={footerLinks} />
       </div>
     </main>
   );

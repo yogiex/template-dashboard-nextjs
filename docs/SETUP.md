@@ -86,6 +86,38 @@ npm run build
 
 Jalankan `npm run start` hanya setelah `npm run build` berhasil. Untuk menguji perubahan terhadap hasil build yang lebih mendekati production, gunakan `npm run start` pada terminal terpisah dari `npm run dev`.
 
+## Monitoring
+
+Aplikasi menyediakan tiga probe operasional di `src/app/api/health/`. Semuanya publik tanpa autentikasi karena load balancer, uptime monitor, dan scraper melakukan polling dari luar aplikasi; response hanya berisi boolean dan angka agregat, tidak pernah nilai environment, path file, atau pesan exception. Helper bersama ada di `src/lib/health.ts`.
+
+Jalankan server lebih dulu (`npm run dev` atau `npm run start`), lalu:
+
+```bash
+# Health check agregat: 200 saat ok, 503 saat degraded
+curl -i http://localhost:3000/api/health
+
+# Liveness: selalu 200 selama proses hidup
+curl -i http://localhost:3000/api/health/live
+
+# Readiness: 503 bila invariant lokal gagal
+curl -i http://localhost:3000/api/health/ready
+
+# Metrik Prometheus: 404 kecuali HEALTH_METRICS_ENABLED=true
+HEALTH_METRICS_ENABLED=true npm run dev
+curl -i http://localhost:3000/api/health/metrics
+
+# security.txt (RFC 9116), dilayani sebagai aset statis
+curl -i http://localhost:3000/.well-known/security.txt
+```
+
+`/api/health`, `/api/health/live`, dan `/api/health/ready` selalu mengirim `Cache-Control: no-store`. `HEAD` tersedia pada ketiganya dan mengembalikan status yang sama tanpa body.
+
+`/api/health/metrics` mati secara default. Aktifkan dengan `HEALTH_METRICS_ENABLED=true` di `.env.local` bila memang perlu discrap; jangan mengubah default tersebut pada deployment publik. Angka metrik saat ini berasal dari store in-memory (`src/features/observability/`) dan hilang setiap restart, jadi jangan menjadikannya sumber alerting produksi.
+
+`NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` hanya wajib ada di production multi-instance, jadi hanya di environment production `serverActionsEncryptionKeyPresent` memengaruhi status readiness. Nilai kuncinya tidak pernah dikembalikan; endpoint hanya melaporkan `true` atau `false`.
+
+`public/.well-known/security.txt` masih memakai kontak placeholder. Salin nilainya dari `securityTxtConfig` di `src/config/site.ts` dan ganti dengan kontak keamanan Anda sendiri sebelum deploy, lalu perbarui juga `Expires` satu tahun ke depan.
+
 ## Develop Next.js App Router
 
 Gunakan App Router di `src/app/` untuk route, layout, metadata, dan state boundary seperti loading, error, dan not found. Server Component menjadi default. Tambahkan directive `"use client"` hanya pada komponen yang benar-benar membutuhkan state, event handler, browser API, atau dependency client-only.

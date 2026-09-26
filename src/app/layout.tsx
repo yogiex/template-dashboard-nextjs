@@ -1,27 +1,26 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 
 import { ThemeProvider } from "@/components/layout/theme-provider";
+import { CookieConsent } from "@/components/custom/cookie-consent";
 import { Toaster } from "@/components/ui/sonner";
 import { siteConfig } from "@/config/site";
-import { PRESET_COLORS } from "@/config/appearance";
+import { ALLOWED_THEME_VARS } from "@/config/appearance";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-jakarta",
+});
 
-const themeColorInitScript = `(function(){try{var m=${JSON.stringify(
-  Object.fromEntries(
-    PRESET_COLORS.filter((preset) => preset.vars.primary !== null).map((preset) => [
-      preset.id,
-      {
-        "--primary": preset.vars.primary,
-        "--primary-foreground": preset.vars.primaryForeground,
-        "--ring": preset.vars.ring,
-        "--sidebar-primary": preset.vars.sidebarPrimary,
-      },
-    ])
-  )
-)};var raw=localStorage.getItem("app-settings");if(!raw)return;var s=JSON.parse(raw);var id=s&&s.appearance&&s.appearance.primaryColor;var v=m[id];if(!v)return;var r=document.documentElement.style;for(var k in v){if(v[k])r.setProperty(k,v[k]);}}catch(e){}})();`;
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-geist-mono",
+});
+
+const themeColorInitScript = `(function(){try{var w=${JSON.stringify(ALLOWED_THEME_VARS)};var raw=localStorage.getItem("app-settings");if(!raw)return;var s=JSON.parse(raw);var v=s&&s.themeVars;if(!v)return;var r=document.documentElement.style;for(var i=0;i<w.length;i++)r.removeProperty(w[i]);for(var k in v){if(w.indexOf(k)!==-1&&/^oklch\\(|^light-dark\\(/.test(String(v[k])))r.setProperty(k,v[k]);}}catch(e){}})();`;
 
 export const metadata: Metadata = {
   title: {
@@ -40,7 +39,9 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeColorInitScript }} />
       </head>
-      <body className={`${inter.variable} min-h-full font-sans antialiased`}>
+      <body
+        className={`${jakarta.variable} ${geistMono.variable} min-h-full font-sans antialiased`}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -48,6 +49,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <CookieConsent />
           <Toaster position="bottom-right" richColors />
         </ThemeProvider>
       </body>

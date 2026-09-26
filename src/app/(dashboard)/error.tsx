@@ -1,6 +1,5 @@
 "use client"
 
-import { useEffect } from "react"
 import { AlertTriangle, RotateCcw } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -12,10 +11,6 @@ export default function DashboardError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
-  useEffect(() => {
-    console.error("dashboard_error", { digest: error.digest })
-  }, [error.digest])
-
   return (
     <div
       role="alert"
