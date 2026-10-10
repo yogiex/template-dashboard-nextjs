@@ -8,6 +8,8 @@ import { siteConfig } from "@/config/site";
  * `/settings/logs`. `/login` otomatis menutup `/login/mfa` dan
  * `/login/mfa/backup`.
  */
+export const dynamic = "force-static";
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [

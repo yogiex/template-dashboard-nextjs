@@ -24,13 +24,6 @@ export const metadata: Metadata = {
     "Ringkasan inventaris log, kapasitas store, dan analisis log berbasis NIST SP 800-92.",
 };
 
-/**
- * Server Component di bawah `(dashboard)/settings/layout.tsx`, jadi TIDAK memakai
- * `PageShell` lagi. `force-dynamic` wajib karena semua angka berasal dari
- * audit store in-memory yang berubah tiap request.
- */
-export const dynamic = "force-dynamic";
-
 export default function LogManagementPage() {
   const config = LOG_MANAGEMENT_PAGE_CONFIG;
   const overview = getLogOverview();

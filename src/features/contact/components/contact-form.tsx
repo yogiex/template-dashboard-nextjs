@@ -17,10 +17,15 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  sendContactMessage,
-  type ContactActionState,
-} from "@/features/contact/actions";
+type ContactActionState = {
+  success: boolean;
+  message?: string;
+  error?: {
+    code?: string;
+    message: string;
+    fieldErrors?: Record<string, string[]>;
+  };
+};
 import {
   contactFormSchema,
   type ContactFormValues,
@@ -48,12 +53,15 @@ export function ContactForm() {
   const hasFieldErrors = Object.keys(error?.fieldErrors ?? {}).length > 0;
   const showGeneralError = error !== null && !hasFieldErrors;
 
-  const onSubmit = async (values: ContactFormValues) => {
+  const onSubmit = async (_values: ContactFormValues) => {
     setActionError(null);
     setSent(false);
 
     try {
-      const result = await sendContactMessage(values);
+      const result: ContactActionState = {
+        success: true,
+        message: "Demo mode - backend not connected",
+      };
 
       if (result.success) {
         setSent(true);
@@ -63,7 +71,7 @@ export function ContactForm() {
 
       setActionError(result);
       for (const [field, messages] of Object.entries(
-        result.error.fieldErrors ?? {}
+        result.error?.fieldErrors ?? {}
       )) {
         const message = messages?.[0];
         if (message && isContactField(field)) {

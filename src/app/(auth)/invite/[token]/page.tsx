@@ -14,6 +14,10 @@ export const metadata: Metadata = {
   title: "Undangan",
 };
 
+export function generateStaticParams() {
+  return [{ token: "0".repeat(64) }];
+}
+
 type InvitePageProps = {
   params: Promise<{
     token: string;

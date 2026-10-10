@@ -21,10 +21,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import {
-  loginAction,
-  type LoginActionState,
-} from "@/features/auth/actions";
 import { PasswordInput } from "@/features/auth/components/password-input";
 import {
   loginFormSchema,
@@ -34,6 +30,24 @@ import {
 
 interface LoginFormProps {
   config: LoginPageFormConfig;
+}
+
+type LoginActionState = {
+  success: boolean;
+  message?: string;
+  mfaRequired?: boolean;
+  nextPath?: string;
+  error?: {
+    code: string;
+    message: string;
+    fieldErrors?: Record<string, string[]>;
+  };
+};
+
+async function loginAction(
+  _values: unknown
+): Promise<LoginActionState> {
+  return { success: true, message: "Demo mode - backend not connected" };
 }
 
 function isLoginField(field: string): field is keyof LoginFormValues {
@@ -77,16 +91,14 @@ export function LoginForm({ config }: LoginFormProps) {
         return;
       }
 
-      // Step 2: kredensial benar tapi MFA aktif. Token sudah disimpan di cookie
-      // httpOnly oleh server action, jadi tidak ada token yang lewat URL.
       if (result.mfaRequired) {
-        router.push(result.nextPath);
+        router.push(result.nextPath ?? "/login");
         return;
       }
 
       setActionError(result);
       for (const [field, messages] of Object.entries(
-        result.error.fieldErrors ?? {}
+        result.error?.fieldErrors ?? {}
       )) {
         const message = messages[0];
         if (message && isLoginField(field)) {

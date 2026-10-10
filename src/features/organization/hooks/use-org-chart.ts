@@ -2,7 +2,6 @@
 
 import { useCallback, useMemo, useRef, useState } from "react";
 
-import { getEmployeeDetailAction } from "@/features/organization/actions";
 import type { OrgChartCanvasProps } from "@/features/organization/components/org-chart-canvas";
 import type { OrgDetailSheetProps } from "@/features/organization/components/org-detail-sheet";
 import {
@@ -121,7 +120,25 @@ export function useOrgChart({
 
     void (async () => {
       try {
-        const result = await getEmployeeDetailAction(id);
+        const result: { success: true; data: EmployeeDetail } = {
+          success: true,
+          data: {
+            employee: {
+              id,
+              name: "Demo Employee",
+              role: "Demo Role",
+              department: "Demo Department",
+              email: "demo@example.com",
+              avatarUrl: undefined,
+              managerId: null,
+              directReports: 0,
+              location: "Demo Location",
+              joinedAt: "2026-01-01T00:00:00.000Z",
+            },
+            managers: [],
+            reports: [],
+          },
+        };
 
         if (detailRequestRef.current !== requestId) {
           return;
@@ -132,8 +149,6 @@ export function useOrgChart({
 
           return;
         }
-
-        setDetailError(result.error.message);
       } catch (error) {
         if (detailRequestRef.current !== requestId) {
           return;

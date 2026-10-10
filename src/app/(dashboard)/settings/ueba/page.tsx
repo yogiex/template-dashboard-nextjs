@@ -10,13 +10,6 @@ export const metadata: Metadata = {
   description: "Deteksi anomali perilaku user berdasarkan baseline historis.",
 };
 
-/**
- * Server Component di bawah `(dashboard)/settings/layout.tsx`, jadi TIDAK memakai
- * `PageShell` lagi. `force-dynamic` wajib karena data berasal dari store
- * in-memory yang berubah setiap request.
- */
-export const dynamic = "force-dynamic";
-
 export default function UebaSettingsPage() {
   const config = UEBA_PAGE_CONFIG;
   const { items } = listUserRiskProfiles({});

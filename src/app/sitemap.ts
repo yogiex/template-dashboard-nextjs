@@ -5,6 +5,8 @@ import { siteConfig } from "@/config/site";
 // Bump manual saat konten halaman publik berubah signifikan.
 const LAST_MODIFIED = new Date("2026-01-01");
 
+export const revalidate = 86400;
+
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {

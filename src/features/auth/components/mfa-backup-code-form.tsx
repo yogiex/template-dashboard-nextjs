@@ -18,10 +18,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-  verifyBackupCodeAction,
-  type ActionState,
-} from "@/features/auth/actions";
-import {
   verifyBackupCodeFormSchema,
   type VerifyBackupCodeFormValues,
 } from "@/features/auth/schema";
@@ -30,6 +26,22 @@ import type { MfaBackupCodePageConfig } from "@/config/mfa-pages";
 interface MfaBackupCodeFormProps {
   config: MfaBackupCodePageConfig;
   isDemoMode: boolean;
+}
+
+type ActionState = {
+  success: boolean;
+  message?: string;
+  error?: {
+    code: string;
+    message: string;
+    fieldErrors?: Record<string, string[]>;
+  };
+};
+
+async function verifyBackupCodeAction(
+  _values: unknown
+): Promise<ActionState> {
+  return { success: true, message: "Demo mode - backend not connected" };
 }
 
 function isCodeField(field: string): field is keyof VerifyBackupCodeFormValues {
@@ -64,7 +76,7 @@ export function MfaBackupCodeForm({ config, isDemoMode }: MfaBackupCodeFormProps
       setActionError(result);
 
       for (const [field, messages] of Object.entries(
-        result.error.fieldErrors ?? {},
+        result.error?.fieldErrors ?? {},
       )) {
         const message = messages?.[0];
 

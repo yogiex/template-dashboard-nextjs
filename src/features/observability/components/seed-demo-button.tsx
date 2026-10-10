@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { seedDemoMetricsAction } from "@/features/observability/actions";
 
 interface SeedDemoButtonProps {
   label: string;
@@ -23,7 +22,7 @@ export function SeedDemoButton({ label }: SeedDemoButtonProps) {
     setIsRunning(true);
 
     try {
-      const result = await seedDemoMetricsAction();
+      const result = { success: true, message: "Demo mode - backend not connected" };
 
       if (result.success) {
         router.refresh();

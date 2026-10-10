@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { LOGIN_PAGE_FORM_CONFIG } from "@/config/login-page";
 import { AuthShell } from "@/features/auth/components/auth-shell";
 import { LoginForm } from "@/features/auth/components/login-form";
@@ -11,17 +11,28 @@ export const metadata: Metadata = {
   description: "Masuk ke dashboard untuk melanjutkan.",
 };
 
-type LoginPageProps = {
-  searchParams: Promise<{ reset?: string }>;
-};
+function LoginFallback() {
+  return (
+    <main className="flex min-h-svh items-center justify-center px-6 py-12">
+      <div className="w-full max-w-sm space-y-6">
+        <div className="h-8 w-48 animate-pulse rounded bg-muted" />
+        <div className="h-4 w-full animate-pulse rounded bg-muted" />
+      </div>
+    </main>
+  );
+}
 
-export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const [config, query] = await Promise.all([
-    getAuthPageConfig(),
-    searchParams,
-  ]);
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginFallback />}>
+      <LoginContent />
+    </Suspense>
+  );
+}
+
+async function LoginContent() {
+  const config = await getAuthPageConfig();
   const formConfig = LOGIN_PAGE_FORM_CONFIG;
-  const passwordWasReset = query.reset === "success";
 
   return (
     <AuthShell config={config}>
@@ -32,13 +43,6 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             {formConfig.description}
           </p>
         </header>
-        {passwordWasReset ? (
-          <Alert role="status">
-            <AlertDescription>
-              Password berhasil diperbarui. Silakan masuk dengan password baru.
-            </AlertDescription>
-          </Alert>
-        ) : null}
         <LoginForm config={formConfig} />
       </div>
     </AuthShell>

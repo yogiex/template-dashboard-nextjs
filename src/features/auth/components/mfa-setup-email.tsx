@@ -5,18 +5,52 @@ import { Loader2, MailCheck } from "lucide-react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  confirmEmailEnrollmentAction,
-  startEmailEnrollmentAction,
-  type MfaActionState,
-} from "@/features/auth/actions";
 import { OtpInput } from "@/features/auth/components/otp-input";
 import type { MfaSetupEmailConfig } from "@/config/mfa-pages";
+
+type MfaActionState<T = unknown> = {
+  success: boolean;
+  message?: string;
+  data?: T;
+  error?: {
+    code: string;
+    message: string;
+    fieldErrors?: Record<string, string[]>;
+  };
+};
 
 type EmailEnrollmentState = {
   enrollmentId: string;
   maskedEmail: string;
 };
+
+async function startEmailEnrollmentAction(): Promise<
+  MfaActionState<{
+    enrollmentId: string;
+    maskedEmail: string;
+    expiresAt: number;
+  }>
+> {
+  return {
+    success: true,
+    message: "Demo mode - backend not connected",
+    data: {
+      enrollmentId: "demo-enrollment",
+      maskedEmail: "d***@example.com",
+      expiresAt: Date.now() + 600000,
+    },
+  };
+}
+
+async function confirmEmailEnrollmentAction(
+  _values: unknown
+): Promise<MfaActionState<{ backupCodes: string[] }>> {
+  return {
+    success: true,
+    message: "Demo mode - backend not connected",
+    data: { backupCodes: ["demo-code-1", "demo-code-2"] },
+  };
+}
 
 interface MfaSetupEmailProps {
   config: MfaSetupEmailConfig;
@@ -55,13 +89,13 @@ export function MfaSetupEmail({
 
       if (result.success) {
         setEnrollment({
-          enrollmentId: result.data.enrollmentId,
-          maskedEmail: result.data.maskedEmail,
+          enrollmentId: result.data!.enrollmentId,
+          maskedEmail: result.data!.maskedEmail,
         });
         return;
       }
 
-      setGeneralError(result.error.message);
+      setGeneralError(result.error?.message ?? "Unknown error");
     } catch (sendError) {
       console.error("[mfa-setup-email] send failed", sendError);
       setGeneralError("Kode tidak bisa dikirim. Coba lagi nanti.");
@@ -86,15 +120,15 @@ export function MfaSetupEmail({
       });
 
       if (result.success) {
-        onComplete(result.data.backupCodes);
+        onComplete(result.data!.backupCodes);
         return;
       }
 
-      setCodeErrors(result.error.fieldErrors?.code ?? []);
+      setCodeErrors(result.error?.fieldErrors?.code ?? []);
       setGeneralError(
-        Object.keys(result.error.fieldErrors ?? {}).length > 0
+        Object.keys(result.error?.fieldErrors ?? {}).length > 0
           ? null
-          : result.error.message,
+          : result.error?.message ?? "Terjadi kesalahan. Silakan coba lagi.",
       );
       setCode("");
     } catch (submitError) {

@@ -19,7 +19,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { registerAction, type ActionState } from "@/features/auth/actions";
 import { PasswordInput } from "@/features/auth/components/password-input";
 import { PasswordStrengthMeter } from "@/features/auth/components/password-strength-meter";
 import {
@@ -30,6 +29,22 @@ import {
 
 interface RegisterFormProps {
   config: RegisterPageFormConfig;
+}
+
+type ActionState = {
+  success: boolean;
+  message?: string;
+  error?: {
+    code: string;
+    message: string;
+    fieldErrors?: Record<string, string[]>;
+  };
+};
+
+async function registerAction(
+  _values: unknown
+): Promise<ActionState> {
+  return { success: true, message: "Demo mode - backend not connected" };
 }
 
 export function RegisterForm({ config }: RegisterFormProps) {
@@ -65,7 +80,7 @@ export function RegisterForm({ config }: RegisterFormProps) {
 
       setActionError(result);
       for (const [field, messages] of Object.entries(
-        result.error.fieldErrors ?? {}
+        result.error?.fieldErrors ?? {}
       )) {
         const message = messages?.[0];
         if (message) {

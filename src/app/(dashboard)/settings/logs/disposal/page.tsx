@@ -15,8 +15,6 @@ export const metadata: Metadata = {
   description: "Kebijakan penghapusan log, verifikasi, dan antrian disposal.",
 };
 
-export const dynamic = "force-dynamic";
-
 export default function LogDisposalPage() {
   const config = LOG_MANAGEMENT_PAGE_CONFIG;
   const inventory = getDisposalInventory();

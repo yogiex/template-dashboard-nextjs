@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/form";
 import { PasswordInput } from "@/features/auth/components/password-input";
 import { PasswordStrengthMeter } from "@/features/auth/components/password-strength-meter";
-import { resetPasswordAction, type ActionState } from "@/features/auth/actions";
 import {
   resetPasswordFormSchema,
   type ResetPasswordFormValues,
@@ -26,6 +25,22 @@ import {
 interface ResetPasswordFormProps {
   token: string;
   submitLabel: string;
+}
+
+type ActionState = {
+  success: boolean;
+  message?: string;
+  error?: {
+    code: string;
+    message: string;
+    fieldErrors?: Record<string, string[]>;
+  };
+};
+
+async function resetPasswordAction(
+  _values: unknown
+): Promise<ActionState> {
+  return { success: true, message: "Demo mode - backend not connected" };
 }
 
 export function ResetPasswordForm({
@@ -53,7 +68,7 @@ export function ResetPasswordForm({
         setActionError(result);
 
         for (const [field, messages] of Object.entries(
-          result.error.fieldErrors ?? {}
+          result.error?.fieldErrors ?? {}
         )) {
           const message = messages?.[0];
           if (message) {

@@ -63,6 +63,38 @@ const serverEnvSchema = z.object({
     emptyStringToUndefined,
     z.enum(["0", "1"]).optional(),
   ),
+  /**
+   * URL backend API (REST/GraphQL). Kosong = backend tidak aktif.
+   * Saat diisi, Server Actions akan melakukan fetch ke URL ini.
+   */
+  BACKEND_API_URL: z.preprocess(
+    emptyStringToUndefined,
+    z.string().url().optional(),
+  ),
+  FEATURE_AUTH_ENABLED: z.preprocess(
+    emptyStringToUndefined,
+    z.enum(["true", "false"]).optional(),
+  ),
+  FEATURE_USER_CRUD_ENABLED: z.preprocess(
+    emptyStringToUndefined,
+    z.enum(["true", "false"]).optional(),
+  ),
+  FEATURE_AUDIT_ENABLED: z.preprocess(
+    emptyStringToUndefined,
+    z.enum(["true", "false"]).optional(),
+  ),
+  FEATURE_OBSERVABILITY_ENABLED: z.preprocess(
+    emptyStringToUndefined,
+    z.enum(["true", "false"]).optional(),
+  ),
+  FEATURE_LOG_MANAGEMENT_ENABLED: z.preprocess(
+    emptyStringToUndefined,
+    z.enum(["true", "false"]).optional(),
+  ),
+  FEATURE_ORGANIZATION_ENABLED: z.preprocess(
+    emptyStringToUndefined,
+    z.enum(["true", "false"]).optional(),
+  ),
 });
 
 /** Flag boolean yang sudah dinormalisasi; `undefined` berarti "tidak diatur". */
@@ -72,6 +104,7 @@ export function isFlagEnabled(value: string | undefined): boolean {
 
 const clientEnvSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
+  NEXT_PUBLIC_BASE_PATH: z.string().optional(),
 });
 
 function parseEnv<T extends z.ZodTypeAny>(

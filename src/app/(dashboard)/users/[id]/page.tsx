@@ -1,5 +1,9 @@
 import { notFound } from "next/navigation"
 
+export function generateStaticParams() {
+  return [{ id: "1" }, { id: "2" }, { id: "3" }];
+}
+
 type UserDetailPageProps = {
   params: Promise<{ id: string }>
 }

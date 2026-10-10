@@ -11,8 +11,6 @@ export const metadata: Metadata = {
   description: "Klasifikasi source, event type, dan karakter data wajib.",
 };
 
-export const dynamic = "force-dynamic";
-
 export default function LogSourcesPage() {
   const config = LOG_MANAGEMENT_PAGE_CONFIG;
   const inventory = getGenerationInventory();

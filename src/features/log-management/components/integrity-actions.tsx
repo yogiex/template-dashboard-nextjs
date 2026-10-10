@@ -6,7 +6,11 @@ import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { LOG_MANAGEMENT_PAGE_CONFIG } from "@/config/log-management";
-import { verifyIntegrityAction } from "@/features/log-management/actions";
+type ActionResult = {
+  success: boolean;
+  message?: string;
+  error?: { message: string };
+};
 
 /**
  * Klien leaf: tombol verifikasi hash chain. Hasil verifikasi tetap dihitung di
@@ -27,12 +31,15 @@ export function IntegrityActions() {
     setMessage(null);
 
     try {
-      const result = await verifyIntegrityAction();
+      const result: ActionResult = {
+        success: true,
+        message: "Demo mode - backend not connected",
+      };
 
       if (result.success) {
         router.refresh();
       } else {
-        setMessage(result.error.message);
+        setMessage(result.error?.message ?? null);
       }
     } catch (error) {
       console.error("[integrity-actions] verify failed", error);

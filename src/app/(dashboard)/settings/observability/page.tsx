@@ -41,12 +41,6 @@ export const metadata: Metadata = {
   description: "Metrik aktivitas, latensi, dan penggunaan fitur.",
 };
 
-/**
- * Server Component di bawah `(dashboard)/settings/layout.tsx`, jadi TIDAK memakai
- * `PageShell` lagi — layout tersebut sudah menyediakan `<main>`.
- */
-export const dynamic = "force-dynamic";
-
 const BUSINESS_COPY = OBSERVABILITY_UI_COPY.business;
 const UNMEASURED = OBSERVABILITY_UI_COPY.common.unmeasured;
 

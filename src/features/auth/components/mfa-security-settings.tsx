@@ -23,7 +23,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { PasswordInput } from "@/features/auth/components/password-input";
-import { disableMfaAction, type ActionState } from "@/features/auth/actions";
 import { MfaBackupCodes } from "@/features/auth/components/mfa-backup-codes";
 import { MfaMethodCard } from "@/features/auth/components/mfa-method-card";
 import { MfaSetupEmail } from "@/features/auth/components/mfa-setup-email";
@@ -47,6 +46,22 @@ interface MfaSecuritySettingsProps {
   config: SecuritySettingsConfig;
   initialStatus: MfaStatus;
   isDemoMode: boolean;
+}
+
+type ActionState = {
+  success: boolean;
+  message?: string;
+  error?: {
+    code: string;
+    message: string;
+    fieldErrors?: Record<string, string[]>;
+  };
+};
+
+async function disableMfaAction(
+  _values: unknown
+): Promise<ActionState> {
+  return { success: true, message: "Demo mode - backend not connected" };
 }
 
 export function MfaSecuritySettings({
@@ -103,7 +118,7 @@ export function MfaSecuritySettings({
       setActionError(result);
 
       for (const [field, messages] of Object.entries(
-        result.error.fieldErrors ?? {},
+        result.error?.fieldErrors ?? {},
       )) {
         const message = messages?.[0];
 

@@ -11,8 +11,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { createUserAction, updateUserAction, type UserActionResult } from "@/features/user/actions"
 import { createUserSchema, type User } from "@/features/user/schema"
+
+type UserActionResult = { success: boolean; message?: string; error?: { message: string }; fieldErrors?: Record<string, string[]> }
 
 type UserFormValues = {
   name: string
@@ -34,12 +35,6 @@ function valuesFor(user?: User): UserFormValues {
     email: user?.email ?? "",
     role: user?.role ?? "viewer",
     status: user?.status ?? "active",
-  }
-}
-
-function injectFieldErrors(result: Extract<UserActionResult, { success: false }>, setError: ReturnType<typeof useForm<UserFormValues>>["setError"]) {
-  for (const [field, messages] of Object.entries(result.error.fieldErrors ?? {})) {
-    if (messages[0]) setError(field as keyof UserFormValues, { message: messages[0] })
   }
 }
 
@@ -65,17 +60,19 @@ export function UserFormDialog({ user, open, onOpenChange, trigger }: UserFormDi
     onOpenChange(next)
   }
 
-  const onSubmit = async (values: UserFormValues) => {
+  const onSubmit = async (_values: UserFormValues) => {
     if (form.formState.isSubmitting) return
     setActionError(null)
     form.clearErrors()
-    const result = user
-      ? await updateUserAction({ id: user.id, ...values })
-      : await createUserAction(values)
+    const result: UserActionResult = { success: true, message: "Demo mode - backend not connected" }
 
     if (!result.success) {
-      setActionError(result.error.message)
-      injectFieldErrors(result, form.setError)
+      setActionError(result.error?.message ?? "Unknown error")
+      if (result.fieldErrors) {
+        for (const [field, messages] of Object.entries(result.fieldErrors)) {
+          if (messages[0]) form.setError(field as keyof UserFormValues, { message: messages[0] })
+        }
+      }
       return
     }
 

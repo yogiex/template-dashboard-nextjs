@@ -14,8 +14,6 @@ export const metadata: Metadata = {
   description: "Level akses log per role, mode akses, dan pemantauan akses.",
 };
 
-export const dynamic = "force-dynamic";
-
 export default function LogAccessPage() {
   const config = LOG_MANAGEMENT_PAGE_CONFIG;
   const inventory = getAccessInventory();

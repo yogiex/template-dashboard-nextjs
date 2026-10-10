@@ -6,7 +6,6 @@ import { toast } from "sonner"
 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
-import { deleteUserAction } from "@/features/user/actions"
 import { UserFormDialog } from "@/features/user/components/user-form-dialog"
 import type { User } from "@/features/user/types"
 
@@ -18,12 +17,12 @@ export function UserRowActions({ user }: { user: User }) {
   const remove = () => {
     if (isPending) return
     startTransition(async () => {
-      const result = await deleteUserAction(user.id)
+      const result = { success: true, message: "Demo mode - backend not connected" }
       if (result.success) {
         setDeleteOpen(false)
         toast.success(`User "${user.name}" dihapus`)
       } else {
-        toast.error(result.error.message)
+        toast.error(result.message)
       }
     })
   }

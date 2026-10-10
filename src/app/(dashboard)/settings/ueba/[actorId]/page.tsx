@@ -24,7 +24,9 @@ export const metadata: Metadata = {
   description: "Detail anomali dan baseline untuk satu aktor.",
 };
 
-export const dynamic = "force-dynamic";
+export function generateStaticParams() {
+  return [{ actorId: "demo-actor" }];
+}
 
 type UebaActorPageProps = {
   params: Promise<{ actorId: string }>;

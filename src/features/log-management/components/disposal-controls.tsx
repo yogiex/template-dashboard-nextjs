@@ -5,7 +5,16 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { runDisposalSweepAction } from "@/features/log-management/actions";
+type SweepResult = {
+  success: boolean;
+  message?: string;
+  data: {
+    reason: string;
+    processed: number;
+    skipped: number;
+  };
+  error?: { message: string };
+};
 import { LOG_MANAGEMENT_PAGE_CONFIG } from "@/config/log-management";
 
 /**
@@ -27,7 +36,11 @@ export function DisposalControls() {
     setMessage(null);
 
     try {
-      const result = await runDisposalSweepAction({});
+      const result: SweepResult = {
+        success: true,
+        message: "Demo mode - backend not connected",
+        data: { reason: "", processed: 0, skipped: 0 },
+      };
 
       if (result.success) {
         setMessage(
@@ -37,7 +50,7 @@ export function DisposalControls() {
         );
         router.refresh();
       } else {
-        setMessage(result.error.message);
+        setMessage(result.error?.message ?? null);
       }
     } catch (error) {
       console.error("[disposal-controls] sweep failed", error);

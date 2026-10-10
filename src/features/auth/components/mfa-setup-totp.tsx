@@ -6,19 +6,49 @@ import { QRCodeSVG } from "qrcode.react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  confirmTotpEnrollmentAction,
-  startTotpEnrollmentAction,
-  type MfaActionState,
-} from "@/features/auth/actions";
 import { OtpInput } from "@/features/auth/components/otp-input";
 import type { MfaSetupTotpConfig } from "@/config/mfa-pages";
+
+type MfaActionState<T = unknown> = {
+  success: boolean;
+  message?: string;
+  data?: T;
+  error?: {
+    code: string;
+    message: string;
+    fieldErrors?: Record<string, string[]>;
+  };
+};
 
 type TotpSecretState = {
   enrollmentId: string;
   secret: string;
   otpauthUrl: string;
 };
+
+async function startTotpEnrollmentAction(): Promise<
+  MfaActionState<TotpSecretState>
+> {
+  return {
+    success: true,
+    message: "Demo mode - backend not connected",
+    data: {
+      enrollmentId: "demo-enrollment",
+      secret: "DEMOSECRET123456",
+      otpauthUrl: "otpauth://totp/demo",
+    },
+  };
+}
+
+async function confirmTotpEnrollmentAction(
+  _values: unknown
+): Promise<MfaActionState<{ backupCodes: string[] }>> {
+  return {
+    success: true,
+    message: "Demo mode - backend not connected",
+    data: { backupCodes: ["demo-code-1", "demo-code-2"] },
+  };
+}
 
 interface MfaSetupTotpProps {
   config: MfaSetupTotpConfig;
@@ -54,11 +84,11 @@ export function MfaSetupTotp({
         }
 
         if (result.success) {
-          setSecretState(result.data);
+          setSecretState(result.data!);
           return;
         }
 
-        setStartError(result.error.message);
+        setStartError(result.error?.message ?? "Unknown error");
       } catch (error) {
         console.error("[mfa-setup-totp] start failed", error);
 
@@ -91,15 +121,15 @@ export function MfaSetupTotp({
       });
 
       if (result.success) {
-        onComplete(result.data.backupCodes);
+        onComplete(result.data!.backupCodes);
         return;
       }
 
-      setCodeErrors(result.error.fieldErrors?.code ?? []);
+      setCodeErrors(result.error?.fieldErrors?.code ?? []);
       setGeneralError(
-        Object.keys(result.error.fieldErrors ?? {}).length > 0
+        Object.keys(result.error?.fieldErrors ?? {}).length > 0
           ? null
-          : result.error.message,
+          : result.error?.message ?? "Terjadi kesalahan. Silakan coba lagi.",
       );
       setCode("");
     } catch (submitError) {

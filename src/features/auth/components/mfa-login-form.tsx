@@ -7,11 +7,6 @@ import { Loader2, ShieldCheck } from "lucide-react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  resendMfaCodeAction,
-  verifyMfaAction,
-  type ActionState,
-} from "@/features/auth/actions";
 import { OtpInput } from "@/features/auth/components/otp-input";
 import type { MfaMethod } from "@/features/auth/schema";
 import type { MfaChallengePageConfig } from "@/config/mfa-pages";
@@ -21,6 +16,26 @@ interface MfaLoginFormProps {
   method: MfaMethod;
   maskedEmail: string;
   isDemoMode: boolean;
+}
+
+type ActionState = {
+  success: boolean;
+  message?: string;
+  error?: {
+    code: string;
+    message: string;
+    fieldErrors?: Record<string, string[]>;
+  };
+};
+
+async function verifyMfaAction(
+  _values: unknown
+): Promise<ActionState> {
+  return { success: true, message: "Demo mode - backend not connected" };
+}
+
+async function resendMfaCodeAction(): Promise<ActionState> {
+  return { success: true, message: "Demo mode - backend not connected" };
 }
 
 export function MfaLoginForm({

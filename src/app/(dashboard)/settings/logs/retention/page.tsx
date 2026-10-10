@@ -16,8 +16,6 @@ export const metadata: Metadata = {
     "Kebijakan retensi per kategori, transfer antar tier, dan kapasitas store.",
 };
 
-export const dynamic = "force-dynamic";
-
 export default function LogRetentionPage() {
   const config = LOG_MANAGEMENT_PAGE_CONFIG;
   const inventory = getStorageInventory();

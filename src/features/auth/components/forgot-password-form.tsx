@@ -17,10 +17,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-  forgotPasswordAction,
-  type ActionState,
-} from "@/features/auth/actions";
-import {
   forgotPasswordFormSchema,
   type ForgotPasswordFormValues,
 } from "@/features/auth/schema";
@@ -28,6 +24,22 @@ import {
 interface ForgotPasswordFormProps {
   submitLabel: string;
   backToLoginLabel: string;
+}
+
+type ActionState = {
+  success: boolean;
+  message?: string;
+  error?: {
+    code: string;
+    message: string;
+    fieldErrors?: Record<string, string[]>;
+  };
+};
+
+async function forgotPasswordAction(
+  _values: unknown
+): Promise<ActionState> {
+  return { success: true, message: "Demo mode - backend not connected" };
 }
 
 export function ForgotPasswordForm({
@@ -95,7 +107,7 @@ export function ForgotPasswordForm({
       >
         {actionError && !actionError.success ? (
           <Alert variant="destructive" role="alert">
-            <AlertDescription>{actionError.error.message}</AlertDescription>
+            <AlertDescription>{actionError.error?.message}</AlertDescription>
           </Alert>
         ) : null}
 
