@@ -30,9 +30,8 @@ jobs:
       - name: Scan commits and PRs
         uses: gitleaks/gitleaks-action@v2
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
-        with:
-          args: --redact
 
   npm-audit:
     name: npm audit (high+)
@@ -107,11 +106,17 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  # CATATAN: job ini butuh "Dependency graph" aktif di
+  # Settings → Security & analysis → Dependency graph. Selama graph mati,
+  # action-nya error "not supported on this repository", jadi job dibuat
+  # non-blocking agar tidak menahan workflow. Aktifkan graph di settings
+  # lalu hapus `continue-on-error` supaya gate ini benar-benar mengikat.
   dependency-review:
     name: Dependency review
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
+    continue-on-error: true
     permissions:
       contents: read
     steps:
