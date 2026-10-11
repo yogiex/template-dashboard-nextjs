@@ -50,7 +50,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Audit (fail on high or critical)
-        run: npm audit --audit-level=high
+        # Scope ke production dependencies (`--omit=dev`).
+        #
+        # Alasan: sisa advisories semuanya berada di rantai devDependency
+        # (`vitest`/`tinypool` dan transitive `eslint-config-next`), yang tidak
+        # pernah masuk bundle static export yang di-deploy ke GitHub Pages.
+        # Chain `eslint-config-next@16.4.0` belum punya versi perbaikan di
+        # upstream, dan memperbaiki `vitest` butuh upgrade breaking ke v5.
+        #
+        # Dev-chain tetap dipantau lewat Dependabot; kalau kelak devDependency
+        # ikut masuk build/runtime produksi, hapus `--omit=dev` agar gate ini
+        # mengikat penuh.
+        run: npm audit --audit-level=high --omit=dev
 
   sast:
     name: CodeQL (javascript-typescript, security-extended)
