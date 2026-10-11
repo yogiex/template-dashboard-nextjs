@@ -278,6 +278,7 @@ export function MfaSecuritySettings({
                 onSubmit={form.handleSubmit(onDisable)}
                 className="space-y-5"
                 noValidate
+                autoComplete="off"
                 aria-busy={isSubmitting}
               >
                 {showGeneralError ? (
@@ -294,7 +295,6 @@ export function MfaSecuritySettings({
                       <FormLabel>{config.passwordLabel}</FormLabel>
                       <FormControl>
                         <PasswordInput
-                          autoComplete="current-password"
                           className="h-10"
                           {...field}
                         />

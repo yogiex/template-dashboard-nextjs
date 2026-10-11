@@ -452,5 +452,7 @@ Aturan praktis:
 - Preferensi appearance disimpan di localStorage dengan whitelist
   `ALLOWED_THEME_VARS` dari `config/appearance.ts` dan dipratinjau lewat
   anti-flash script di `src/app/layout.tsx` — ini bukan persistence production.
-- Jangan-nonaktifkan autofill browser (`readOnly` trick,
-  `autocomplete="one-time-code"`) untuk menipu password manager.
+- Semua input memakai default `autoComplete="off"` dari primitive
+  `src/components/ui/input.tsx` / `textarea.tsx`, dan setiap `<form>` memakai
+  `autoComplete="off"` — riwayat isian browser tidak disimpan. Hacking
+  (`readOnly`/`onFocus`, menyuntik `one-time-code` per-field) tetap dilarang.

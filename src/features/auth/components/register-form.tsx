@@ -104,6 +104,7 @@ export function RegisterForm({ config }: RegisterFormProps) {
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-5"
         noValidate
+        autoComplete="off"
         aria-busy={isSubmitting}
       >
         {showGeneralError ? (
@@ -120,7 +121,6 @@ export function RegisterForm({ config }: RegisterFormProps) {
               <FormLabel>{config.nameLabel}</FormLabel>
               <FormControl>
                 <Input
-                  autoComplete="name"
                   autoFocus
                   placeholder={config.namePlaceholder}
                   className="h-10"
@@ -141,7 +141,6 @@ export function RegisterForm({ config }: RegisterFormProps) {
               <FormControl>
                 <Input
                   type="email"
-                  autoComplete="email"
                   placeholder={config.emailPlaceholder}
                   className="h-10"
                   {...field}
@@ -161,7 +160,6 @@ export function RegisterForm({ config }: RegisterFormProps) {
               <FormControl>
                 <div>
                   <PasswordInput
-                    autoComplete="new-password"
                     placeholder={config.passwordPlaceholder}
                     className="h-10"
                     strengthMeterId="password-strength"
@@ -186,7 +184,6 @@ export function RegisterForm({ config }: RegisterFormProps) {
               <FormLabel>{config.confirmPasswordLabel}</FormLabel>
               <FormControl>
                 <PasswordInput
-                  autoComplete="new-password"
                   placeholder={config.passwordPlaceholder}
                   className="h-10"
                   {...field}

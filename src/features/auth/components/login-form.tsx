@@ -93,6 +93,7 @@ export function LoginForm({ config }: LoginFormProps) {
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-5"
         noValidate
+        autoComplete="off"
         aria-busy={isSubmitting}
       >
         {showGeneralError ? (
@@ -110,7 +111,6 @@ export function LoginForm({ config }: LoginFormProps) {
               <FormControl>
                 <Input
                   type="email"
-                  autoComplete="email"
                   autoFocus
                   placeholder={formConfig.emailPlaceholder}
                   className="h-10"
@@ -142,7 +142,6 @@ export function LoginForm({ config }: LoginFormProps) {
               )}
               <FormControl>
                 <PasswordInput
-                  autoComplete="current-password"
                   placeholder={formConfig.passwordPlaceholder}
                   className="h-10"
                   {...field}

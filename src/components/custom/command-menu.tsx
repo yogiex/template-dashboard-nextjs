@@ -97,6 +97,7 @@ export function CommandMenu() {
               }}
               placeholder={config.searchPlaceholder}
               aria-label={config.searchLabel}
+              autoComplete="off"
               className="h-12 w-full bg-transparent px-2 text-sm outline-none placeholder:text-muted-foreground"
             />
             <kbd className="hidden text-xs text-muted-foreground sm:inline">

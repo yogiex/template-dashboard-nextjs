@@ -102,6 +102,7 @@ export function MfaBackupCodeForm({ config, isDemoMode }: MfaBackupCodeFormProps
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-5"
         noValidate
+        autoComplete="off"
         aria-busy={isSubmitting}
       >
         {showGeneralError ? (
@@ -124,7 +125,6 @@ export function MfaBackupCodeForm({ config, isDemoMode }: MfaBackupCodeFormProps
               <FormLabel>{config.codeLabel}</FormLabel>
               <FormControl>
                 <Input
-                  autoComplete="one-time-code"
                   autoCapitalize="characters"
                   spellCheck={false}
                   placeholder={config.codePlaceholder}

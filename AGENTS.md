@@ -118,7 +118,7 @@ Daftar ini berasal dari review kode nyata; tidak ada di dokumentasi lain.
 8. **Warna lewat token semantic**; jangan hex/arbitrary value, dan jangan hardcode emerald di komponen.
 9. **Link footer/header hanya ke route yang ada**; tidak ada `href="#"` placeholder.
 10. **`role/` dan `roles/` belum dikonsolidasikan** — jangan menambah fitur role/permission baru sebelum duplikat itu diputuskan.
-11. **Jangan mematikan autofill browser** (`readOnly` trick, `autocomplete="one-time-code"`); itu merusak password manager dan aksesibilitas.
+11. **Autofill browser dimatikan lewat default primitive**: `Input`/`Textarea` sudah `autoComplete="off"` dan setiap `<form>` memakai `autoComplete="off"`; jangan suntik nilai semantic per-field dan jangan pakai trik `readOnly`/`onFocus`.
 12. **Secret/credential mock** (`demo@example.com` / `password123`) hanya untuk demo; jangan dipakai ulang di kode baru.
 
 ## Alur Kerja yang Diharapkan

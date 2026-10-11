@@ -177,8 +177,7 @@ export function OtpInput({
           onPaste={handlePaste}
           disabled={disabled}
           autoFocus={autoFocus && index === 0}
-          // Hanya kotak pertama yang diisi otomatis (SMS/MFA); sisanya off.
-          autoComplete={index === 0 ? "one-time-code" : "off"}
+          autoComplete="off"
           aria-label={`Digit ${index + 1} dari ${length}`}
           aria-invalid={invalid || undefined}
           className={cn(

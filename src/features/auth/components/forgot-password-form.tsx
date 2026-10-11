@@ -103,6 +103,7 @@ export function ForgotPasswordForm({
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-5"
         noValidate
+        autoComplete="off"
         aria-busy={form.formState.isSubmitting}
       >
         {actionError && !actionError.success ? (
@@ -120,7 +121,6 @@ export function ForgotPasswordForm({
               <FormControl>
                 <Input
                   type="email"
-                  autoComplete="email"
                   placeholder="nama@perusahaan.com"
                   className="h-10"
                   {...field}

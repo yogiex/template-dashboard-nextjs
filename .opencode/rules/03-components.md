@@ -383,7 +383,7 @@ Checklist form (kenaan `AGENTS.md` dan kode nyata):
 - [ ] Input form `className="h-10"`; tombol submit `h-10 w-full` dengan `disabled={isSubmitting}` + spinner `aria-hidden`.
 - [ ] `FormItem` untuk checkbox memakai `flex flex-row items-center gap-2` (bukan `space-y-2`) dan label `className="!mt-0 text-sm font-normal"`.
 - [ ] `noValidate` pada `<form>` agar pesan error server yang konsisten.
-- [ ] `autoComplete` yang benar (`email`, `current-password`, `new-password`, `one-time-code`) — **jangan** mematikan autofill dengan `readOnly`/`autocomplete="one-time-code"` pada field password.
+- [ ] Default `autoComplete="off"` dari primitive `Input`/`Textarea` + `autoComplete="off"` pada setiap `<form>`; tidak menyuntik nilai semantic per-field (`email`, `current-password`, `new-password`, `one-time-code`) dan tidak memakai `readOnly`/`onFocus` untuk mematikan autofill.
 - [ ] Field string yang diedarkan server dip‑mapping dengan type predicate, bukan `as`.
 - [ ] Alert umum hanya tampil bila `Object.keys(fieldErrors ?? {}).length === 0`.
 
@@ -661,7 +661,7 @@ export type { PageShellProps };
 - Fokus keyboard: primitive sudah punya `focus-visible:ring-*`. Menu/popover wajib `aria-expanded`, `aria-haspopup`, dan ditutup dengan `Escape` (Base UI handles untuk primitive-nya; untuk menu kustom tambahkan handler).
 - Paginasi: `<nav aria-label="Paginasi tabel">` + `aria-current="page"` pada halaman aktif + `rel="prev"/"rel="next"` + state disabled saat tidak ada.
 - Icon-only button butuh nama aksesibel yang menjelaskan aksi ("Urutkan berdasarkan nama", bukan "tombol ikon").
-- Jangan pernah memakai `autocomplete="off"` atau `readOnly` pada field autentikasi; merusak password manager.
+- Autofill browser dimatikan lewat default: primitive `Input`/`Textarea` sudah mengeluarkan `autoComplete="off"` dan setiap `<form>` memakai `autoComplete="off"`; jangan menambal per-field dengan `autoComplete` semantic, dan jangan memakai `readOnly`/`onFocus` untuk menipu browser.
 - Link yang membuka tab baru: `target="_blank"` + `rel="noopener noreferrer"`.
 - `prefers-reduced-motion`: hormati `motion-reduce` (utility `motion-reduce:*`) untuk animasi non-esensial; spinner tetap boleh.
 

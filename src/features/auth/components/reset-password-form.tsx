@@ -97,6 +97,7 @@ export function ResetPasswordForm({
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-5"
         noValidate
+        autoComplete="off"
         aria-busy={form.formState.isSubmitting}
       >
         <input type="hidden" {...form.register("token")} />
@@ -116,7 +117,6 @@ export function ResetPasswordForm({
               <FormControl>
                 <div className="space-y-2">
                   <PasswordInput
-                    autoComplete="new-password"
                     placeholder="••••••••"
                     className="h-10"
                     strengthMeterId="reset-password-strength"
@@ -142,7 +142,6 @@ export function ResetPasswordForm({
               <FormControl>
                 <div className="space-y-2">
                   <PasswordInput
-                    autoComplete="new-password"
                     placeholder="••••••••"
                     className="h-10"
                     strengthMeterId="reset-password-strength"

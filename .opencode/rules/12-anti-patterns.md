@@ -45,7 +45,7 @@ Sumber: `AGENTS.md` (root) bagian "Prinsip yang Paling Sering Dilanggar", `docs/
 - ❌ Commit `.env*` — hanya `.env.example` (nama variabel, contoh non-secret) yang boleh masuk repo.
 - ❌ Melewati rate limit pada endpoint sensitif — login, reset password, dan contact wajib punya batas percobaan.
 - ❌ Using identifier mentah (email penuh) sebagai key rate limit atau label log — truncate/hash dulu supaya tidak jadi PII yang bocor.
-- ❌ Disable autofill browser lewat `readOnly` atau `autocomplete="one-time-code"` — merusak password manager dan aksesibilitas.
+- ❌ Mematikan autofill dengan `readOnly`/`onFocus` atau menyuntik `autoComplete` semantic per-field (`email`, `current-password`, `one-time-code`) — pakai default `autoComplete="off"` di primitive `Input`/`Textarea` + `autoComplete="off"` pada `<form>`.
 - ❌ Menganggap security header yang ada (nosniff, DENY, Referrer-Policy, Permissions-Policy) sebagai pengganti CSP — CSP belum ada dan itu gap yang diketahui.
 - ❌ `npm install <paket>` tanpa review — menjalankan lifecycle script dan bisa menarik dependency rentan yang menggagalkan `npm audit --audit-level=high` di CI.
 

@@ -95,6 +95,7 @@ export function ContactForm() {
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-5"
         noValidate
+        autoComplete="off"
         aria-busy={isSubmitting}
       >
         {showGeneralError ? (
@@ -120,7 +121,6 @@ export function ContactForm() {
               <FormLabel>Nama</FormLabel>
               <FormControl>
                 <Input
-                  autoComplete="name"
                   placeholder="Nama Anda"
                   className="h-10"
                   {...field}

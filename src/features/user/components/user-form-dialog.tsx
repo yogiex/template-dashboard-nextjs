@@ -90,10 +90,10 @@ export function UserFormDialog({ user, open, onOpenChange, trigger }: UserFormDi
           <DialogDescription>{user ? "Perbarui data user di bawah ini." : "Isi data user untuk membuat akun baru."}</DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate autoComplete="off">
             {actionError ? <Alert variant="destructive" role="alert"><AlertDescription>{actionError}</AlertDescription></Alert> : null}
-            <FormField control={form.control} name="name" render={({ field }) => <FormItem><FormLabel>Nama</FormLabel><FormControl><Input autoComplete="name" {...field} /></FormControl><FormMessage /></FormItem>} />
-            <FormField control={form.control} name="email" render={({ field }) => <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" autoComplete="email" {...field} /></FormControl><FormMessage /></FormItem>} />
+            <FormField control={form.control} name="name" render={({ field }) => <FormItem><FormLabel>Nama</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} />
+            <FormField control={form.control} name="email" render={({ field }) => <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>} />
             <div className="grid gap-4 sm:grid-cols-2">
               <FormField control={form.control} name="role" render={({ field }) => <FormItem><FormLabel>Role</FormLabel><Select value={field.value} onValueChange={field.onChange}><FormControl><SelectTrigger aria-label="Role"><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="admin">admin</SelectItem><SelectItem value="editor">editor</SelectItem><SelectItem value="viewer">viewer</SelectItem></SelectContent></Select><FormMessage /></FormItem>} />
               <FormField control={form.control} name="status" render={({ field }) => <FormItem><FormLabel>Status</FormLabel><Select value={field.value} onValueChange={field.onChange}><FormControl><SelectTrigger aria-label="Status"><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="active">active</SelectItem><SelectItem value="pending">pending</SelectItem><SelectItem value="suspended">suspended</SelectItem></SelectContent></Select><FormMessage /></FormItem>} />
