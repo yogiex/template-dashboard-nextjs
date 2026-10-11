@@ -81,7 +81,16 @@ npm run dev
 
 Buka `http://localhost:3000` di browser. Development server akan memuat ulang perubahan secara otomatis.
 
-Login memakai **satu user mock** yang kredensialnya didefinisikan di `src/features/auth/service.ts` (DAL demo; jangan dipakai ulang di kode lain). Sesi yang terbit adalah session mock di server, bukan session production.
+### Kredensial login (mock, hanya untuk pengembangan lokal)
+
+| Field | Nilai |
+| --- | --- |
+| URL | `http://localhost:3000/login` |
+| Email | `demo@example.com` |
+| Password | `password123` |
+| Logout | Menu pengguna (kanan atas) → Log out |
+
+Kredensial ini **mock, bukan secret**, dan didefinisikan bersama DAL demo di `src/features/auth/service.ts`. Semua route `(dashboard)` butuh sesi; tanpa login Anda akan dialihkan ke `/login`. Jangan dipakai ulang di kode maupun deployment nyata — sebelum produksi, ganti dengan autentikasi sungguhan (hashing password, session terverifikasi, store durable). Sesi mock hidup di memori proses dan hilang saat server restart, serta percobaan login dibatasi 5x per 15 menit per email.
 
 Untuk instalasi reproducible pada CI atau deployment, gunakan `npm ci`:
 
