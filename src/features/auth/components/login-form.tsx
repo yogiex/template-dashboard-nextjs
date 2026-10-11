@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { loginAction, type ActionError } from "@/features/auth/actions";
 import { PasswordInput } from "@/features/auth/components/password-input";
 import {
   loginFormSchema,
@@ -31,6 +30,30 @@ import {
 
 interface LoginFormProps {
   config: LoginPageFormConfig;
+}
+
+type LoginActionState = {
+  success: boolean;
+  message?: string;
+  mfaRequired?: boolean;
+  nextPath?: string;
+  error?: {
+    code: string;
+    message: string;
+    fieldErrors?: Record<string, string[]>;
+  };
+};
+
+/**
+ * Stub login klien: tidak memverifikasi kredensial dan tidak menulis sesi apa
+ * pun. Deployment saat ini static export (GitHub Pages), tempat Server Action
+ * tidak didukung, jadi tidak ada login sungguhan sampai host Node dipasang.
+ * Pass ini hanya state UI — jangan pernah dijadikan "auth berhasil".
+ */
+async function loginAction(
+  _values: unknown
+): Promise<LoginActionState> {
+  return { success: true, message: "Demo mode - backend not connected" };
 }
 
 function isLoginField(field: string): field is keyof LoginFormValues {
@@ -51,11 +74,15 @@ export function LoginForm({ config }: LoginFormProps) {
       rememberMe: false,
     },
   });
-  const [actionError, setActionError] = useState<ActionError | null>(null);
+  const [actionError, setActionError] = useState<LoginActionState | null>(null);
   const formConfig = config;
   const isSubmitting = form.formState.isSubmitting;
-  const hasFieldErrors = Object.keys(actionError?.fieldErrors ?? {}).length > 0;
-  const showGeneralError = actionError !== null && !hasFieldErrors;
+  const error =
+    actionError && !actionError.success && !actionError.mfaRequired
+      ? actionError.error
+      : null;
+  const hasFieldErrors = Object.keys(error?.fieldErrors ?? {}).length > 0;
+  const showGeneralError = error !== null && !hasFieldErrors;
 
   const onSubmit = async (values: LoginFormValues) => {
     setActionError(null);
@@ -65,13 +92,17 @@ export function LoginForm({ config }: LoginFormProps) {
 
       if (result.success) {
         router.push("/dashboard");
-        router.refresh();
         return;
       }
 
-      setActionError(result.error);
+      if (result.mfaRequired) {
+        router.push(result.nextPath ?? "/login");
+        return;
+      }
+
+      setActionError(result);
       for (const [field, messages] of Object.entries(
-        result.error.fieldErrors ?? {}
+        result.error?.fieldErrors ?? {}
       )) {
         const message = messages[0];
         if (message && isLoginField(field)) {
@@ -81,8 +112,11 @@ export function LoginForm({ config }: LoginFormProps) {
     } catch (submitError) {
       console.error("[login-form] submit failed", submitError);
       setActionError({
-        code: "INTERNAL_ERROR",
-        message: "Terjadi kesalahan. Silakan coba lagi.",
+        success: false,
+        error: {
+          code: "INTERNAL_ERROR",
+          message: "Terjadi kesalahan. Silakan coba lagi.",
+        },
       });
     }
   };
@@ -98,7 +132,7 @@ export function LoginForm({ config }: LoginFormProps) {
       >
         {showGeneralError ? (
           <Alert variant="destructive" role="alert">
-            <AlertDescription>{actionError?.message}</AlertDescription>
+            <AlertDescription>{error?.message}</AlertDescription>
           </Alert>
         ) : null}
 

@@ -1,3 +1,16 @@
+/**
+ * DIPARKIR — jangan di-import dari tree aplikasi sampai host Node ada.
+ *
+ * File ini berisi Server Action, dan `output: "export"` (target deploy GitHub
+ * Pages) tidak mendukungnya maupun cookie session. Karena itu modul ini sengaja
+ * dibiarkan tanpa pemanggil di app tree: import apa pun ke sini akan menggagalkan
+ * build static export. Login/logout di UI kini pakai stub klien.
+ *
+ * Untuk menyalakan kembali auth nyata: pasang host Node, hapus `output: "export"`
+ * dari `next.config.ts`, lalu wire `loginAction`/`logoutAction` di
+ * `login-form.tsx` dan `user-menu.tsx`, dan kembalikan guard
+ * `requirePageSession()` di `(dashboard)/layout.tsx`.
+ */
 "use server";
 
 import {
