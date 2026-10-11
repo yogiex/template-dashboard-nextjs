@@ -230,48 +230,34 @@ describe("requirePageSession", () => {
   });
 });
 
-describe("(dashboard)/layout guard", () => {
-  it("melempar redirect-like error saat tidak ada sesi", async () => {
+describe("(dashboard)/layout", () => {
+  it("merender shell tanpa memanggil guard session (diparkir untuk static export)", async () => {
+    rbac.requireSession.mockResolvedValue({ id: "usr_1", role: "admin" });
+    rbac.requireSessionForDev.mockResolvedValue({ id: "usr_1", role: "admin" });
     redirectMock.mockImplementation(throwRedirectLikeNext);
-    rbac.requireSession.mockRejectedValue(unauthenticated());
 
     const { default: DashboardLayout } = await import("@/app/(dashboard)/layout");
 
-    const settled = await DashboardLayout({ children: null }).then(
-      () => null,
-      (error: unknown) => error,
-    );
-
-    expect(rbac.requireSession).toHaveBeenCalledTimes(1);
-    expect(rbac.requireSessionForDev).not.toHaveBeenCalled();
-    expect(redirectMock).toHaveBeenCalledTimes(1);
-    expect(redirectMock).toHaveBeenCalledWith("/login");
-    expect(settled).toBeInstanceOf(Error);
-    expect((settled as { digest?: string }).digest).toBe(
-      "NEXT_REDIRECT;replace;/login;307;",
-    );
-  });
-
-  it("merender shell saat sesi valid", async () => {
-    const session: SessionUser = { id: "usr_1", role: "admin" };
-
-    rbac.requireSession.mockResolvedValue(session);
-
-    const { default: DashboardLayout } = await import("@/app/(dashboard)/layout");
-
-    const tree = (await DashboardLayout({ children: null })) as ReactElement;
+    const tree = DashboardLayout({ children: null }) as ReactElement;
 
     expect(tree.type).toBe(shell.SidebarProvider);
     expect(collectTypes(tree)).toEqual(
       expect.arrayContaining([shell.AppSidebar, shell.SiteHeader, "div"]),
     );
     expect(collectTypes(tree)).not.toContain("main");
+    // Guard server-side sengaja tidak dipanggil: static export (GitHub Pages)
+    // tidak mendukung cookie/Server Action, jadi route `(dashboard)` terbuka
+    // sampai ada host Node. Kalau test ini gagal karena guard dipanggil lagi,
+    // build Pages akan gagal — jangan "perbaiki" dengan mengembalikan guard.
+    expect(rbac.requireSession).not.toHaveBeenCalled();
+    expect(rbac.requireSessionForDev).not.toHaveBeenCalled();
+    expect(redirectMock).not.toHaveBeenCalled();
   });
 
-  it("memaksa subtree dashboard dirender per request", async () => {
+  it("tidak memaksa force-dynamic supaya bisa dirender statis untuk Pages", async () => {
     const layout = await import("@/app/(dashboard)/layout");
 
-    expect(layout.dynamic).toBe("force-dynamic");
+    expect((layout as Record<string, unknown>).dynamic).toBeUndefined();
   });
 
   it("tetap menandai subtree dashboard sebagai noindex", async () => {
