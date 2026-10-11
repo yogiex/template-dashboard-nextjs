@@ -34,6 +34,8 @@ npm run dev
 
 Buka `http://localhost:3000` di browser. Development server akan memuat ulang perubahan secara otomatis selama proses server tetap berjalan.
 
+Login memakai **satu user mock**; kredensialnya didefinisikan di `src/features/auth/service.ts` (DAL demo, jangan dipakai ulang di kode lain). Sesi yang terbit adalah session mock di server (`src/features/auth/session.ts`): token disimpan di memori proses, jadi **semua sesi hilang saat server restart** dan tidak berbagi state antar-instance. Route di grup `(dashboard)` menolak pengunjung tanpa sesi dan mengarahkan kembali ke `/login`.
+
 `npm install` cocok untuk pengembangan lokal. Untuk CI, deployment, atau situasi yang membutuhkan instalasi reproducible, gunakan `npm ci`. Perintah tersebut memasang dependency sesuai `package-lock.json` dan lebih ketat terhadap perbedaan antara lockfile dengan `package.json`.
 
 ```bash
@@ -51,7 +53,7 @@ Salin `.env.example` ke `.env.local` bila membutuhkan konfigurasi lokal:
 cp .env.example .env.local
 ```
 
-Saat ini `.env.example` tidak memiliki variabel yang wajib diisi. Template belum menggunakan environment variable untuk autentikasi atau database, sehingga dashboard dapat dijalankan tanpa menambahkan konfigurasi rahasia terlebih dahulu.
+Saat ini `.env.example` tidak memiliki variabel yang wajib diisi agar template bisa jalan. Untuk autentikasi, template tidak memakai variabel environment untuk session: yang ada hanya `DEV_AUTH_BYPASS` (opsional, sengaja dibiarkan ter-comment di `.env.example`) sebagai affordance pengembangan lokal untuk `requireSessionForDev()` di `src/lib/rbac.ts`. Flag itu hanya berlaku bernilai `"1"` **dan** `NODE_ENV` bukan `production`, dan satu-satunya pemakainya adalah fungsi dev itu — `requireSession()` sengaja tidak pernah membacanya. Jangan pernah mengaktifkannya di environment yang ter-deploy.
 
 `.env.local` hanya untuk konfigurasi lokal dan tidak boleh di-commit. Saat menambah environment variable untuk fitur baru, tambahkan nama variabel dan contoh nilai yang aman ke `.env.example`, lalu dokumentasikan kegunaan, format, dan apakah nilai tersebut wajib ada di environment deployment.
 
@@ -157,7 +159,7 @@ src/
 └── lib/                 # utilitas murni tanpa React
 ```
 
-Untuk fitur yang membutuhkan autentikasi, tambahkan library auth yang telah dipilih dan terdokumentasikan, lalu implementasikan session, guard route, serta pemeriksaan authorization di setiap server boundary yang sensitif. Untuk fitur yang membutuhkan database, pilih ORM atau driver, definisikan schema dan migrasi, konfigurasi environment server, dan letakkan akses database di service layer. Jangan mendokumentasikan auth atau database sebagai fitur yang sudah tersedia sebelum implementasi dan validasinya selesai.
+Fondasi autentikasi sudah ada dan derasional sebagai **mock**: `src/features/auth/session.ts` (cookie session in-memory), `src/features/auth/actions.ts` (`loginAction` + `logoutAction`), `src/features/auth/require-page-session.ts` (guard halaman), serta guard `src/app/(dashboard)/layout.tsx`. Lanjutkan dengan mengganti isi `session.ts` pembacaan record dari store nyata plus verifikasi signature token dengan kunci server; kontrak tiga fungsi ekspornya (`createSession`, `readSession`, `destroySession`) sengaja dibiarkan supaya `rbac.ts` tidak perlu ikut berubah. Untuk fitur yang membutuhkan database, pilih ORM atau driver, definisikan schema dan migrasi, konfigurasi environment server, dan letakkan akses database di service layer. Jangan mendokumentasikan auth atau database sebagai fitur production sebelum implementasi dan validasinya selesai — session mock bukan session production.
 
 Ikuti standar arsitektur, konvensi, keamanan, dan performa di:
 

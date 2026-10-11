@@ -1,14 +1,34 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { Menu } from "@base-ui/react/menu"
 import { CircleUserRound, LogOut, Settings } from "lucide-react"
 
 import { buttonVariants } from "@/components/ui/button"
+import { logoutAction } from "@/features/auth/actions"
 import { cn } from "cn"
 
 export function UserMenu() {
+  const router = useRouter()
   const [open, setOpen] = useState(false)
+
+  // Menu ditutup lebih dulu supaya popup tidak menggantung di atas navigasi.
+  // `logoutAction()` sendiri tidak pernah menolak (selalu mengembalikan
+  // envelope), tapi request tetap dibungkus `try/catch`: error boundary tidak
+  // menangkap error event handler.
+  const logout = async () => {
+    setOpen(false)
+
+    try {
+      await logoutAction()
+    } catch (error) {
+      console.error("[user-menu] logout failed", error)
+    }
+
+    router.push("/login")
+    router.refresh()
+  }
 
   return (
     <Menu.Root open={open} onOpenChange={setOpen}>
@@ -29,7 +49,10 @@ export function UserMenu() {
               <Settings className="h-4 w-4" aria-hidden="true" />
               Pengaturan
             </Menu.Item>
-            <Menu.Item disabled className="flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm opacity-50">
+            <Menu.Item
+              className="flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm"
+              onClick={() => void logout()}
+            >
               <LogOut className="h-4 w-4" aria-hidden="true" />
               Log out
             </Menu.Item>

@@ -1,3 +1,4 @@
+import { readSession } from "@/features/auth/session";
 import { serverEnv } from "@/lib/env";
 import { AppError } from "@/lib/error";
 
@@ -32,24 +33,29 @@ const DEV_PLACEHOLDER_SESSION: SessionUser = {
 /**
  * Sumber kebenaran identitas di server.
  *
- * Ini placeholder yang disengaja: template ini frontend-only dan belum punya
- * backend, jadi belum ada cookie/session yang bisa dibaca dan belum ada yang
- * bisa diverifikasi. `null` berarti "tidak ada sesi" — bukan "coba lagi nanti"
- * dan bukan "beri aku user sementara". Pemanggil wajib gagal tertutup.
+ * Membaca cookie session mock yang ditulis `createSession()`
+ * (`src/features/auth/session.ts`). Jujur soal sifatnya: mock itu hanya
+ * mencocokkan token yang masih ada di memori proses, belum ada signature atau
+ * kunci server yang diverifikasi, dan hilang saat restart. `null` berarti
+ * "tidak ada sesi" — bukan "coba lagi nanti" dan bukan "beri aku user
+ * sementara". Pemanggil wajib gagal tertutup.
  *
- * Titik integrasi saat backend tiba: baca cookie session di sini, verifikasi
- * signature-nya dengan kunci server, lalu petakan ke `SessionUser`. Hanya
- * fungsi ini yang boleh menyentuh sumber identitas; `requireSession()` dan
- * `requireSessionForDev()` tidak boleh membaca cookie langsung.
+ * Titik integrasi saat backend tiba: verifikasi signature token dan pemetaan
+ * ke `SessionUser` dijalankan di `session.ts`, lalu fungsi ini membaca hasilnya.
+ * Hanya fungsi ini yang boleh menyentuh sumber identitas; `requireSession()`
+ * dan `requireSessionForDev()` tidak boleh membaca cookie langsung.
+ *
+ * `session.ts` memakai `SessionUser` yang didefinisikan di sini, jadi ia
+ * mengimpornya sebagai type-only: impor nilai akan membuat siklus runtime di
+ * antara kedua modul.
  *
  * Module-private dengan sengaja. Tidak ada kebutuhan di luar `rbac.ts` untuk
  * "mungkin ada sesi", dan meng-export-nya hanya memberi jalan membaca identitas
- * tanpa melewati guard. Test pun tidak memerlukannya: selama nilai kembaliannya
- * selalu `null`, yang perlu dikunci adalah perilakunya lewat
- * `requireSession()` / `requireSessionForDev()`.
+ * tanpa melewati guard. Test pun tidak memerlukannya: yang perlu dikunci adalah
+ * perilakunya lewat `requireSession()` / `requireSessionForDev()`.
  */
 async function getSessionFromRequest(): Promise<SessionUser | null> {
-  return null
+  return await readSession()
 }
 
 /**

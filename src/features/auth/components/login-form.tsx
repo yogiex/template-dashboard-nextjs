@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { loginAction, type ActionError } from "@/features/auth/actions";
 import { PasswordInput } from "@/features/auth/components/password-input";
 import {
   loginFormSchema,
@@ -30,24 +31,6 @@ import {
 
 interface LoginFormProps {
   config: LoginPageFormConfig;
-}
-
-type LoginActionState = {
-  success: boolean;
-  message?: string;
-  mfaRequired?: boolean;
-  nextPath?: string;
-  error?: {
-    code: string;
-    message: string;
-    fieldErrors?: Record<string, string[]>;
-  };
-};
-
-async function loginAction(
-  _values: unknown
-): Promise<LoginActionState> {
-  return { success: true, message: "Demo mode - backend not connected" };
 }
 
 function isLoginField(field: string): field is keyof LoginFormValues {
@@ -68,37 +51,27 @@ export function LoginForm({ config }: LoginFormProps) {
       rememberMe: false,
     },
   });
-  const [actionError, setActionError] = useState<LoginActionState | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [actionError, setActionError] = useState<ActionError | null>(null);
   const formConfig = config;
   const isSubmitting = form.formState.isSubmitting;
-  const error =
-    actionError && !actionError.success && !actionError.mfaRequired
-      ? actionError.error
-      : null;
-  const hasFieldErrors = Object.keys(error?.fieldErrors ?? {}).length > 0;
-  const showGeneralError = error !== null && !hasFieldErrors;
+  const hasFieldErrors = Object.keys(actionError?.fieldErrors ?? {}).length > 0;
+  const showGeneralError = actionError !== null && !hasFieldErrors;
 
   const onSubmit = async (values: LoginFormValues) => {
     setActionError(null);
-    setSuccess(false);
 
     try {
       const result = await loginAction(values);
 
       if (result.success) {
-        setSuccess(true);
+        router.push("/dashboard");
+        router.refresh();
         return;
       }
 
-      if (result.mfaRequired) {
-        router.push(result.nextPath ?? "/login");
-        return;
-      }
-
-      setActionError(result);
+      setActionError(result.error);
       for (const [field, messages] of Object.entries(
-        result.error?.fieldErrors ?? {}
+        result.error.fieldErrors ?? {}
       )) {
         const message = messages[0];
         if (message && isLoginField(field)) {
@@ -108,11 +81,8 @@ export function LoginForm({ config }: LoginFormProps) {
     } catch (submitError) {
       console.error("[login-form] submit failed", submitError);
       setActionError({
-        success: false,
-        error: {
-          code: "INTERNAL_ERROR",
-          message: "Terjadi kesalahan. Silakan coba lagi.",
-        },
+        code: "INTERNAL_ERROR",
+        message: "Terjadi kesalahan. Silakan coba lagi.",
       });
     }
   };
@@ -127,15 +97,7 @@ export function LoginForm({ config }: LoginFormProps) {
       >
         {showGeneralError ? (
           <Alert variant="destructive" role="alert">
-            <AlertDescription>{error?.message}</AlertDescription>
-          </Alert>
-        ) : null}
-
-        {success ? (
-          <Alert role="status">
-            <AlertDescription>
-              Berhasil masuk (mock). Di produksi Anda akan diarahkan ke dashboard.
-            </AlertDescription>
+            <AlertDescription>{actionError?.message}</AlertDescription>
           </Alert>
         ) : null}
 

@@ -8,7 +8,7 @@ Semua status di bawah diverifikasi dengan membaca file yang disebut pada kolom "
 
 Prioritas: **wajib** (menghambat produksi), **recommended** (sebaiknya sebelum produksi), **advanced** (nilai tambah atau kepatuhan).
 
-Total 163 item: 82 `✅ ada`, 26 `🟡 parsial`, 55 `❌ belum`.
+Total 162 item: 82 `✅ ada`, 28 `🟡 parsial`, 52 `❌ belum`.
 
 ## A. Authentication dan Session
 
@@ -18,14 +18,14 @@ Total 163 item: 82 `✅ ada`, 26 `🟡 parsial`, 55 `❌ belum`.
 | AUTH-02 | Hash password modern (argon2id/bcrypt) | OWASP A02 | ❌ belum | — | wajib | Tidak ada library hashing di `package.json` |
 | AUTH-03 | Perbandingan password timing-safe | OWASP A02 | ✅ ada | `src/features/auth/service.ts:144` (`safeEqual`) | wajib | Hanya berlaku bila panjang sama; `timingSafeEqual` menolak panjang beda |
 | AUTH-04 | Pesan error login tidak membocorkan keberadaan akun | OWASP A07 | ✅ ada | `src/features/auth/service.ts:136` | wajib | Tidak memakai `fieldErrors`, jadi email terdaftar dan tidak terdaftar tidak bisa dibedakan |
-| AUTH-05 | Rate limit pada endpoint login | OWASP A07 | 🟡 parsial | `src/features/auth/actions.ts:158` | wajib | 5 percobaan/15 menit per email, tanpa bucket per IP |
-| AUTH-06 | Rate limit pada verifikasi MFA | OWASP A07 | ✅ ada | `src/features/auth/actions.ts:335`, `381` | wajib | `MFA_RATE_LIMIT` dan limit resend 3/10 menit |
+| AUTH-05 | Rate limit pada endpoint login | OWASP A07 | 🟡 parsial | `src/features/auth/actions.ts:134-138` | wajib | 5 percobaan/15 menit per email dan per IP-hash; bucket per-IP dilewati saat `ipHash` null (dev tanpa header) |
+| AUTH-06 | Rate limit pada verifikasi MFA | OWASP A07 | ❌ belum | — | wajib | Verifikasi MFA pindah ke handler di `src/features/auth/components/mfa-*form.tsx` dan tidak lagi memanggil `enforceRateLimit`; satu-satunya pemanggil limiter yang tersisa adalah `loginAction` |
 | AUTH-07 | Limit jumlah percobaan MFA di service | OWASP A07 | ✅ ada | `src/features/auth/service.ts:388` | wajib | 5 percobaan lalu challenge dihapus |
 | AUTH-08 | Lockout akun setelah percobaan gagal | OWASP A07 | ❌ belum | — | recommended | Tidak ada lockout, hanya rate limit |
-| AUTH-09 | Session cookie `httpOnly` | OWASP A07 | ❌ belum | — | wajib | Tidak ada session cookie; satu-satunya cookie adalah `mfa_pending` |
-| AUTH-10 | Session cookie `secure` | OWASP A07 | 🟡 parsial | `src/features/auth/mfa-session.ts:21` | wajib | `secure` hanya di production dan hanya untuk cookie MFA |
-| AUTH-11 | Session cookie `sameSite` | OWASP A07 | 🟡 parsial | `src/features/auth/mfa-session.ts:20` | wajib | `lax` pada cookie MFA; tidak ada cookie session |
-| AUTH-13 | Sesi dapat diinvalidate saat logout | OWASP A07 | ❌ belum | — | wajib | Tidak ada logout dan tidak ada daftar pencabutan |
+| AUTH-09 | Session cookie `httpOnly` | OWASP A07 | 🟡 parsial | `src/features/auth/session.ts:32-40` | wajib | Cookie `mock_session` memakai `httpOnly: true`, tetapi ini session mock di memori proses — bukan session production yang terverifikasi |
+| AUTH-10 | Session cookie `secure` | OWASP A07 | 🟡 parsial | `src/features/auth/session.ts:36` | wajib | `secure` hanya di production; berlaku untuk cookie MFA dan `mock_session` |
+| AUTH-11 | Session cookie `sameSite` | OWASP A07 | 🟡 parsial | `src/features/auth/session.ts:35` | wajib | `lax` pada cookie MFA dan pada `mock_session` |
+| AUTH-13 | Sesi dapat diinvalidate saat logout | OWASP A07 | 🟡 parsial | `src/features/auth/actions.ts:190-198` | wajib | `logoutAction()` → `destroySession()` menghapus token dari `Map` dan mengosongkan cookie; store in-memory sehingga revoke lintas instance dan tahan restart belum ada |
 | AUTH-16 | Token reset password single-use | OWASP A02 | ✅ ada | `src/features/auth/service.ts:230` | wajib | `usedAt` diset saat dipakai |
 | AUTH-18 | TTL token reset dibatasi | OWASP A02 | ✅ ada | `src/features/auth/service.ts:21` | wajib | 1 jam |
 | AUTH-19 | Token reset tidak bocor ke log di production | OWASP A02 | ✅ ada | `src/features/auth/service.ts:196` | wajib | `resetPath` hanya di spread bersyarat `isDemoMode` |
@@ -46,11 +46,11 @@ Total 163 item: 82 `✅ ada`, 26 `🟡 parsial`, 55 `❌ belum`.
 | ID | Item | Kategori | Status | Bukti | Prioritas | Catatan |
 | --- | --- | --- | --- | --- | --- | --- |
 | AUTHZ-01 | Guard route di proxy atau middleware | OWASP A01 | ❌ belum | — | wajib | Tidak ada `proxy.ts` maupun `middleware.ts` di repo |
-| AUTHZ-02 | Guard di layout dashboard | OWASP A01 | ❌ belum | — | wajib | `src/app/(dashboard)/layout.tsx` tidak melakukan cek session |
-| AUTHZ-03 | Guard di setiap Server Action | OWASP A01 | 🟡 parsial | `src/features/user/actions.ts:46` | wajib | Berlaku di 3 action user dan `getRolesAction`; tidak di action auth |
-| AUTHZ-04 | `requireRole` dipakai di boundary sensitif | OWASP A01 | 🟡 parsial | `src/lib/rbac.ts:18` | wajib | Ada helper-nya; hanya 4 pemanggil |
-| AUTHZ-05 | `requireSession` benar-benar memvalidasi session | OWASP A01 | ❌ belum | `src/lib/rbac.ts:15` | wajib | Mengembalikan admin konstan untuk semua pemanggil |
-| AUTHZ-06 | Default deny saat session tidak ada | OWASP A01 | ❌ belum | — | wajib | Tidak ada cabang tanpa session |
+| AUTHZ-02 | Guard di layout dashboard | OWASP A01 | 🟡 parsial | `src/app/(dashboard)/layout.tsx:37` | wajib | Guard lewat `requirePageSession()` (redirect ke `/login`); hanya menutup grup `(dashboard)` dan mengandalkan session mock |
+| AUTHZ-03 | Guard di setiap Server Action | OWASP A01 | ❌ belum | — | wajib | Satu-satunya file `"use server"` yang tersisa adalah `src/features/auth/actions.ts` (`loginAction` memang tanpa session — jalur publik; `logoutAction` menghancurkan sesi pemanggil). Tidak ada Server Action pemutasi data, sehingga tidak ada pula guard seperti dulu di `features/user/actions.ts` yang kini tidak ada |
+| AUTHZ-04 | `requireRole` dipakai di boundary sensitif | OWASP A01 | ❌ belum | `src/lib/rbac.ts:126` | wajib | Helper-nya ada dan murni (`viewer < editor < admin`), tapi tidak ada satu pun pemanggil `requireRole` di repo; role sesi belum dipakai sebagai gate |
+| AUTHZ-05 | `requireSession` benar-benar memvalidasi session | OWASP A01 | 🟡 parsial | `src/lib/rbac.ts:73`, `src/features/auth/session.ts:100` | wajib | Sudah membaca cookie `mock_session` dan gagal tertutup dengan `UNAUTHENTICATED`; token hanya dicocokkan ke `Map` memori, tanpa verifikasi signature atau kunci server |
+| AUTHZ-06 | Default deny saat session tidak ada | OWASP A01 | ✅ ada | `src/lib/rbac.ts:73-83` | wajib | `requireSession()` melempar `AppError("UNAUTHENTICATED")`; `requireSessionForDev()` baru mengembalikan placeholder saat `DEV_AUTH_BYPASS=1` **dan** bukan production |
 | AUTHZ-07 | Ownership check pada resource milik user | OWASP A01 | ❌ belum | — | wajib | `getUserById` tidak memeriksa kepemilikan |
 | AUTHZ-08 | Role check pada halaman baca data sensitif | OWASP A01 | ❌ belum | — | wajib | `/users`, `/settings/ueba`, `/settings/observability` terbuka |
 | AUTHZ-09 | Role check pada halaman audit log | OWASP A01 | ❌ belum | — | wajib | Halaman audit belum ada sama sekali |
@@ -97,7 +97,7 @@ Total 163 item: 82 `✅ ada`, 26 `🟡 parsial`, 55 `❌ belum`.
 | ID | Item | Kategori | Status | Bukti | Prioritas | Catatan |
 | --- | --- | --- | --- | --- | --- | --- |
 | CSRF-01 | Proteksi CSRF pada Server Action | OWASP A01 | 🟡 parsial | `next.config.ts:27` | wajib | Next 16 memverifikasi Origin untuk Server Action; tidak ada token CSRF eksplisit |
-| CSRF-03 | `sameSite` cookie mencegah pengiriman lintas situs | OWASP A01 | 🟡 parsial | `src/features/auth/mfa-session.ts:20` | wajib | `lax`; token MFA tidak di-backup pada sebagian browser |
+| CSRF-03 | `sameSite` cookie mencegah pengiriman lintas situs | OWASP A01 | 🟡 parsial | `src/features/auth/session.ts:35` | wajib | `lax` pada `mfa_pending` dan `mock_session`; token MFA tidak di-backup pada sebagian browser |
 
 ## F. Rate Limiting dan Anti-Abuse
 
@@ -253,8 +253,8 @@ Dihitung dari tabel di atas, bukan diketik manual. Kalau kamu menambah atau meng
 
 | Kategori | Item | `✅ ada` | `🟡 parsial` | `❌ belum` |
 | --- | --- | --- | --- | --- |
-| A. Authentication dan Session | 26 | 13 | 5 | 8 |
-| B. Authorization | 10 | 0 | 2 | 8 |
+| A. Authentication dan Session | 26 | 12 | 7 | 7 |
+| B. Authorization | 10 | 1 | 2 | 7 |
 | C. Input Validation | 14 | 11 | 1 | 2 |
 | D. HTTP Headers | 12 | 9 | 1 | 2 |
 | E. CSRF | 2 | 0 | 2 | 0 |
@@ -267,18 +267,18 @@ Dihitung dari tabel di atas, bukan diketik manual. Kalau kamu menambah atau meng
 | M. Supply Chain | 9 | 6 | 1 | 2 |
 | N. Infrastructure | 12 | 8 | 2 | 2 |
 | O. Testing dan Secure Development Lifecycle | 10 | 5 | 0 | 5 |
-| P. Compliance dan Tata Kelola | 9 | 2 | 4 | 3 |
-| **Total** | **163** | **82** | **26** | **55** |
+| P. Compliance dan Tata Kelola | 8 | 2 | 4 | 2 |
+| **Total** | **162** | **82** | **28** | **52** |
 
 ## Tujuh Gap Kritis
 
 Diurutkan berdasarkan dampak, bukan berdasarkan banyaknya work item.
 
-1. **Tidak ada autentikasi maupun session di boundary mana pun.** `requireSession()` mengembalikan admin konstan (`src/lib/rbac.ts:15`), `proxy.ts` tidak ada, dan layout dashboard tidak melakukan apa pun. Semua data dashboard terbaca oleh siapa pun yang tahu URL. (AUTHZ-01, AUTHZ-05, AUTHZ-06, AUTHZ-08)
+1. **Session masih mock dan tidak ada guard awal di proxy.** `requireSession()` (`src/lib/rbac.ts:73`) sudah membaca cookie `mock_session` dan menolak tanpanya, dan `src/app/(dashboard)/layout.tsx` sudah melempar redirect ke `/login`, tetapi token hanya dicocokkan ke `Map` memori proses tanpa verifikasi signature/kunci server, hilang saat restart, dan tidak konsisten lintas instance. Satu-satunya perimeter adalah guard layout itu sendiri — `proxy.ts` tetap tidak ada, sehingga route di luar `(dashboard)` dan route auth tetap terbuka. (AUTHZ-01, AUTHZ-05)
 2. **Audit log tidak pernah ditulis.** `logAudit()` tidak punya call site, tidak ada halaman audit, dan store-nya in-memory. `/settings/logs` disebut di komentar `src/app/robots.ts:8` padahal route-nya tidak ada, sehingga tidak ada jejak audit untuk insiden apa pun. (LOG-03, LOG-06, LOG-08)
 3. **Tidak ada hashing password, dan kredensial demo ada di source.** `src/features/auth/service.ts:94`. (AUTH-01, AUTH-02, SEC-07)
 4. **Redactor tidak dipakai pada logger.** `redactTags()` hanya berjalan pada `tags` metrik dan `metadata` audit; teks dari user masuk log apa adanya di `src/features/contact/actions.ts:70`. (LOG-10, DP-08)
-5. **Otorisasi hanya di sebagian boundary.** `disableMfaAction` memakai `CURRENT_USER_ID` tanpa cek session; halaman `/users`, `/settings/ueba`, `/settings/observability` terbuka. (AUTHZ-03, AUTHZ-04)
+5. **Server Action dan `requireRole` tidak terpakai.** Satu-satunya Server Action yang tersisa di repo adalah `src/features/auth/actions.ts` (`loginAction` publik tanpa session, `logoutAction` hanya mencabut sesi pemanggil), sementara `requireRole()` tidak punya satu pun pemanggil — helper hierarki role ada tapi tidak menjadi gate di mana pun. Semua mutasi lewat UI kini terjadi di handler client yang memanggil service in-memory, jadi tidak ada boundary server yang bisa menolak. (AUTHZ-03, AUTHZ-04, AUTHZ-08)
 6. **Tidak ada test runner sama sekali.** `package.json` hanya punya empat script, sehingga tidak ada cara mendeteksi regresi keamanan otomatis pada `verifyChain`, `redactTags`, atau `verifyTotpCode`. (TST-01, TST-05, TST-06)
 7. **Semua state in-memory, sehingga rate limit dan kontrol lain hilang saat restart.** Termasuk rate limit, MFA challenge, backup code yang sudah terpakai, audit, dan metrik. (AUTH-38, LOG-06)
 
@@ -286,9 +286,9 @@ Diurutkan berdasarkan dampak, bukan berdasarkan banyaknya work item.
 
 Urutan berdasarkan nilai per usaha. Tidak ada item di daftar ini yang butuh database, email, atau layanan eksternal.
 
-1. Pasang `proxy.ts` sebagai guard awal dengan allowlist route publik dan redirect ke `/login` (AUTHZ-01).
-2. Ubah `requireSession()` menjadi default-deny dengan satu flag demo sementara, dan gagalkan start bila kombinasi flag tidak valid (AUTH-31, AUTHZ-05).
-3. Wiring `logAudit()` ke `loginAction`, `verifyMfaAction`, `verifyBackupCodeAction`, `disableMfaAction`, `createUserAction`, `updateUserAction`, `deleteUserAction`, dan `requestPasswordReset` (LOG-03).
+1. ~~Pasang `proxy.ts` sebagai guard awal dengan allowlist route publik dan redirect ke `/login` (AUTHZ-01).~~ Masih belum ada `proxy.ts`; yang sudah jalan versi lebih sempit: guard `(dashboard)/layout.tsx` lewat `requirePageSession()`. Sisa pekerjaannya: allowlist route publik di proxy, bukan menyentak guard layout yang sudah ada.
+2. ~~Ubah `requireSession()` menjadi default-deny dengan satu flag demo sementara~~ — sudah terpasang: `requireSession()` membaca cookie session mock dan melempar `UNAUTHENTICATED`, sementara bypass dev hanya lewat `requireSessionForDev()` dan hanya bila `DEV_AUTH_BYPASS=1` serta bukan production. Yang tersisa: mengganti token memori dengan session terverifikasi kriptografis, dan menambah lockout akun (AUTH-08, AUTHZ-05).
+3. Wiring `logAudit()` ke `verifyMfaAction`, `verifyBackupCodeAction`, `disableMfaAction`, `createUserAction`, `updateUserAction`, `deleteUserAction`, dan `requestPasswordReset` (LOG-03). `loginAction` dan `logoutAction` sudah masuk: login mencatat `login_success`/`login_rejected`/`rate_limit_hit`, logout masih memakai logger karena belum ada nama action audit-nya.
 4. Tambahkan halaman `/settings/logs` yang membaca `queryAuditEvents()` dan menampilkan hasil `verifyAuditIntegrity()` (LOG-08).
 5. Perbaiki `roleChanged` agar hanya dikirim saat role benar-benar berubah, dan tambahkan event terpisah untuk perubahan role (AUTHZ-12).
 6. Pindahkan redaksi ke dalam `logger`; terapkan juga pada `actor`, `userAgent`, dan `host` di audit (LOG-10, LOG-11).

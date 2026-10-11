@@ -33,8 +33,8 @@ Peristiwa yang menyebabkan, atau berisiko menyebabkan, compromise terhadap kerah
 
 Prosedur di bawah harus dibaca sebagai kerangka kerja untuk kondisi produksi, bukan sebagai sesuatu yang langsung bisa dipakai pada template sekarang. Kondisi faktual per pembacaan kode:
 
-- Tidak ada autentikasi nyata. `requireSession()` di `src/lib/rbac.ts:14` mengembalikan `{ id: "usr_placeholder", role: "admin" }` untuk semua pemanggil, sehingga setiap boundary yang memanggil `requireRole` saat ini selalu lolos.
-- Tidak ada session dan tidak ada cookie session. Satu-satunya cookie yang ada adalah `mfa_pending` (`src/features/auth/mfa-session.ts:13`) dengan `httpOnly`, `sameSite: "lax"`, `secure` hanya di production, dan `path` terbatas ke `/login/mfa`.
+- Autentikasi masih mock. `requireSession()` (`src/lib/rbac.ts:73`) membaca cookie `mock_session` melalui `src/features/auth/session.ts`: token hanya dicocokkan ke `Map` di memori proses, tidak ada verifikasi signature atau kunci server, dan isinya hilang saat restart. Sesi placeholder `{ id: "usr_placeholder", role: "admin" }` hanya bisa keluar dari `requireSessionForDev()` dan hanya saat `DEV_AUTH_BYPASS=1` **dan** `NODE_ENV` bukan production, jadi jalur produksi gagal tertutup dengan `AppError("UNAUTHENTICATED")` — bukan dengan sesi admin gratis.
+- Ada dua cookie, bukan satu: `mock_session` (`src/features/auth/session.ts`, `httpOnly`, `sameSite: "lax"`, `path: "/"`, `secure` hanya di production, `maxAge` 8 jam atau 30 hari untuk remember-me) dan `mfa_pending` (`src/features/auth/mfa-session.ts`, `httpOnly`, `sameSite: "lax"`, `secure` hanya di production, `path` terbatas ke `/login/mfa`). Keduanya tetap token in-memory tanpa daftar pencabutan.
 - Tidak ada Route Handler dan tidak ada database. Semua state adalah `Map` in-memory yang hilang saat restart.
 - **Audit log tidak pernah ditulis.** `logAudit()` (`src/features/audit/lib/log-audit.ts:22`) tidak dipanggil dari mana pun di `src/`. Store audit, hash chain, dan `verifyAuditIntegrity()` (`src/features/audit/service.ts:67`) ada, tetapi tidak tersambung ke alur bisnis dan tidak ada halaman yang menampilkannya. Konsekuensi: pada kondisi saat ini, "evidence audit" insiden tidak ada. Sumber bukti yang benar-benar ada hanya log pino (`src/lib/logger.ts`) dan event store observability.
 - Rate limit in-memory (`src/lib/rate-limit.ts`) hilang efektifnya setiap restart dan tidak berlaku lintas instance.
@@ -83,7 +83,7 @@ Peran yang harus diisi manusia sebelum dokumen ini dipakai:
 - Kontak infra/ops: [TODO]
 - Kontak hosting, registry, dan CA: [TODO]
 
-Catatan arsitektur untuk IC: pada template ini IC tidak punya akses ke data lewat dashboard karena tidak ada session. Semua data operasional ada di satu proses, jadi bukti awal hampir selalu berupa log container, bukan query database. Jangan mencari halaman log yang belum ada.
+Catatan arsitektur untuk IC: dashboard `(dashboard)` sudah dijaga `requirePageSession()` dan mengarahkan pengunjung tanpa sesi ke `/login`, tetapi izin dashboard tetap mengikuti sesi apa adanya — role di sesi belum dipakai sebagai gate per halaman. Semua data operasional ada di satu proses, jadi bukti awal hampir selalu berupa log container, bukan query database. Jangan mencari halaman log yang belum ada.
 
 ## 4. Prosedur respons awal
 
@@ -121,12 +121,12 @@ Semua playbook mengikuti urutan: contain, investigate, remediate. Karena tidak a
 | Langkah | Tindakan | Realisasi pada repo ini |
 | --- | --- | --- |
 | Deteksi | Lonjakan `auth.login.failure` dan `security.rate_limit` di `/settings/observability`; anomali `failed_login_burst` di UEBA (ambang 5 kegagalan dalam 15 menit, `src/features/ueba/lib/anomaly.ts:23`) | Metrik ada, alert tidak ada |
-| Contain | Naikkan `MFA_RATE_LIMIT` di `src/features/auth/actions.ts:51`; blokir sumber di `nginx/nginx.conf` atau di lapisan CDN | Default 5 percobaan per 15 menit |
+| Contain | Perketat `AUTH_RATE_LIMIT` di `src/features/auth/actions.ts:27` (5 percobaan/15 menit) dan blokir sumber di `nginx/nginx.conf` atau di lapisan CDN; sebelumnya konstanta `MFA_RATE_LIMIT` ikut turun di file yang sama, sekarang limiter hanya dipakai oleh `loginAction` | Default 5 percobaan per 15 menit |
 | Investigasi | Akun mana yang diserang. Log `auth.login.rejected` sengaja tanpa email (`src/features/auth/service.ts:134`), jadi sumber informasi tambahan tidak tersedia | Terbatas |
-| Eradicate | Rate limit per IP **dan** per email, plus lockout akun | Hanya per email |
+| Eradicate | Rate limit per IP **dan** per email, plus lockout akun | Sudah per email dan per IP-hash (`src/features/auth/actions.ts:134-138`); lockout akun belum |
 | Notifikasi | Email ke owner akun yang terdeteksi | [TODO: kanal notifikasi] |
 
-Perhatikan: `enforceRateLimit` dipanggil dengan `String(result.data.email)` sebagai identifier (`src/features/auth/actions.ts:158`). Penyerang yang mencoba banyak email sekaligus tidak pernah menaikkan satu bucket pun, dan penyerang yang bersiklus memakai e-mail berbeda tidak pernah terkena limit yang sama.
+Perhatikan: `loginAction` memakai **dua** bucket sekaligus (`src/features/auth/actions.ts:134-138`) — satu per email, satu per IP-hash hasil `getSafeRequestContext()`. Bucket per-IP sengaja dilewati bila `ipHash` null (dev atau proxy tanpa `x-forwarded-for`/`x-real-ip`), dan limiter yang tersisa hanya itu: MFA dan action lain tidak lagi memanggil `enforceRateLimit`. Karena itu penyerang yang merotasi email tetap terbendung selama IP-nya masuk bucket, tetapi setiap jalur selain login (verifikasi MFA, reset password, aksi admin) sama sekali tidak dibatasi. Store limiter juga in-memory, jadi restart me-reset seluruh kuota.
 
 ### 5.2 XSS stored dan reflected
 
@@ -135,7 +135,7 @@ Perhatikan: `enforceRateLimit` dipanggil dengan `String(result.data.email)` seba
 | Contain | Tutup endpoint atau fitur yang menulis payload; blokir akses ke sumber data bila perlu |
 | Investigasi | Dua `dangerouslySetInnerHTML` yang ada di repo keduanya internal, bukan input user: `src/app/layout.tsx:39` (initializer tema, nilainya `JSON.stringify(ALLOWED_THEME_VARS)` yang konstan) dan `src/components/ui/chart.tsx:94` (warna dari `src/lib/color.ts`). Keduanya wajib direview ulang setiap kali sumber warna dinamis ditambahkan |
 | Eradicate | Output encoding di server; sanitasi ketat bila `dangerouslySetInnerHTML` tidak dapat dihindari |
-| Rekonsiliasi | CSP adalah statis dengan `'unsafe-inline'` pada `script-src` dan `style-src` (`next.config.ts:20`). Artinya CSP saat ini tidak akan menghentikan XSS inline. Lihat catatan nonce versus static generation di `docs/SECURITY.md` |
+| Rekonsiliasi | `next.config.ts` tidak lagi mengirim header keamanan apa pun — CSP, `X-Frame-Options`, `Referrer-Policy`, dan `Permissions-Policy` semuanya tidak ada, jadi XSS inline justru tidak tertahan apa pun. Catatan lama soal `'unsafe-inline'` demi static generation sudah tidak berlaku: `output: "export"` sudah dibuang, jadi pola nonce di `proxy.ts` kini tidak lagi terhalang static export — hanya memang belum ada |
 | Deteksi dini | Belum ada. Event `security.xss_*` tidak ada di `src/features/observability/lib/constants.ts` |
 
 ### 5.3 IDOR
@@ -196,16 +196,16 @@ Karena tidak ada feature flag, contain saat ini harus lewat perubahan kode dan d
 | Halaman UEBA dan observability | Hapus dari nav (`src/config/site.ts`) atau ubah page menjadi `notFound()` | Kehilangan visibility saat insiden; gunakan hanya sementara |
 | Seed data demo | Sudah otomatis nonaktif di production (`src/features/observability/actions.ts:20`) | Tidak ada tindakan |
 | Registrasi MFA baru | Hapus opsi enrol TOTP dan email dari `MfaSecuritySettings` | User dengan MFA aktif tetap terlindungi; user baru tidak |
-| MFA aktif per user | `disableMfa` sudah dapat dipanggil per user (`src/features/auth/actions.ts:549`) | Requires knowing user id; tidak ada UI admin untuk itu |
-| Token reset password | Hapus isi `resetTokensByHash`; `purgeExpiredResetTokens()` sudah ada (`src/features/auth/service.ts:172`) | Semua tautan reset menjadi tidak valid |
-| Langkah MFA pada login | Hapus pemanggilan `beginMfaChallenge` di `src/features/auth/actions.ts:203` | Penurunan keamanan yang serius bila MFA aktif; catat sebagai risk accept |
+| MFA aktif per user | `disableMfa()` ada di `src/features/auth/service.ts:732` dan dipanggil dari `src/features/auth/components/mfa-security-settings.tsx` (self-service, butuh password user sendiri) | Tidak ada UI admin untuk menonaktifkan MFA user lain; knowing user id saja tidak cukup |
+| Token reset password | Hapus isi `resetTokensByHash`; `purgeExpiredResetTokens()` sudah ada (`src/features/auth/service.ts:188`) | Semua tautan reset menjadi tidak valid |
+| Langkah MFA pada login | Turunkan alur di `src/features/auth/components/mfa-login-form.tsx`, yang memanggil `beginMfaChallenge()`/`verifyMfaCode()` dari `src/features/auth/service.ts` | Penurunan keamanan yang serius bila MFA aktif; catat sebagai risk accept |
 | Rate limit | Naikkan `maxAttempts` dan `windowMs` pada konstanta terkait | Hanya membantu, bukan contain yang utuh |
 | Rate limit lintas instance | Belum ada; butuh Redis atau provider serupa | Containment rate limit tidak berlaku lintas instance |
 
 Pencabutan token:
 
 - Cookie `mfa_pending`: tidak ada daftar pencabutan. Yang dapat dilakukan adalah menyetel `MFA_COOKIE_MAX_AGE_SECONDS` (`src/features/auth/mfa-session.ts:15`) menjadi 0 sehingga cookie langsung invalid, dan menghapus challenge di `challengesByToken`. Karena `Map` in-memory hilang saat restart, restart container adalah satu-satunya "revoke-all" yang benar-benar berhasil saat ini, dengan harga seluruh bukti in-memory hilang.
-- Session user: tidak ada. Revoke tidak dapat dilakukan; harus ditambahkan backend lebih dulu.
+- Session user (`mock_session`): `destroySession()` (`src/features/auth/session.ts:129`) menghapus token dari `Map` dan mengosongkan cookie, tapi hanya untuk sesi yang cookie-nya ikut pada request itu; tidak ada revoke per user dan tidak ada daftar pencabutan. Karena store-nya memori proses, satu-satunya "revoke semua token" yang benar-benar berhasil adalah restart container — dengan harga seluruh state in-memory lain (rate limit, audit, metrik) ikut hilang.
 - Secret TOTP dan backup code: tidak ada endpoint reset admin. Perlu `disableMfa` lalu enrol ulang per user.
 - Token reset password: `resetPassword()` (`src/features/auth/service.ts:217`) hanya menandai token sebagai terpakai dan tidak mengubah password apa pun. Jadi "invalidate token reset" saat ini berarti menghapus isi `resetTokensByHash`.
 

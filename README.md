@@ -1,8 +1,8 @@
 # Next.js Dashboard Template
 
-Template minimal untuk membangun dashboard Next.js berbasis App Router. Template ini menyediakan fondasi Next.js, React, TypeScript, Tailwind CSS, konfigurasi ESLint, security header dasar, dan dokumentasi arsitektur serta standar implementasi.
+Template minimal untuk membangun dashboard Next.js berbasis App Router. Template ini menyediakan fondasi Next.js, React, TypeScript, Tailwind CSS, konfigurasi ESLint, dokumentasi arsitektur serta standar implementasi, dan fondasi autentikasi mock di server. Konfigurasi security header sudah tersedia di dokumentasi tetapi belum aktif di `next.config.ts` — lihat bagian [Keamanan](#keamanan).
 
-> **Status saat ini:** fondasi aplikasi, UI publik, UI autentikasi, shell dashboard, dan dashboard content visual tersedia. Integrasi autentikasi production, database, RBAC, dan fitur produksi belum diimplementasikan.
+> **Status saat ini:** fondasi aplikasi, UI publik, UI autentikasi, shell dashboard, dan dashboard content visual tersedia. Autentikasi sudah berjalan sebagai **mock di server** — cookie session `mock_session`, guard route `(dashboard)`, dan Server Action login/logout — tetapi autentikasi production, database, RBAC nyata, dan fitur produksi belum diimplementasikan.
 
 ## Fitur Saat Ini
 
@@ -16,6 +16,7 @@ Template minimal untuk membangun dashboard Next.js berbasis App Router. Template
 - Route dasar di `src/app/`.
 - Dark mode dengan `next-themes` dan pilihan Light, Dark, serta System.
 - Fondasi RFC 9457 dengan taxonomy error, `problemResponse`, dan logger terstruktur.
+- Autentikasi mock di server: cookie session `mock_session` (`src/features/auth/session.ts`), guard route `(dashboard)`, dan Server Action `loginAction`/`logoutAction` (`src/features/auth/actions.ts`).
 - Konfigurasi aplikasi terpusat di `src/config/site.ts`.
 - Notifications UI di topbar dengan unread count dan status dibaca tersimpan lokal per browser.
 
@@ -23,7 +24,7 @@ Template minimal untuk membangun dashboard Next.js berbasis App Router. Template
 
 - [x] Setup Next.js + shadcn/ui + dokumentasi standar
 - [x] Dark mode + security headers + error taxonomy (RFC 9457)
-- [x] Auth UI routes (`/login`, `/register`, `/forgot-password`, `/reset-password`, `/check-email`, `/invite/[token]`, `/verify-email`), config-driven dan tanpa session production
+- [x] Auth UI routes (`/login`, `/register`, `/forgot-password`, `/reset-password`, `/check-email`, `/invite/[token]`, `/verify-email`), config-driven; login memakai session mock di server, bukan session production
 - [x] Public pages (`/`, `/terms`, `/privacy`)
 - [x] PublicHeader memakai CTA anonim yang valid ke `/login` dan `/register`; session production belum tersedia
 - [x] Layout dashboard (sidebar + topbar)  ← Sprint 1
@@ -79,6 +80,8 @@ npm run dev
 ```
 
 Buka `http://localhost:3000` di browser. Development server akan memuat ulang perubahan secara otomatis.
+
+Login memakai **satu user mock** yang kredensialnya didefinisikan di `src/features/auth/service.ts` (DAL demo; jangan dipakai ulang di kode lain). Sesi yang terbit adalah session mock di server, bukan session production.
 
 Untuk instalasi reproducible pada CI atau deployment, gunakan `npm ci`:
 
@@ -171,7 +174,7 @@ Server Component digunakan secara default. Tambahkan `"use client"` hanya pada b
 
 ## Keamanan
 
-Baseline yang sudah diterapkan:
+Baseline yang seharusnya sudah diterapkan:
 
 - `X-DNS-Prefetch-Control: on`
 - `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload` (aktif pada deployment HTTPS)
@@ -180,16 +183,18 @@ Baseline yang sudah diterapkan:
 - `Referrer-Policy: strict-origin-when-cross-origin`
 - `Permissions-Policy: camera=(), microphone=(), geolocation=()`
 
+**Verifikasi kondisi nyata:** `next.config.ts` saat ini **tidak mengirim satu pun** header di atas — blok `headers()` sudah tidak ada, dan pencarian `Content-Security-Policy`/`X-Frame-Options` di source, `nginx/nginx.conf`, maupun workflow CI tidak menemukan apa pun. Dulu header itu dipasang bersama `output: "export"` dan hilang bersamaan dengannya. Sampai blok `headers()` dipasang kembali, jangan menganggap list di atas sebagai baseline yang aktif; gap-nya juga sudah dicatat di `docs/ARCHITECTURE.md` §16.
+
 Control keamanan berikut **belum diimplementasikan**:
 
-- Autentikasi dan session production.
-- RBAC, permission, ownership check, dan guard route privat.
+- Autentikasi production: hashing password (DAL masih menyimpan kredensial demo sebagai string), session durable yang terverifikasi secara kriptografis, dan lockout akun.
+- RBAC, permission, ownership check, dan guard route privat di luar grup `(dashboard)`.
 - Database, schema, migrasi, dan parameterized query.
 - Content Security Policy (CSP).
 - Monitoring keamanan dan audit dependency.
 - Secret manager untuk runtime production.
 
-Fondasi yang sudah tersedia mencakup validasi input pada UI auth, rate limiting in-memory untuk auth UI, logger terstruktur, dan typed environment. Auth/session production belum tersedia.
+Fondasi yang sudah tersedia mencakup validasi input pada UI auth, rate limiting in-memory untuk auth UI, session mock di server dengan cookie `httpOnly`, guard route `(dashboard)`, logger terstruktur, dan typed environment. Session mock itu **bukan** session production: token hidup di memori proses, hilang saat restart, tidak konsisten lintas instance, dan tidak ada verifikasi signature maupun kunci server.
 
 Jangan menganggap security header yang tersedia sebagai pengganti autentikasi, authorization, validasi input, atau threat model. Lihat [docs/SECURITY.md](docs/SECURITY.md).
 
@@ -205,11 +210,11 @@ Status di bawah memisahkan fondasi yang sudah tersedia dari pekerjaan yang belum
 | Dokumentasi arsitektur dan standar implementasi | **Selesai** | Tersedia di `docs/` |
 | Dashboard shell, sidebar, topbar, dan navigasi | **Sebagian tersedia** | Shell, sidebar, topbar, `/dashboard`, `/users`, `/settings` tersedia; layout mobile dan detail navigasi menunggu verifikasi browser |
 | Komponen shadcn/ui | **Sebagian tersedia** | Primitive UI auth dan layout dasar tersedia |
-| UI autentikasi | **Sebagian tersedia** | Login/register/forgot/reset tersedia; service masih placeholder |
-| Autentikasi dan session | **Belum diimplementasikan** | Library, guard, cookie, dan authorization belum ada |
+| UI autentikasi | **Sebagian tersedia** | Login/register/forgot/reset tersedia; login sudah memakai session mock di server |
+| Autentikasi dan session | **Sebagian tersedia** | Session mock server-side (`src/features/auth/session.ts`, cookie `mock_session` `httpOnly`/`sameSite=lax`), guard dashboard di `(dashboard)/layout.tsx`, dan Server Action `loginAction`/`logoutAction`; session production (signature, store durable, lockout) belum ada |
 | Database, ORM, schema, dan migrasi | **Belum diimplementasikan** | Belum ada koneksi atau service database |
 | Service layer dan fitur domain | **Sebagian tersedia** | Feature auth dan contract service tersedia |
-| Server Actions dan Route Handler | **Sebagian tersedia** | Auth Server Actions tersedia; endpoint database belum |
+| Server Actions dan Route Handler | **Sebagian tersedia** | `loginAction` dan `logoutAction` (`src/features/auth/actions.ts`) sudah aktif; sisa UI auth masih memakai handler lokal dan endpoint database belum |
 | Loading, error, empty state, dan not-found | **Sebagian tersedia** | Root fallback tersedia; coverage per segment belum lengkap |
 | Validasi input dan rate limiting | **Sebagian tersedia** | Auth UI schema dan in-memory limiter tersedia |
 | CSP, logging keamanan, audit dependency, monitoring | **Belum diimplementasikan** | Persyaratan keamanan untuk fitur produksi |
@@ -219,7 +224,7 @@ Urutan yang disarankan untuk pengembangan berikutnya:
 
 1. Finalisasi identitas, kebutuhan, dan scope aplikasi.
 2. Tambahkan shell dashboard dan primitive UI seperlunya.
-3. Pilih dan implementasikan autentikasi serta session.
+3. Ganti session mock dengan autentikasi serta session production (hashing password, session terverifikasi, lockout akun).
 4. Tambahkan service layer, database, schema, dan migrasi.
 5. Implementasikan authorization pada route, action, handler, dan service.
 6. Tambahkan validasi input, error handling, loading, dan empty state.

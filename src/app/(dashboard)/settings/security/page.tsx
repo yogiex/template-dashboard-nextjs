@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { MfaSecuritySettings } from "@/features/auth/components/mfa-security-settings";
 import { SECURITY_SETTINGS_CONFIG } from "@/config/mfa-pages";
-import { requirePageSessionForDev } from "@/features/auth/require-page-session";
+import { requirePageSession } from "@/features/auth/require-page-session";
 import { getMfaStatus } from "@/features/auth/service";
 
 export const metadata: Metadata = {
@@ -11,11 +11,10 @@ export const metadata: Metadata = {
 };
 
 export default async function SecuritySettingsPage() {
-  // Status MFA milik akun yang sedang login. Guard di layout sudah menutup route
-  // ini, tapi halaman ini juga memanggil DAL, jadi pemanggilnya butuh id
-  // session-nya sendiri; affordance dev yang sama dipakai supaya
-  // `DEV_AUTH_BYPASS=1` tetap cukup untuk membuka halaman.
-  const session = await requirePageSessionForDev();
+  // Layout sudah menutup route ini, tapi halaman ini tetap mengambil sesinya
+  // sendiri: `getMfaStatus()` butuh id pemilik data, dan pemanggil yang bodoh
+  // soal guard hanyalah satu refactor jauhnya dari halaman tanpa guard.
+  const session = await requirePageSession();
   const status = await getMfaStatus(session.id);
 
   return (
