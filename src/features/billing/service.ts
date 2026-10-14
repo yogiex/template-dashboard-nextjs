@@ -104,4 +104,3 @@ export function downloadInvoice(inv: Invoice): void {
   a.remove();
   URL.revokeObjectURL(url);
 }
-}

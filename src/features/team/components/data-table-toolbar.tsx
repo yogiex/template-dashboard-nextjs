@@ -59,6 +59,7 @@ export function DataTableToolbar({ initialQuery, initialRole }: DataTableToolbar
       <Select
         value={role}
         onValueChange={(val) => {
+          if (!val) return;
           setRole(val);
           pushParams({ role: val });
         }}

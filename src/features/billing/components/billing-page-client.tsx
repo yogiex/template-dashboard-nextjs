@@ -214,5 +214,5 @@ function StatusBadge({ status }: { status: Invoice["status"] }) {
   };
   const variant =
     status === "paid" ? "secondary" : status === "pending" ? "outline" : "destructive";
-  return <Badge variant={variant as any}>{map[status]}</Badge>;
+  return <Badge variant={variant as "secondary" | "outline" | "destructive"}>{map[status]}</Badge>;
 }

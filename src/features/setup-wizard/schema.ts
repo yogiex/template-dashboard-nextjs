@@ -24,9 +24,9 @@ export const setupWizardSchema = z.object({
     .max(254, "Email terlalu panjang")
     .optional(),
   inviteRole: z.enum(["admin", "editor", "viewer"]).optional(),
-  emailNotifications: z.boolean().default(false),
-  pushNotifications: z.boolean().default(false),
-  weeklyDigest: z.boolean().default(false),
+  emailNotifications: z.boolean(),
+  pushNotifications: z.boolean(),
+  weeklyDigest: z.boolean(),
 });
 
 export const setupWizardConfigSchema = z.object({

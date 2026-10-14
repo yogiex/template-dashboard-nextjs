@@ -119,12 +119,12 @@ export function AuditEnhancements({ events, report }: Props) {
       <div className="rounded-md border bg-muted/30 p-3 text-sm">
         <p className="font-medium">Integritas Hash Chain</p>
         <p className="text-muted-foreground">
-          {report.valid
+          {report.brokenAtIndex === -1
             ? "Rantai valid."
             : `Rantai bermasalah di indeks ${report.brokenAtIndex ?? "?"}.`}
         </p>
         <p className="text-xs text-muted-foreground">
-          Total entry: {report.totalEntries} • Diverifikasi: {new Date(report.checkedAt).toLocaleString("id-ID")}
+          Total entry: {report.checkedEntries} • Diverifikasi: {new Date(report.verifiedAt).toLocaleString("id-ID")}
         </p>
       </div>
     </section>

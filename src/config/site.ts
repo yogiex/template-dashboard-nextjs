@@ -1,4 +1,4 @@
-import { Bell, CreditCard, FileBarChart, KeyRound, LayoutDashboard, LifeBuoy, Network, Plug, Settings, ShieldCheck, Users, type LucideIcon } from "lucide-react";
+import { Bell, CreditCard, FileBarChart, KeyRound, LayoutDashboard, LifeBuoy, Network, Plug, Settings, ShieldCheck, Sparkles, Users, type LucideIcon } from "lucide-react";
 
 import { env } from "@/lib/env";
 

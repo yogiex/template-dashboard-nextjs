@@ -19,11 +19,11 @@ export default function HelpPage() {
   const categories = helpConfig.categories.map((c) => ({
     id: c.id,
     title: c.title,
-    faq: Array.from(c.faq),
+    faq: [...c.faq] as HelpFaqItem[],
   }));
 
   const allItems: HelpFaqItem[] = helpConfig.categories.flatMap((c) =>
-    Array.from(c.faq),
+    [...c.faq] as HelpFaqItem[],
   );
 
   const categoryMap: Record<string, HelpFaqItem[]> = {};

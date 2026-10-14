@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -13,9 +13,6 @@ const C = MFA_SETTINGS_CONFIG;
 
 export function DeviceTrustToggle() {
   const [state, setState] = useState(loadMfaState);
-  useEffect(() => {
-    setState(loadMfaState());
-  }, []);
 
   const toggle = (checked: boolean) => {
     setState((prev) => {

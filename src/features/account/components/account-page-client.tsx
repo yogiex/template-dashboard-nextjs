@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ACCOUNT_SETTINGS_CONFIG } from "@/config/account-settings";
@@ -13,11 +13,7 @@ import { loadSessions, type SessionInfo as LoadedSession } from "@/features/acco
 const C = ACCOUNT_SETTINGS_CONFIG;
 
 export function AccountPageClient() {
-  const [sessions, setSessions] = useState<LoadedSession[]>([]);
-
-  useEffect(() => {
-    setSessions(loadSessions());
-  }, []);
+  const [sessions, setSessions] = useState<LoadedSession[]>(() => loadSessions());
 
   return (
     <div className="max-w-3xl space-y-8">

@@ -19,20 +19,8 @@ function TeamFallback() {
   );
 }
 
-async function TeamContent({
-  searchParamsPromise,
-}: {
-  searchParamsPromise: Promise<{
-    q?: string;
-    role?: string;
-    sort?: string;
-    dir?: string;
-    page?: string;
-    pageSize?: string;
-  }>;
-}) {
-  const sp = await searchParamsPromise;
-  const query = teamQuerySchema.parse(sp);
+async function TeamContent() {
+  const query = teamQuerySchema.parse({});
   const result = await getTeamMembers(query);
   return (
     <PageShell
@@ -48,21 +36,10 @@ async function TeamContent({
   );
 }
 
-export default function TeamPage({
-  searchParams,
-}: {
-  searchParams: Promise<{
-    q?: string;
-    role?: string;
-    sort?: string;
-    dir?: string;
-    page?: string;
-    pageSize?: string;
-  }>;
-}) {
+export default function TeamPage() {
   return (
     <Suspense fallback={<TeamFallback />}>
-      <TeamContent searchParamsPromise={searchParams} />
+      <TeamContent />
     </Suspense>
   );
 }

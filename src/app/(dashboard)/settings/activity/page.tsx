@@ -19,26 +19,16 @@ function ActivityFallback() {
   );
 }
 
-export default function ActivityPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
+export default function ActivityPage() {
   return (
     <Suspense fallback={<ActivityFallback />}>
-      <ActivityContent searchParams={searchParams} />
+      <ActivityContent />
     </Suspense>
   );
 }
 
-async function ActivityContent({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const params = await searchParams;
+async function ActivityContent() {
   const query: Record<string, string> = {};
-  if (typeof params.category === "string") query.category = params.category;
 
   const { items } = queryActivityFeed(query as Record<string, unknown>);
 

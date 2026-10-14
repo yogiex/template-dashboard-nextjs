@@ -1,10 +1,10 @@
 import { clientLogger } from "@/lib/logger-client";
-import { deleteAccountConfirmationSchema, profileFormSchema, type ProfileFormValues, sessionsSchema } from "@/features/account/schema";
+import { deleteAccountConfirmationSchema, profileFormSchema, type ProfileFormValues, type SessionInfo, sessionsSchema } from "@/features/account/schema";
 
 const PROFILE_KEY = "account.profile";
 const SESSIONS_KEY = "account.sessions";
 
-const DEFAULT_SESSIONS: import("@/features/account/schema").SessionInfo[] = [
+const DEFAULT_SESSIONS: SessionInfo[] = [
   {
     id: "ses_current",
     device: "Chrome di Windows",
@@ -19,6 +19,7 @@ const DEFAULT_SESSIONS: import("@/features/account/schema").SessionInfo[] = [
     os: "iOS 18",
     ipHash: "h_4b2e",
     lastActiveAt: new Date(Date.now() - 2 * 60 * 60_000).toISOString(),
+    isCurrent: false,
   },
 ];
 
@@ -55,9 +56,9 @@ export function saveProfile(profile: ProfileFormValues): boolean {
   }
 }
 
-export type SessionInfo = typeof import("@/features/account/schema").SessionInfo;
+export type { SessionInfo };
 
-export function loadSessions(): (typeof import("@/features/account/schema").SessionInfo)[] {
+export function loadSessions(): SessionInfo[] {
   if (typeof window === "undefined") return DEFAULT_SESSIONS;
   try {
     const raw = window.localStorage.getItem(SESSIONS_KEY);
