@@ -102,3 +102,6 @@ jobs:
 
       - name: Smoke test about
         run: curl -fsSL "${{ steps.url.outputs.pages_url }}/about" >/dev/null
+
+      - name: Smoke test favicon
+        run: curl -fsSL "${{ steps.url.outputs.pages_url }}/favicon.ico" >/dev/null

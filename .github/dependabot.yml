@@ -40,12 +40,3 @@ updates:
       actions:
         patterns:
           - "*"
-
-  - package-ecosystem: docker
-    directory: /
-    schedule:
-      interval: weekly
-      day: monday
-      time: "06:00"
-      timezone: Asia/Jakarta
-    open-pull-requests-limit: 5

@@ -2,9 +2,9 @@
 
 Dokumen ini merangkum baseline keamanan template. Rincian checklist OWASP tersedia di `docs/SECURITY.md`.
 
-## Headers
+## Headers (target, not currently active)
 
-`next.config.ts` mengaktifkan:
+> **Platform limitation:** GitHub Pages (static export) **does not support custom response headers** and `next.config.ts` no longer defines a `headers()` block (it disappeared alongside `output: "export"`). `next.config.ts` therefore sends **none** of the headers below. They remain the documented target for a platform that controls headers (Node host, Cloudflare, nginx), not the current Pages deploy.
 
 - `X-DNS-Prefetch-Control: on`
 - `X-Frame-Options: DENY`
