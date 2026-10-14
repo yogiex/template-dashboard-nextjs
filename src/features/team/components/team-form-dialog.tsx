@@ -66,15 +66,17 @@ export function TeamFormDialog({
 
   const [hasLoaded, setHasLoaded] = useState(false);
   useEffect(() => {
-    if (open && !hasLoaded) {
-      form.reset(valuesFor(member));
-      form.clearErrors();
-      setActionError(null);
-      setHasLoaded(true);
-    }
-    if (!open) {
-      setHasLoaded(false);
-    }
+    queueMicrotask(() => {
+      if (open && !hasLoaded) {
+        form.reset(valuesFor(member));
+        form.clearErrors();
+        setActionError(null);
+        setHasLoaded(true);
+      }
+      if (!open) {
+        setHasLoaded(false);
+      }
+    });
   }, [open, member, form, hasLoaded]);
 
   const onSubmit = async (_values: TeamFormValues) => {

@@ -27,7 +27,7 @@ const MOCK_TEAM_MEMBERS: TeamMember[] = [
 ].map((m) => teamMemberSchema.parse(m));
 
 const members: TeamMember[] = [...MOCK_TEAM_MEMBERS];
-let nextMemberId = MOCK_TEAM_MEMBERS.length + 1;
+const nextMemberId = MOCK_TEAM_MEMBERS.length + 1;
 
 function applySort(
   data: TeamMember[],

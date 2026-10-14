@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Camera, CheckCircle2, KeyRound, Shield } from "lucide-react";
 import { toast } from "sonner";
 
@@ -17,14 +17,7 @@ type Phase = "idle" | "enrolling" | "backup";
 
 export function MfaEnrollCard() {
   const [state, setState] = useState(loadMfaState);
-  const [phase, setPhase] = useState<Phase>(state.enrolled ? "idle" : "idle");
-  useEffect(() => {
-    if (state.enrolled) {
-      setPhase("backup");
-    } else {
-      setPhase("idle");
-    }
-  }, [state.enrolled]);
+  const [phase, setPhase] = useState<Phase>(state.enrolled ? "backup" : "idle");
 
   const [secret, setSecret] = useState<string | null>(null);
   const [code, setCode] = useState("");

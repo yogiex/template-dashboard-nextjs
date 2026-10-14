@@ -1,8 +1,8 @@
 import { clientLogger } from "@/lib/logger-client";
-import { ticketListSchema, type Ticket, createTicketId, createMessageId } from "@/features/support/schema";
+import { ticketListSchema, type Ticket, type TicketPriority, type TicketStatus, createTicketId, createMessageId } from "@/features/support/schema";
 import { SUPPORT_CONFIG } from "@/config/support";
 
-export type { Ticket };
+export type { Ticket, TicketPriority, TicketStatus };
 
 const STORAGE_KEY = "support.tickets";
 
@@ -167,7 +167,4 @@ export function updateTicketStatus(id: string, status: Ticket["status"]): Ticket
   next[idx] = { ...next[idx], status, updatedAt: new Date().toISOString() };
   if (!saveTickets(next)) return null;
   return next[idx];
-}
-
-
 }
