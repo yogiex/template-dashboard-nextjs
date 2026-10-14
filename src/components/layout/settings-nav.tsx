@@ -11,7 +11,9 @@ import { cn } from "cn";
 export const SETTINGS_TABS = [
   { title: "General", href: "/settings/general" },
   { title: "Appearance", href: "/settings/appearance" },
+  { title: "Account", href: "/settings/account" },
   { title: "Security", href: "/settings/security" },
+  { title: "MFA", href: "/settings/security/mfa" },
   { title: "Notifications", href: "/settings/notifications" },
   { title: AUDIT_PAGE_CONFIG.tabTitle, href: AUDIT_PAGE_CONFIG.basePath },
   { title: "Observability", href: "/settings/observability" },
