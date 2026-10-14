@@ -1,4 +1,4 @@
-import { LayoutDashboard, Network, Settings, ShieldCheck, Users, type LucideIcon } from "lucide-react";
+import { Bell, LayoutDashboard, Network, Settings, ShieldCheck, Users, type LucideIcon } from "lucide-react";
 
 import { env } from "@/lib/env";
 
@@ -53,6 +53,7 @@ export const sidebarNav: NavGroup[] = [
     title: "Platform",
     items: [
       { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+      { title: "Notifikasi", href: "/notifications", icon: Bell },
       { title: "Users", href: "/users", icon: Users },
       { title: "Team", href: "/team", icon: Users },
       { title: "Organisasi", href: "/organization", icon: Network },
