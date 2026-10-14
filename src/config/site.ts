@@ -1,4 +1,4 @@
-import { Bell, CreditCard, KeyRound, LayoutDashboard, LifeBuoy, Network, Plug, Settings, ShieldCheck, Users, type LucideIcon } from "lucide-react";
+import { Bell, CreditCard, FileBarChart, KeyRound, LayoutDashboard, LifeBuoy, Network, Plug, Settings, ShieldCheck, Users, type LucideIcon } from "lucide-react";
 
 import { env } from "@/lib/env";
 
@@ -59,9 +59,11 @@ export const sidebarNav: NavGroup[] = [
       { title: "Organisasi", href: "/organization", icon: Network },
       { title: "Roles", href: "/roles", icon: ShieldCheck },
       { title: "Integrasi", href: "/integrations", icon: Plug },
+      { title: "AI Assistant", href: "/ai", icon: Sparkles },
       { title: "API Keys", href: "/api-keys", icon: KeyRound },
       { title: "Billing", href: "/billing", icon: CreditCard },
       { title: "Support", href: "/support", icon: LifeBuoy },
+      { title: "Reports", href: "/reports", icon: FileBarChart },
       { title: "Settings", href: "/settings", icon: Settings },
     ],
   },

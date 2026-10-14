@@ -5,8 +5,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AUDIT_PAGE_CONFIG } from "@/config/audit-page";
 import { AuditFilters } from "@/features/audit/components/audit-filters";
 import { AuditPagination } from "@/features/audit/components/audit-pagination";
+import { AuditEnhancements } from "@/features/audit/components/audit-enhancements";
 import { AuditTable } from "@/features/audit/components/audit-table";
-import { queryAuditEvents } from "@/features/audit/service";
+import { queryAuditEvents, verifyAuditIntegrity } from "@/features/audit/service";
 
 export const metadata: Metadata = {
   title: AUDIT_PAGE_CONFIG.title,
@@ -53,6 +54,8 @@ async function AuditSettingsContent() {
       />
 
       <AuditTable events={items} />
+
+      <AuditEnhancements events={items} report={verifyAuditIntegrity()} />
 
       <AuditPagination
         page={page}
