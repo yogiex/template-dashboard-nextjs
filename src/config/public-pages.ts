@@ -213,6 +213,72 @@ export const termsDoc: LegalDoc = {
   ],
 };
 
+export const helpConfig = {
+  title: "Pusat Bantuan",
+  description: "Temukan jawaban atas pertanyaan yang paling sering diajukan.",
+  searchPlaceholder: "Cari bantuan...",
+  categories: [
+    {
+      id: "account",
+      title: "Akun",
+      faq: [
+        {
+          q: "Bagaimana cara mengatur ulang kata sandi?",
+          a: "Kunjungi halaman Lupa Kata Sandi, masukkan email Anda, dan ikuti tautan yang dikirimkan.",
+        },
+        {
+          q: "Bagaimana cara memperbarui profil?",
+          a: "Buka halaman Profil dari menu pengguna, ubah nama atau email, lalu simpan.",
+        },
+        {
+          q: "Bisakah saya memiliki lebih dari satu akun?",
+          a: "Template ini dirancang untuk satu akun per pengguna. Multi-akun memerlukan modifikasi backend.",
+        },
+      ],
+    },
+    {
+      id: "usage",
+      title: "Penggunaan",
+      faq: [
+        {
+          q: "Fitur apa saja yang tersedia?",
+          a: "Termasuk auth, audit, observability, pengaturan organisasi, dan manajemen user.",
+        },
+        {
+          q: "Apakah ada mode gelap?",
+          a: "Ya, gunakan tombol tema di header untuk beralih antara mode terang dan gelap.",
+        },
+        {
+          q: "Bisakah saya menyesuaikan warna?",
+          a: "Semua warna memakai token semantic, jadi cukup ubah CSS di src/app/globals.css.",
+        },
+      ],
+    },
+    {
+      id: "technical",
+      title: "Teknis",
+      faq: [
+        {
+          q: "Teknologi apa saja yang dipakai?",
+          a: "Next.js App Router 16, React 19, TypeScript strict, Tailwind v4, dan Base UI.",
+        },
+        {
+          q: "Bagaimana keamanan ditangani?",
+          a: "Security headers, validasi Zod, dan session handling sudah disiapkan di setiap boundary.",
+        },
+        {
+          q: "Bisakah saya deploy ke hosting lain?",
+          a: "Ya, template menggunakan static export (output: 'export'). Cocok untuk GitHub Pages atau host statis lainnya.",
+        },
+      ],
+    },
+  ],
+} as const;
+
+export type HelpFaqItem = (typeof helpConfig)["categories"][number]["faq"][number];
+
+export type HelpCategory = (typeof helpConfig)["categories"][number];
+
 export const privacyDoc: LegalDoc = {
   title: "Kebijakan Privasi",
   updatedAt: "2025-01-01",

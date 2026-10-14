@@ -54,6 +54,7 @@ export const sidebarNav: NavGroup[] = [
     items: [
       { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
       { title: "Users", href: "/users", icon: Users },
+      { title: "Team", href: "/team", icon: Users },
       { title: "Organisasi", href: "/organization", icon: Network },
       { title: "Roles", href: "/roles", icon: ShieldCheck },
       { title: "Settings", href: "/settings", icon: Settings },
@@ -65,6 +66,7 @@ export const publicNavConfig = [
   { title: "Fitur", href: "/#features" },
   { title: "Tentang", href: "/about" },
   { title: "Kontak", href: "/contact" },
+  { title: "Bantuan", href: "/help" },
 ] as const;
 
 export const publicHeaderConfig = {
