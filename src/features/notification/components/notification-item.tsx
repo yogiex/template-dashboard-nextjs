@@ -18,10 +18,17 @@ const TYPE_ICON: Record<NotificationType, LucideIcon> = {
   error: XCircle,
 }
 
+/**
+ * Warna tipe notifikasi memakai token semantik, bukan nilai palette Tailwind
+ * (`text-emerald-500`, `text-blue-500`, dll). Pemetaan mengikuti preseden
+ * `AUDIT_SEVERITY_TONE` di `src/features/audit/components/audit-badge.tsx`:
+ * ikon adalah grafik non-teks, jadi ambang 3:1 untuk graphics berlaku dan
+ * `text-risk-medium` masih layak untuk warning.
+ */
 const TYPE_CLASS: Record<NotificationType, string> = {
-  info: "text-blue-500",
-  success: "text-emerald-500",
-  warning: "text-amber-500",
+  info: "text-muted-foreground",
+  success: "text-primary",
+  warning: "text-risk-medium",
   error: "text-destructive",
 }
 

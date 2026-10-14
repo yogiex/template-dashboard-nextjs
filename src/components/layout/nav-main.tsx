@@ -11,6 +11,7 @@ import {
   SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar"
 import type { NavGroup } from "@/config/site"
 
@@ -20,6 +21,11 @@ type NavMainProps = {
 
 export function NavMain({ items }: NavMainProps) {
   const pathname = usePathname()
+  // Drawer mobile harus ditutup setelah navigasi. Sheet-nya modal, jadi kalau
+  // dibiarkan terbuka drawer menutupi halaman tujuan dan focus tetap terjebak
+  // di dalamnya sampai pengguna menutupnya manual. `setOpenMobile` no-op di
+  // desktop, jadi tidak perlu branching `isMobile` di sini.
+  const { setOpenMobile } = useSidebar()
 
   return (
     <>
@@ -37,6 +43,7 @@ export function NavMain({ items }: NavMainProps) {
                     disabled={item.disabled}
                     aria-current={isActive ? "page" : undefined}
                     tooltip={item.title}
+                    onClick={() => setOpenMobile(false)}
                     render={
                       item.disabled ? undefined : <Link href={item.href} />
                     }

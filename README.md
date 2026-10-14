@@ -1,8 +1,8 @@
 # Next.js Dashboard Template
 
-Template minimal untuk membangun dashboard Next.js berbasis App Router. Template ini menyediakan fondasi Next.js, React, TypeScript, Tailwind CSS, konfigurasi ESLint, dokumentasi arsitektur serta standar implementasi, dan fondasi autentikasi mock di server. Konfigurasi security header sudah tersedia di dokumentasi tetapi belum aktif di `next.config.ts` — lihat bagian [Keamanan](#keamanan).
+Template minimal untuk membangun dashboard Next.js berbasis App Router. Template ini menyediakan fondasi Next.js, React, TypeScript, Tailwind CSS, konfigurasi ESLint, dokumentasi arsitektur serta standar implementasi, dan fondasi autentikasi yang saat ini diparkir karena target deploy static export (lihat [Deploy target: GitHub Pages](#deploy-target-github-pages-static-export)). Konfigurasi security header sudah tersedia di dokumentasi tetapi belum aktif di `next.config.ts` — lihat bagian [Keamanan](#keamanan).
 
-> **Status saat ini:** fondasi aplikasi, UI publik, UI autentikasi, shell dashboard, dan dashboard content visual tersedia. Autentikasi sudah berjalan sebagai **mock di server** — cookie session `mock_session`, guard route `(dashboard)`, dan Server Action login/logout — tetapi autentikasi production, database, RBAC nyata, dan fitur produksi belum diimplementasikan.
+> **Status saat ini:** fondasi aplikasi, UI publik, UI autentikasi, shell dashboard, dan dashboard content visual tersedia. Target deploy adalah **GitHub Pages (static export)**, dan static export tidak mendukung Server Action maupun cookie session — jadi autentikasi server-side (session, guard route, login/logout action) **diparkir** di repo sampai ada host Node. Di situs Pages, login hanya demo tanpa verifikasi kredensial dan seluruh route dashboard bisa dibuka tanpa sesi. Autentikasi production, database, RBAC nyata, dan fitur produksi belum diimplementasikan.
 
 ## Fitur Saat Ini
 
@@ -16,7 +16,7 @@ Template minimal untuk membangun dashboard Next.js berbasis App Router. Template
 - Route dasar di `src/app/`.
 - Dark mode dengan `next-themes` dan pilihan Light, Dark, serta System.
 - Fondasi RFC 9457 dengan taxonomy error, `problemResponse`, dan logger terstruktur.
-- Autentikasi mock di server: cookie session `mock_session` (`src/features/auth/session.ts`), guard route `(dashboard)`, dan Server Action `loginAction`/`logoutAction` (`src/features/auth/actions.ts`).
+- Fondasi autentikasi server-side tersedia di repo tetapi **diparkir** untuk static export: session mock (`src/features/auth/session.ts`) dan Server Action (`src/features/auth/actions.ts`) sengaja tidak di-import oleh app tree sampai ada host Node.
 - Konfigurasi aplikasi terpusat di `src/config/site.ts`.
 - Notifications UI di topbar dengan unread count dan status dibaca tersimpan lokal per browser.
 
@@ -24,7 +24,7 @@ Template minimal untuk membangun dashboard Next.js berbasis App Router. Template
 
 - [x] Setup Next.js + shadcn/ui + dokumentasi standar
 - [x] Dark mode + security headers + error taxonomy (RFC 9457)
-- [x] Auth UI routes (`/login`, `/register`, `/forgot-password`, `/reset-password`, `/check-email`, `/invite/[token]`, `/verify-email`), config-driven; login memakai session mock di server, bukan session production
+- [x] Auth UI routes (`/login`, `/register`, `/forgot-password`, `/reset-password`, `/check-email`, `/invite/[token]`, `/verify-email`), config-driven; login masih stub klien selama deploy target static export (GitHub Pages)
 - [x] Public pages (`/`, `/terms`, `/privacy`)
 - [x] PublicHeader memakai CTA anonim yang valid ke `/login` dan `/register`; session production belum tersedia
 - [x] Layout dashboard (sidebar + topbar)  ← Sprint 1
@@ -51,6 +51,18 @@ Template minimal untuk membangun dashboard Next.js berbasis App Router. Template
 | shadcn/ui | Komponen UI dasar tersedia melalui generator; primitive dapat diperluas |
 | Node.js | Minimal `20.9.0` |
 | npm | Rekomendasi `10` atau lebih baru |
+
+## Deploy target: GitHub Pages (static export)
+
+Target deploy repo ini adalah **GitHub Pages**: setiap push ke `main` menjalankan workflow `Deploy to GitHub Pages` (`.github/workflows/deploy.yml`) yang melakukan `npm run build` dengan `NEXT_PUBLIC_BASE_PATH` nama repo, lalu mengunggah folder `out/` sebagai Pages artifact. Karena itu `next.config.ts` memakai `output: "export"`, dan fitur yang butuh runtime server **tidak bisa dipakai** selama target ini aktif:
+
+- Server Action (`"use server"`) — implementasi auth (`src/features/auth/actions.ts`) sengaja diparkir tanpa pemanggil di app tree; import apa pun ke modul itu akan menggagalkan build.
+- Cookie/`headers()` pada layout atau page — guard session di `(dashboard)/layout.tsx` dicabut; route dashboard prerender statis dan bisa dibuka tanpa sesi.
+- Route Handler yang membaca Request, proxy/middleware, serta `headers()`/`redirects()` di `next.config.ts`.
+
+Kalau fitur-fitur itu diperlukan, pindahkan dulu target deploy ke host Node (mis. Vercel, Railway, Fly), lalu hapus `output: "export"` dan wire kembali auth sesuai instruksi di komentar `src/features/auth/actions.ts`. Workflow CI dan deploy sengaja memverifikasi keberadaan `out/index.html`, `out/dashboard.html`, dan `out/login.html` supaya perubahan yang menghilangkan static export gagal lebih dulu — bukan baru ketahuan saat upload Pages artifact.
+
+Perilaku yang diketahui dan sengaja diterima untuk MVP: `/settings/security` ter-export sebagai redirect ke `/login` karena halaman itu butuh id sesi untuk membaca status MFA; halaman itu hanya bisa dibuka penuh di lokal dengan `DEV_AUTH_BYPASS=1`.
 
 ## Prasyarat
 
@@ -81,16 +93,16 @@ npm run dev
 
 Buka `http://localhost:3000` di browser. Development server akan memuat ulang perubahan secara otomatis.
 
-### Kredensial login (mock, hanya untuk pengembangan lokal)
+### Perilaku login di situs ini
 
-| Field | Nilai |
+Target deploy saat ini adalah GitHub Pages (static export), dan static export tidak mendukung Server Action maupun cookie session. Karena itu:
+
+| Lingkungan | Perilaku login |
 | --- | --- |
-| URL | `http://localhost:3000/login` |
-| Email | `demo@example.com` |
-| Password | `password123` |
-| Logout | Menu pengguna (kanan atas) → Log out |
+| Situs Pages (MVP publik) | Submit login **tidak memverifikasi kredensial** — hanya menampilkan notifikasi demo. Semua route dashboard bisa dibuka tanpa sesi. |
+| Lokal/dev | Stub klien yang sama; auth server-side (`loginAction`, guard, Log out) baru aktif setelah host Node dipasang dan wiring-nya dikembalikan |
 
-Kredensial ini **mock, bukan secret**, dan didefinisikan bersama DAL demo di `src/features/auth/service.ts`. Semua route `(dashboard)` butuh sesi; tanpa login Anda akan dialihkan ke `/login`. Jangan dipakai ulang di kode maupun deployment nyata — sebelum produksi, ganti dengan autentikasi sungguhan (hashing password, session terverifikasi, store durable). Sesi mock hidup di memori proses dan hilang saat server restart, serta percobaan login dibatasi 5x per 15 menit per email.
+Sampai host Node ada, jangan menganggap situs Pages sebagai lingkungan yang terautentikasi. Kredensial mock di `src/features/auth/service.ts` (`demo@example.com` / `password123`) hanya berlaku ketika auth server-side diaktifkan kembali, dan tetap bukan secret — jangan dipakai ulang di kode maupun deployment nyata.
 
 Untuk instalasi reproducible pada CI atau deployment, gunakan `npm ci`:
 
@@ -203,7 +215,7 @@ Control keamanan berikut **belum diimplementasikan**:
 - Monitoring keamanan dan audit dependency.
 - Secret manager untuk runtime production.
 
-Fondasi yang sudah tersedia mencakup validasi input pada UI auth, rate limiting in-memory untuk auth UI, session mock di server dengan cookie `httpOnly`, guard route `(dashboard)`, logger terstruktur, dan typed environment. Session mock itu **bukan** session production: token hidup di memori proses, hilang saat restart, tidak konsisten lintas instance, dan tidak ada verifikasi signature maupun kunci server.
+Fondasi yang sudah tersedia mencakup validasi input pada UI auth, rate limiting in-memory untuk auth UI, session mock di server dengan cookie `httpOnly` (kode ada di repo, **saat ini diparkir** — tidak di-wire ke app tree), logger terstruktur, dan typed environment. Session mock itu **bukan** session production: token hidup di memori proses, hilang saat restart, tidak konsisten lintas instance, dan tidak ada verifikasi signature maupun kunci server.
 
 Jangan menganggap security header yang tersedia sebagai pengganti autentikasi, authorization, validasi input, atau threat model. Lihat [docs/SECURITY.md](docs/SECURITY.md).
 
@@ -219,21 +231,21 @@ Status di bawah memisahkan fondasi yang sudah tersedia dari pekerjaan yang belum
 | Dokumentasi arsitektur dan standar implementasi | **Selesai** | Tersedia di `docs/` |
 | Dashboard shell, sidebar, topbar, dan navigasi | **Sebagian tersedia** | Shell, sidebar, topbar, `/dashboard`, `/users`, `/settings` tersedia; layout mobile dan detail navigasi menunggu verifikasi browser |
 | Komponen shadcn/ui | **Sebagian tersedia** | Primitive UI auth dan layout dasar tersedia |
-| UI autentikasi | **Sebagian tersedia** | Login/register/forgot/reset tersedia; login sudah memakai session mock di server |
-| Autentikasi dan session | **Sebagian tersedia** | Session mock server-side (`src/features/auth/session.ts`, cookie `mock_session` `httpOnly`/`sameSite=lax`), guard dashboard di `(dashboard)/layout.tsx`, dan Server Action `loginAction`/`logoutAction`; session production (signature, store durable, lockout) belum ada |
+| UI autentikasi | **Sebagian tersedia** | Login/register/forgot/reset tersedia; login masih stub klien di situs Pages karena static export |
+| Autentikasi dan session | **Diparkir** | Kode session mock (`src/features/auth/session.ts`) dan guard ada di repo tetapi tidak di-wire ke app tree; aktif kembali butuh host Node |
 | Database, ORM, schema, dan migrasi | **Belum diimplementasikan** | Belum ada koneksi atau service database |
 | Service layer dan fitur domain | **Sebagian tersedia** | Feature auth dan contract service tersedia |
-| Server Actions dan Route Handler | **Sebagian tersedia** | `loginAction` dan `logoutAction` (`src/features/auth/actions.ts`) sudah aktif; sisa UI auth masih memakai handler lokal dan endpoint database belum |
+| Server Actions dan Route Handler | **Diparkir** | `loginAction` dan `logoutAction` (`src/features/auth/actions.ts`) ada di repo tetapi tidak di-import oleh app tree; sisa UI auth memakai handler lokal dan endpoint database belum |
 | Loading, error, empty state, dan not-found | **Sebagian tersedia** | Root fallback tersedia; coverage per segment belum lengkap |
 | Validasi input dan rate limiting | **Sebagian tersedia** | Auth UI schema dan in-memory limiter tersedia |
 | CSP, logging keamanan, audit dependency, monitoring | **Belum diimplementasikan** | Persyaratan keamanan untuk fitur produksi |
-| CI/CD dan deployment | **Belum diimplementasikan** | Belum ada pipeline otomatis yang ditentukan dalam template |
+| CI/CD dan deployment | **Sebagian tersedia** | Workflow CI, security scan, dan deploy GitHub Pages aktif; pipeline backend/production belum |
 
 Urutan yang disarankan untuk pengembangan berikutnya:
 
 1. Finalisasi identitas, kebutuhan, dan scope aplikasi.
 2. Tambahkan shell dashboard dan primitive UI seperlunya.
-3. Ganti session mock dengan autentikasi serta session production (hashing password, session terverifikasi, lockout akun).
+3. Pasang host Node, lalu aktifkan kembali auth server-side (session terverifikasi, hashing password, lockout akun) sesuai instruksi di `src/features/auth/actions.ts`.
 4. Tambahkan service layer, database, schema, dan migrasi.
 5. Implementasikan authorization pada route, action, handler, dan service.
 6. Tambahkan validasi input, error handling, loading, dan empty state.

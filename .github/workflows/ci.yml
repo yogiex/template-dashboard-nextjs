@@ -40,3 +40,17 @@ jobs:
         run: npm test
       - name: Build
         run: npm run build
+        env:
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
+
+      # CI memvalidasi kontrak deploy yang sama dengan deploy.yml: build harus
+      # menghasilkan static export. Kalau tidak, PR/ push gagal di sini lebih
+      # dulu — bukan baru ketahuan saat upload Pages artifact.
+      - name: Verify static export output
+        run: |
+          for file in out/index.html out/dashboard.html out/login.html; do
+            if [ ! -f "$file" ]; then
+              echo "::error file=next.config.ts::Static export tidak lengkap ('$file' tidak ada). Pastikan 'output: \"export\"' aktif di next.config.ts; Server Action dan cookie session tidak didukung target deploy GitHub Pages."
+              exit 1
+            fi
+          done

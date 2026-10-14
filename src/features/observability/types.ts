@@ -1,10 +1,11 @@
 import type {
   MetricKind,
   MetricQuery,
+  MetricSource,
   MetricWindow,
 } from "@/features/observability/schema";
 
-export type { MetricKind, MetricQuery, MetricWindow };
+export type { MetricKind, MetricQuery, MetricSource, MetricWindow };
 
 export type MetricEvent = {
   id: string;
@@ -19,6 +20,8 @@ export type MetricEvent = {
   /** Satuan pengukuran, contoh: `ms`, `By`, `s`. */
   unit?: string;
   actorId?: string;
+  /** `demo` hanya untuk event hasil generator mock; event nyata membiarkannya kosong. */
+  source?: MetricSource;
 };
 
 export type TimeSeriesPoint = {

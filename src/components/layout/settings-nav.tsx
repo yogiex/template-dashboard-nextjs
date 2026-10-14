@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 import { AUDIT_PAGE_CONFIG } from "@/config/audit-page";
 import { codeGraphConfig } from "@/config/code-graph";
+import { LOG_MANAGEMENT_PAGE_CONFIG } from "@/config/log-management";
 import { cn } from "cn";
 
 export const SETTINGS_TABS = [
@@ -15,15 +16,23 @@ export const SETTINGS_TABS = [
   { title: "Observability", href: "/settings/observability" },
   { title: "UEBA", href: "/settings/ueba" },
   { title: codeGraphConfig.title, href: "/settings/code-graph" },
+  { title: LOG_MANAGEMENT_PAGE_CONFIG.title, href: LOG_MANAGEMENT_PAGE_CONFIG.sections.forecast.href },
 ] as const;
 
 export function SettingsNav() {
   const pathname = usePathname();
 
+  // Boundary-anchored, copy dari `nav-main.tsx`: tanpa boundary,
+  // `/settings/logs-access` akan ikut menyalakan tab Log Management, dan
+  // `/settings/logs` sendiri tidak pernah cocok dengan tab mana pun sehingga
+  // seluruh strip tampil tidak aktif.
+  const isTabActive = (href: string) =>
+    pathname === href || pathname.startsWith(`${href}/`);
+
   return (
     <nav aria-label="Pengaturan" className="flex gap-1 overflow-x-auto border-b">
       {SETTINGS_TABS.map((tab) => {
-        const isActive = pathname.startsWith(tab.href);
+        const isActive = isTabActive(tab.href);
         return (
           <Link
             key={tab.href}

@@ -4,21 +4,13 @@ import {
   MAX_BREADCRUMB_DEPTH,
   MAX_BREADCRUMB_LABEL_LENGTH,
   parseBreadcrumb,
-  type BreadcrumbCrumb,
 } from "@/lib/parse-breadcrumb";
 
 const NAV = [
   { title: "Beranda", href: "/" },
-  { title: "Dasbor", href: "/dashboard" },
+  { title: "Dashboard", href: "/dashboard" },
   { title: "Pengguna", href: "/dashboard/users" },
 ];
-
-function withoutLeadingDoubleSlash(crumbs: BreadcrumbCrumb[]): BreadcrumbCrumb[] {
-  return crumbs.map((crumb) => ({
-    ...crumb,
-    href: crumb.href.replace(/^\/\//, "/"),
-  }));
-}
 
 describe("parseBreadcrumb", () => {
   it("mengembalikan hanya root untuk pathname root", () => {
@@ -33,7 +25,7 @@ describe("parseBreadcrumb", () => {
   });
 
   it("mengubah segment route menjadi label yang humanized", () => {
-    expect(withoutLeadingDoubleSlash(parseBreadcrumb("/log-management/audit_log"))).toEqual([
+    expect(parseBreadcrumb("/log-management/audit_log")).toEqual([
       { label: "Home", href: "/" },
       { label: "Log Management", href: "/log-management" },
       { label: "Audit Log", href: "/log-management/audit_log" },
@@ -41,21 +33,17 @@ describe("parseBreadcrumb", () => {
   });
 
   it("mengabaikan query string dan hash", () => {
-    expect(withoutLeadingDoubleSlash(parseBreadcrumb("/dashboard?tab=users#top"))).toEqual([
+    expect(parseBreadcrumb("/dashboard?tab=users#top")).toEqual([
       { label: "Home", href: "/" },
       { label: "Dashboard", href: "/dashboard" },
     ]);
   });
 
   it("menerima URL absolut dan menghasilkan crumb sesuai pathname", () => {
-    const crumbs = withoutLeadingDoubleSlash(
-      parseBreadcrumb("https://app.test/dashboard/users", NAV),
-    );
-
-    expect(crumbs).toEqual([
+    expect(parseBreadcrumb("https://app.test/dashboard/users", NAV)).toEqual([
       { label: "Beranda", href: "/" },
       { label: "Dashboard", href: "/dashboard" },
-      { label: "Users", href: "/dashboard/users" },
+      { label: "Pengguna", href: "/dashboard/users" },
     ]);
   });
 
@@ -64,7 +52,7 @@ describe("parseBreadcrumb", () => {
 
     expect(MAX_BREADCRUMB_DEPTH).toBe(5);
     expect(crumbs).toHaveLength(MAX_BREADCRUMB_DEPTH);
-    expect(withoutLeadingDoubleSlash(crumbs).map((crumb) => crumb.href)).toEqual([
+    expect(crumbs.map((crumb) => crumb.href)).toEqual([
       "/",
       "/a",
       "/a/b",
@@ -110,9 +98,7 @@ describe("parseBreadcrumb", () => {
   });
 
   it("memakai manualLabels untuk segment yang sudah di-decode", () => {
-    const crumbs = withoutLeadingDoubleSlash(
-      parseBreadcrumb("/user%20name", [], { "user name": "Nama Pengguna" }),
-    );
+    const crumbs = parseBreadcrumb("/user%20name", [], { "user name": "Nama Pengguna" });
 
     expect(crumbs.at(-1)).toEqual({
       label: "Nama Pengguna",
@@ -124,14 +110,12 @@ describe("parseBreadcrumb", () => {
     const crumbs = parseBreadcrumb("/%E0%A4%A");
 
     expect(crumbs).toHaveLength(2);
-    expect(withoutLeadingDoubleSlash(crumbs)[1]?.href).toBe("/%E0%A4%A");
+    expect(crumbs[1]?.href).toBe("/%E0%A4%A");
     expect((crumbs[1]?.label.length ?? 0) > 0).toBe(true);
   });
 
   it("menangani label unicode tanpa merusak href segment", () => {
-    const crumbs = withoutLeadingDoubleSlash(
-      parseBreadcrumb("/pengaturan/prefix", [], { prefix: "Awalan" }),
-    );
+    const crumbs = parseBreadcrumb("/pengaturan/prefix", [], { prefix: "Awalan" });
 
     expect(crumbs.at(-1)).toEqual({ label: "Awalan", href: "/pengaturan/prefix" });
   });
@@ -142,28 +126,54 @@ describe("parseBreadcrumb", () => {
   });
 
   it("mengabaikan trailing slash saat membentuk crumb", () => {
-    const crumbs = withoutLeadingDoubleSlash(parseBreadcrumb("/dashboard/", NAV));
+    const crumbs = parseBreadcrumb("/dashboard/", NAV);
 
     expect(crumbs).toHaveLength(2);
     expect(crumbs[1].href).toBe("/dashboard");
   });
 });
 
-describe("parseBreadcrumb (known bug)", () => {
-  it.fails(
-    "href crumb non-root tidak boleh diawali dua garis miring",
-    () => {
-      expect(withoutLeadingDoubleSlash(parseBreadcrumb("/a/b")).map((c) => c.href)).toEqual(
-        ["/", "/a", "/b"],
-      );
-    },
-  );
+describe("parseBreadcrumb (regresi href dan label)", () => {
+  // Dua kegagalan ini pernah dipatok lewat `it.fails` karena akumulasi href
+  // disemai dari "/" sehingga menghasilkan "//dashboard". Efeknya dua lapis:
+  // crumb non-root punya href protocol-relative yang resolve ke host lain, dan
+  // `labelForHref` gagal mencocokkan nav item sehingga judul nav Indonesia
+  // tergantikan hasil `humanize()`.
+  it("tidak menghasilkan href protocol-relative untuk crumb non-root", () => {
+    const crumbs = parseBreadcrumb("/a/b/c");
 
-  it.fails("judul nav untuk segment non-root seharusnya dipakai", () => {
-    expect(withoutLeadingDoubleSlash(parseBreadcrumb("/dashboard/users", NAV))).toEqual([
+    expect(crumbs.map((crumb) => crumb.href)).toEqual([
+      "/",
+      "/a",
+      "/a/b",
+      "/a/b/c",
+    ]);
+
+    for (const crumb of crumbs) {
+      expect(crumb.href.startsWith("//")).toBe(false);
+    }
+  });
+
+  it("memakai judul nav untuk setiap segment yang cocok, bukan humanize", () => {
+    expect(parseBreadcrumb("/dashboard/users", NAV)).toEqual([
       { label: "Beranda", href: "/" },
-      { label: "Dasbor", href: "/dashboard" },
+      { label: "Dashboard", href: "/dashboard" },
       { label: "Pengguna", href: "/dashboard/users" },
+    ]);
+  });
+
+  it("memakai judul nav pada nested route settings", () => {
+    const NAV_WITH_SETTINGS = [
+      { title: "Beranda", href: "/" },
+      { title: "Pengaturan", href: "/settings" },
+      { title: "Log Management", href: "/settings/logs" },
+    ];
+
+    expect(parseBreadcrumb("/settings/logs/access", NAV_WITH_SETTINGS)).toEqual([
+      { label: "Beranda", href: "/" },
+      { label: "Pengaturan", href: "/settings" },
+      { label: "Log Management", href: "/settings/logs" },
+      { label: "Access", href: "/settings/logs/access" },
     ]);
   });
 });

@@ -110,13 +110,11 @@ export function CommandMenu() {
                 <h3 className="px-2 pt-1 pb-1.5 text-xs font-medium text-muted-foreground">
                   {config.recentGroupTitle}
                 </h3>
-                <div role="listbox" aria-label={config.recentListLabel}>
+                <div className="flex flex-col">
                   {recentItems.map((item) => (
                     <button
                       key={item.href}
                       type="button"
-                      role="option"
-                      aria-selected="false"
                       onClick={() => navigate(item.href)}
                       className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm outline-none hover:bg-muted focus-visible:bg-muted"
                     >
@@ -130,23 +128,26 @@ export function CommandMenu() {
             ) : null}
 
             {filteredItems.length > 0 ? (
-              <div role="listbox" aria-label={config.navigationListLabel}>
-                {filteredItems.map((item) => (
-                  <button
-                    key={item.href}
-                    type="button"
-                    role="option"
-                    aria-selected="false"
-                    disabled={item.disabled}
-                    onClick={() => navigate(item.href)}
-                    className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm outline-none hover:bg-muted focus-visible:bg-muted disabled:pointer-events-none disabled:opacity-50"
-                  >
-                    <item.icon aria-hidden="true" />
-                    <span>{item.title}</span>
-                    <CornerDownLeft className="ml-auto size-3.5 text-muted-foreground" aria-hidden="true" />
-                  </button>
-                ))}
-              </div>
+              <section aria-label={config.navigationListLabel}>
+                <h3 className="px-2 pt-1 pb-1.5 text-xs font-medium text-muted-foreground">
+                  {config.navigationListLabel}
+                </h3>
+                <div className="flex flex-col">
+                  {filteredItems.map((item) => (
+                    <button
+                      key={item.href}
+                      type="button"
+                      disabled={item.disabled}
+                      onClick={() => navigate(item.href)}
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm outline-none hover:bg-muted focus-visible:bg-muted disabled:pointer-events-none disabled:opacity-50"
+                    >
+                      <item.icon aria-hidden="true" />
+                      <span>{item.title}</span>
+                      <CornerDownLeft className="ml-auto size-3.5 text-muted-foreground" aria-hidden="true" />
+                    </button>
+                  ))}
+                </div>
+              </section>
             ) : null}
 
             {recentItems.length === 0 && filteredItems.length === 0 ? (

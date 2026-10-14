@@ -59,6 +59,7 @@ export function trackMetric(input: unknown): void {
       value: data.value,
       tags: redactTags(data.tags),
       ...(data.actorId ? { actorId: data.actorId } : {}),
+      ...(data.source ? { source: data.source } : {}),
     };
 
     pushEvent(event);

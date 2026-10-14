@@ -43,6 +43,22 @@ jobs:
           NEXT_PUBLIC_APP_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
           NODE_ENV: production
 
+      # Fail-fast sebelum upload artifact. Kalau `output: "export"` hilang dari
+      # next.config.ts (mis. karena Server Action/auth server-side masuk lagi),
+      # `npm run build` tetap sukses sebagai build server biasa tapi tidak
+      # menghasilkan `out/`, dan upload-pages-artifact gagal dengan pesan yang
+      # tidak menunjuk sebab. Auth server-side butuh host Node — sampai host itu
+      # ada, app harus bisa di-export statis.
+      - name: Verify static export output
+        run: |
+          for file in out/index.html out/dashboard.html out/login.html; do
+            if [ ! -f "$file" ]; then
+              echo "::error file=next.config.ts::Static export tidak lengkap ('$file' tidak ada). Pastikan 'output: \"export\"' aktif di next.config.ts; Server Action dan cookie session tidak didukung GitHub Pages."
+              exit 1
+            fi
+          done
+          echo "Static export lengkap: $(find out -name '*.html' | wc -l) file HTML"
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3

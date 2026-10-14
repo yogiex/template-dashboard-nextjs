@@ -137,18 +137,24 @@ export function parseBreadcrumb(
       .filter(Boolean)
       .slice(0, maxDepth - 1);
 
-    let href = rootHref;
+    // Akumulasi href dimulai dari string kosong, BUKAN `rootHref`. Menyemai
+    // dengan "/" lalu menambahkan "/segment" menghasilkan "//dashboard" —
+    // protocol-relative URL yang resolve ke host lain, dan yang lebih penting
+    // membuat `labelForHref` gagal mencocokkan nav item (perbandingan
+    // "/dashboard" === "//dashboard" selalu salah), sehingga judul nav jatuh
+    // ke `humanize()` dan bahasa berubah menjadi Inggris.
+    let prefix = "";
     for (const segment of segments) {
-      href = `${href}/${segment}`;
+      prefix = `${prefix}/${segment}`;
       const decodedSegment = decodeSegment(segment);
-      const configuredLabel = labelForHref(href, navItems, manualLabels);
+      const configuredLabel = labelForHref(prefix, navItems, manualLabels);
       const label =
         sanitizeLabel(configuredLabel, maxLabelLength) ||
         sanitizeLabel(manualLabels[decodedSegment], maxLabelLength) ||
         sanitizeLabel(humanize(decodedSegment), maxLabelLength) ||
         "…";
 
-      crumbs.push({ label, href });
+      crumbs.push({ label, href: prefix });
     }
 
     return crumbs;
