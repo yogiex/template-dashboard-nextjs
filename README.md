@@ -1,257 +1,372 @@
-# Next.js Dashboard Template
+<div align="center">
 
-Template minimal untuk membangun dashboard Next.js berbasis App Router. Template ini menyediakan fondasi Next.js, React, TypeScript, Tailwind CSS, konfigurasi ESLint, dokumentasi arsitektur serta standar implementasi, dan fondasi autentikasi yang saat ini diparkir karena target deploy static export (lihat [Deploy target: GitHub Pages](#deploy-target-github-pages-static-export)). Konfigurasi security header sudah tersedia di dokumentasi tetapi belum aktif di `next.config.ts` — lihat bagian [Keamanan](#keamanan).
+# ⚡ Next.js Dashboard Template
 
-> **Status saat ini:** fondasi aplikasi, UI publik, UI autentikasi, shell dashboard, dan dashboard content visual tersedia. Target deploy adalah **GitHub Pages (static export)**, dan static export tidak mendukung Server Action maupun cookie session — jadi autentikasi server-side (session, guard route, login/logout action) **diparkir** di repo sampai ada host Node. Di situs Pages, login hanya demo tanpa verifikasi kredensial dan seluruh route dashboard bisa dibuka tanpa sesi. Autentikasi production, database, RBAC nyata, dan fitur produksi belum diimplementasikan.
+**Modern, opinionated dashboard starter — App Router, React 19, TypeScript strict, Tailwind v4.**
 
-## Fitur Saat Ini
+A production-ready (frontend-first) foundation for building admin panels, analytics dashboards,
+and internal tools. Designed to be **recycled**: clone it, strip the demo data, wire your backend,
+ship.
 
-- Next.js App Router dengan Server Component sebagai default.
-- React dan TypeScript dengan mode `strict`.
-- Tailwind CSS v4 dan PostCSS.
-- ESLint 9 dengan `eslint-config-next`.
-- Konfigurasi shadcn melalui `components.json`.
-- Security header dasar pada seluruh route.
-- Dokumentasi setup, arsitektur, konvensi, keamanan, dan performa.
-- Route dasar di `src/app/`.
-- Dark mode dengan `next-themes` dan pilihan Light, Dark, serta System.
-- Fondasi RFC 9457 dengan taxonomy error, `problemResponse`, dan logger terstruktur.
-- Fondasi autentikasi server-side tersedia di repo tetapi **diparkir** untuk static export: session mock (`src/features/auth/session.ts`) dan Server Action (`src/features/auth/actions.ts`) sengaja tidak di-import oleh app tree sampai ada host Node.
-- Konfigurasi aplikasi terpusat di `src/config/site.ts`.
-- Notifications UI di topbar dengan unread count dan status dibaca tersimpan lokal per browser.
+[![Next.js 16.4](https://img.shields.io/badge/Next.js-16.4-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![React 19.2](https://img.shields.io/badge/React-19.2-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS 4](https://img.shields.io/badge/Tailwind_CSS-4-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![CI](https://img.shields.io/github/actions/workflow/status/yogiex/template-dashboard-nextjs/ci.yml?branch=main&style=for-the-badge&label=CI)](https://github.com/yogiex/template-dashboard-nextjs/actions)
+[![Deploy](https://img.shields.io/github/deployments/yogiex/template-dashboard-nextjs/github-pages?style=for-the-badge&label=Pages)](https://yogiex.github.io/template-dashboard-nextjs/)
 
-## Status
+[🚀 Live Demo](https://yogiex.github.io/template-dashboard-nextjs/) · [📖 Docs](#-dokumentasi) · [🤝 Contributing](CONTRIBUTING.md) · [🛡 Security](SECURITY_PRESETS.md)
 
-- [x] Setup Next.js + shadcn/ui + dokumentasi standar
-- [x] Dark mode + security headers + error taxonomy (RFC 9457)
-- [x] Auth UI routes (`/login`, `/register`, `/forgot-password`, `/reset-password`, `/check-email`, `/invite/[token]`, `/verify-email`), config-driven; login masih stub klien selama deploy target static export (GitHub Pages)
-- [x] Public pages (`/`, `/terms`, `/privacy`)
-- [x] PublicHeader memakai CTA anonim yang valid ke `/login` dan `/register`; session production belum tersedia
-- [x] Layout dashboard (sidebar + topbar)  ← Sprint 1
-- [x] Breadcrumb dinamis + command menu Ctrl/Cmd+K  ← Sprint 2
-- [x] Dashboard content: KPI cards, lazy-loaded charts, dan activity table  ← Sprint 2.5
-- [x] Settings `/settings/general` dan `/settings/appearance` dengan brand color switcher  ← Sprint F1
-- [x] DataTable server-driven `/users` dengan schema → service → actions  ← Sprint 3
-- [x] CRUD form reference create/edit user dengan RHF + Zod + fieldErrors  ← Sprint F2
-- [x] Roles UI reference dengan role summary dan matriks permission read-only  ← Sprint F3
-- [x] Notifications UI di topbar dengan schema, mock service, localStorage read state, dan unread count  ← Sprint F4
-- [x] Advanced theme palette dengan custom hex, skala semantic/chart, live preview, dan import/export JSON  ← Sprint F6
-- [ ] Integrasi notification backend untuk delivery, sinkronisasi lintas perangkat, dan enforcement
-- [ ] Fase 2: CMS settings panel (GOALS.md) — nama app, favicon, menu manager
+</div>
 
-## Stack
+---
 
-| Teknologi | Versi/role |
+## 📌 Status Singkat
+
+| Area | Status |
 | --- | --- |
-| Next.js | `16.3.6`, App Router dan React Server Components |
-| React / React DOM | `19.2.8` |
-| TypeScript | `^5`, strict mode dan alias `@/*` |
-| Tailwind CSS | `^4`, dikonfigurasi melalui PostCSS |
-| ESLint | `^9` dengan `eslint-config-next` |
-| shadcn/ui | Komponen UI dasar tersedia melalui generator; primitive dapat diperluas |
-| Node.js | Minimal `20.9.0` |
-| npm | Rekomendasi `10` atau lebih baru |
+| UI publik + auth UI + dashboard shell + content | ✅ Tersedia (UI) |
+| Server-side auth (session, guard, login/logout) | 🟡 Diparkir — menunggu host Node |
+| Database / ORM / migrasi | ⛔ Belum |
+| Production auth (hashing, lockout, MFA nyata) | 🟡 Fondasi + mock |
+| Target deploy | 🌐 **GitHub Pages (static export)** |
 
-## Deploy target: GitHub Pages (static export)
+> **Penting.** Target deploy adalah **GitHub Pages (static export)**. Static export **tidak mendukung** Server Action maupun cookie session. Karena itu autentikasi server-side (session, guard route, login/logout action) sengaja **diparkir** — di situs Pages, login hanya demo tanpa verifikasi kredensial dan seluruh route dashboard bisa dibuka tanpa sesi. Lihat [Deploy target](#-deploy-target-github-pages-static-export).
 
-Target deploy repo ini adalah **GitHub Pages**: setiap push ke `main` menjalankan workflow `Deploy to GitHub Pages` (`.github/workflows/deploy.yml`) yang melakukan `npm run build` dengan `NEXT_PUBLIC_BASE_PATH` nama repo, lalu mengunggah folder `out/` sebagai Pages artifact. Karena itu `next.config.ts` memakai `output: "export"`, dan fitur yang butuh runtime server **tidak bisa dipakai** selama target ini aktif:
+---
 
-- Server Action (`"use server"`) — implementasi auth (`src/features/auth/actions.ts`) sengaja diparkir tanpa pemanggil di app tree; import apa pun ke modul itu akan menggagalkan build.
-- Cookie/`headers()` pada layout atau page — guard session di `(dashboard)/layout.tsx` dicabut; route dashboard prerender statis dan bisa dibuka tanpa sesi.
-- Route Handler yang membaca Request, proxy/middleware, serta `headers()`/`redirects()` di `next.config.ts`.
+## ✨ Fitur Utama
 
-Kalau fitur-fitur itu diperlukan, pindahkan dulu target deploy ke host Node (mis. Vercel, Railway, Fly), lalu hapus `output: "export"` dan wire kembali auth sesuai instruksi di komentar `src/features/auth/actions.ts`. Workflow CI dan deploy sengaja memverifikasi keberadaan `out/index.html`, `out/dashboard.html`, dan `out/login.html` supaya perubahan yang menghilangkan static export gagal lebih dulu — bukan baru ketahuan saat upload Pages artifact.
+<table>
+<tr>
+<td width="50%">
 
-Perilaku yang diketahui dan sengaja diterima untuk MVP: `/settings/security` ter-export sebagai redirect ke `/login` karena halaman itu butuh id sesi untuk membaca status MFA; halaman itu hanya bisa dibuka penuh di lokal dengan `DEV_AUTH_BYPASS=1`.
+### 🎨 UI & UX
+- App Router, Server Component default
+- Tailwind v4 + semantic design tokens
+- Dark mode (Light / Dark / System) via `next-themes`
+- Base UI primitives (bukan Radix)
+- shadcn/ui generator-ready
+- Responsive shell: sidebar + topbar, breadcrumb, command menu
+- DataTable server-driven, KPI cards, lazy charts
 
-## Prasyarat
+</td>
+<td width="50%">
 
-Pastikan lingkungan lokal sudah memiliki:
+### 🛡 Kualitas & Keamanan
+- TypeScript strict + alias `@/*`
+- Zod validation di boundary server
+- RFC 9457 error taxonomy + `problemResponse`
+- Pino structured logger (no PII)
+- In-memory rate limit (auth UI)
+- Config-driven copy (`src/config/`)
+- ESLint 9 + husky + commitlint
 
-- Node.js `20.9.0` atau lebih baru.
-- npm yang kompatibel dengan `package-lock.json`.
-- Git dan akses ke registry npm.
+</td>
+</tr>
+<tr>
+<td width="50%">
 
-Periksa versi yang digunakan:
+### 📦 Feature Modules
+- Auth (login, register, forgot/reset, invite, verify)
+- Dashboard, users, team, roles, billing, API keys
+- Organization, notifications, audit, log management
+- Settings: general, appearance, security, MFA,
+  notification, observability, UEBA, activity
+
+</td>
+<td width="50%">
+
+### 🧪 DevEx
+- Vitest + Testing Library + jsdom
+- Husky `pre-commit` (lint-staged) & `commit-msg`
+- Conventional Commits enforcement
+- GitHub Actions: CI, security scan, code graph
+
+</td>
+</tr>
+</table>
+
+---
+
+## 📚 Table of Contents
+
+- [Status Singkat](#-status-singkat)
+- [Fitur Utama](#-fitur-utama)
+- [Stack](#-stack)
+- [Deploy Target: GitHub Pages (static export)](#-deploy-target-github-pages-static-export)
+- [Quick Start](#-quick-start)
+- [Scripts](#-scripts)
+- [Struktur Project](#-struktur-project)
+- [Dokumentasi](#-dokumentasi)
+- [Keamanan](#-keamanan)
+- [Roadmap & Status](#-roadmap--status)
+- [Workflow Reuse Project](#-workflow-reuse-project)
+- [Contributing](#-contributing)
+
+---
+
+## 🧱 Stack
+
+| Teknologi | Versi / Role |
+| --- | --- |
+| [Next.js](https://nextjs.org/) | `16.4.0` — App Router & RSC |
+| [React](https://react.dev/) / React DOM | `19.2.8` |
+| [TypeScript](https://www.typescriptlang.org/) | `^5` — strict, `@/*` alias |
+| [Tailwind CSS](https://tailwindcss.com/) | `^4` via PostCSS |
+| [Base UI](https://base-ui.com/) | `^1.8.0` — headless primitive |
+| [shadcn/ui](https://ui.shadcn.com/) | generator-ready |
+| [Zod](https://zod.dev/) | `^3.25` — validation |
+| [React Hook Form](https://react-hook-form.com/) | `^7.88` |
+| [next-themes](https://github.com/pacocoursey/next-themes) | `^0.4.6` |
+| [pino](https://getpino.io/) | `^10` — structured logger |
+| [Vitest](https://vitest.dev/) | `^3.2` — unit test |
+| [Node.js](https://nodejs.org/) | `>= 20.9.0` (CI uses 24) |
+| package manager | npm (lockfile committed) |
+
+---
+
+## 🌐 Deploy Target: GitHub Pages (static export)
+
+Setiap push ke `main` menjalankan workflow `Deploy to GitHub Pages` (`.github/workflows/deploy.yml`):
+`npm run build` dengan `NEXT_PUBLIC_BASE_PATH`, lalu unggah `out/` sebagai Pages artifact.
+
+Karena itu `next.config.ts` memakai `output: "export"` dan fitur yang butuh runtime **tidak bisa dipakai** selama target ini aktif:
+
+| Fitur | Status |
+| --- | --- |
+| Server Action (`"use server"`) | 🟡 `src/features/auth/actions.ts` diparkir — import akan gagalkan build |
+| Cookie / `headers()` pada layout/page | 🟡 guard session di `(dashboard)/layout.tsx` dicabut |
+| Route Handler baca Request, proxy/middleware | 🟡 tidak tersedia |
+| `headers()` / `redirects()` di `next.config` | 🟡 tidak tersedia |
+
+Workflow CI sengaja memverifikasi keberadaan `out/index.html`, `out/dashboard.html`, `out/login.html` supaya perubahan yang menghilangkan static export **gagal lebih dulu**.
+
+Kalau fitur itu dibutuhkan: pindah ke host Node (Vercel/Railway/Fly), hapus `output: "export"`, kembalikan wiring auth sesuai instruksi di komentar `src/features/auth/actions.ts`.
+
+**Perilaku yang diketahui & sengaja diterima untuk MVP:**
+- `/settings/security` ter-export sebagai redirect ke `/login` (butuh id sesi untuk baca status MFA).
+- Halaman itu hanya bisa dibuka penuh lokal dengan `DEV_AUTH_BYPASS=1`.
+
+---
+
+## 🚀 Quick Start
 
 ```bash
-node --version
-npm --version
-```
-
-## Quick Start
-
-Clone repository, lalu jalankan perintah berikut dari root project:
-
-```bash
-git clone <repository-url>
-cd template-nextjs-dashboard
-npm install
+git clone https://github.com/yogiex/template-dashboard-nextjs.git
+cd template-dashboard-nextjs
+npm ci                      # reproducible (CI-style)
 cp .env.example .env.local
-npm run dev
+npm run dev                 # http://localhost:3000
 ```
-
-Buka `http://localhost:3000` di browser. Development server akan memuat ulang perubahan secara otomatis.
 
 ### Perilaku login di situs ini
 
-Target deploy saat ini adalah GitHub Pages (static export), dan static export tidak mendukung Server Action maupun cookie session. Karena itu:
-
 | Lingkungan | Perilaku login |
 | --- | --- |
-| Situs Pages (MVP publik) | Submit login **tidak memverifikasi kredensial** — hanya menampilkan notifikasi demo. Semua route dashboard bisa dibuka tanpa sesi. |
-| Lokal/dev | Stub klien yang sama; auth server-side (`loginAction`, guard, Log out) baru aktif setelah host Node dipasang dan wiring-nya dikembalikan |
+| Situs Pages (MVP publik) | Submit **tidak memverifikasi kredensial** — hanya notifikasi demo. Semua route dashboard bisa dibuka tanpa sesi. |
+| Lokal / dev | Stub klien yang sama; auth server-side (`loginAction`, guard, Log out) baru aktif setelah host Node terpasang |
 
-Sampai host Node ada, jangan menganggap situs Pages sebagai lingkungan yang terautentikasi. Kredensial mock di `src/features/auth/service.ts` (`demo@example.com` / `password123`) hanya berlaku ketika auth server-side diaktifkan kembali, dan tetap bukan secret — jangan dipakai ulang di kode maupun deployment nyata.
+> Kredensial mock di `src/features/auth/service.ts` (`demo@example.com` / `password123`) hanya berlaku ketika auth server-side diaktifkan kembali — dan tetap **bukan** secret: jangan dipakai ulang di kode/deployment nyata.
 
-Untuk instalasi reproducible pada CI atau deployment, gunakan `npm ci`:
+### Perilaku yang perlu diverifikasi
 
 ```bash
-npm ci
+# Selalu jalankan sebelum melaporkan pekerjaan selesai:
+npm run lint
+npm run build          # tsc + production build
+npm test               # vitest
 ```
 
-Saat ini template belum membutuhkan environment variable untuk autentikasi atau database. Tetap gunakan `.env.local` untuk konfigurasi lokal dan jangan pernah commit file tersebut atau secret apa pun.
+---
 
-## Scripts
+## 📜 Scripts
 
 | Command | Kegunaan |
 | --- | --- |
-| `npm run dev` | Menjalankan development server |
-| `npm run lint` | Menjalankan ESLint |
-| `npm run build` | Membuat production build dan memeriksa tipe |
-| `npm run start` | Menjalankan hasil production build |
+| `npm run dev` | Development server (hot reload) |
+| `npm run lint` | ESLint 9 |
+| `npm run build` | Production build (termasuk tipe Next.js) |
+| `npm run start` | Serve hasil build (Node, lokal) |
+| `npm test` | Vitest (sekali jalan) |
+| `npm run test:watch` | Vitest watch mode |
+| `npm run test:coverage` | Coverage report |
+| `npm run lint:staged` | Lint file yang di-stage |
+| `npm run commit` | Conventional commit interaktif |
+| `npm run graph` / `graph:quick` / `graph:features` | Dependency graph (`madge`) |
 
-Verifikasi lokal minimum:
+> Typecheck manual diperlukan: `npx tsc --noEmit` (belum ada script `typecheck`).
+
+---
+
+## 🗂 Struktur Project
+
+```text
+.
+├── docs/                # arsitektur, konvensi, keamanan, performa, …
+├── public/              # aset statik + .well-known/security.txt
+├── scripts/             # commit helper, code-graph
+├── src/
+│   ├── app/             # App Router: (auth), (dashboard), (public)
+│   ├── components/      # layout, custom, ui primitives
+│   ├── config/          # konfigurasi domain (site, dashboard, roles, …)
+│   ├── features/        # feature modules + service layer (DAL)
+│   └── lib/             # error taxonomy, logger, env, rbac, rate-limit
+├── .github/workflows/   # ci, security, deploy (Pages), code-graph
+├── components.json      # shadcn config
+├── next.config.ts       # static export + base path
+├── vitest.config.ts
+└── tsconfig.json
+```
+
+Detail arsitektur → [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+
+---
+
+## 🌿 Environment
+
+Salin `.env.example` → `.env.local`. Semua variable sudah didokumentasikan dengan kegunaannya.
+Point penting:
+
+- `NEXT_PUBLIC_APP_URL` — URL publik (metadata, sitemap, robots).
+- `LOG_LEVEL`, `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY`
+- Feature flags `FEATURE_*_ENABLED` + `BACKEND_API_URL`
+- `NEXT_PUBLIC_BASE_PATH` — subpath GitHub Pages
+- `DEV_AUTH_BYPASS=1` — **hanya lokal**, jangan di production
+
+> Jangan commit `.env.local` atau secret apa pun.
+
+---
+
+## 📖 Dokumentasi
+
+| Dokumen | Isi |
+| --- | --- |
+| [Setup](docs/SETUP.md) | Prasyarat, instalasi, env, command, checklist |
+| [Integration Handbook](docs/INTEGRATION.md) | **Panduan recycle ke backend asli** |
+| [Architecture](docs/ARCHITECTURE.md) | Prinsip, lifecycle, RSC, service layer, cache |
+| [Conventions](docs/CONVENTIONS.md) | Naming, komponen, styling, TS, Git |
+| [Security](docs/SECURITY.md) | Checklist OWASP, authz, input, secret, session, logging |
+| [Error Handling](docs/ERROR-HANDLING.md) | `AppError`, envelope, boundaries |
+| [Performance](docs/PERFORMANCE.md) | Budget, rendering, cache, bundle, monitoring |
+| [GOALS](docs/GOALS.md) | Visi, fase, success criteria CMS-like |
+| [Security Presets](SECURITY_PRESETS.md) | Baseline keamanan + kontrol yang masih perlu |
+| [Contributing](CONTRIBUTING.md) | Workflow, commit format, PR checklist |
+
+> Verifikasi klaim dokumentasi terhadap kode sebelum mengandalkannya (`docs/ARCHITECTURE.md` §3.1 & §16 sudah diverifikasi).
+
+---
+
+## 🛡 Keamanan
+
+**Status jujur (verifikasi kondisi nyata, bukan klaim):**
+`next.config.ts` saat ini **tidak mengirim satu pun** header keamanan — blok `headers()` sudah tidak ada (hilang bersamaan dengan `output: "export"`). Gap ini dicatat di `docs/ARCHITECTURE.md` §16. Baseline yang *seharusnya* ditetapkan tercantum di `SECURITY_PRESETS.md`.
+
+Kontrol yang **sudah** ada:
+- Validasi input Zod pada UI auth
+- Rate limit in-memory (auth UI)
+- Logger terstruktur tanpa PII
+- Session mock server (kode ada, **diparkir** — token in-memory, hilang saat restart, tanpa verifikasi signature)
+- Typed env (`src/lib/env.ts`)
+
+Yang **belum** (production auth):
+- Hashing password (DAL menyimpan kredensial demo sebagai string)
+- Session durable terverifikasi kriptografis + lockout
+- RBAC / permission / ownership check nyata
+- CSP, audit dependency, monitoring
+
+> Lihat [docs/SECURITY.md](docs/SECURITY.md) untuk checklist lengkap.
+
+---
+
+## 🗺 Roadmap & Status
+
+| Area | Status | Catatan |
+| --- | --- | --- |
+| Next.js App Router + route dasar | ✅ Selesai | `src/app/` |
+| React, TS strict, Tailwind, ESLint | ✅ Selesai | Fondasi & config |
+| Security header dasar | ⚠️ Sebagian | Dikonfigurasi di docs, **belum aktif** di `next.config.ts` |
+| Dokumentasi arsitektur & standar | ✅ Selesai | `docs/` |
+| Dashboard shell, sidebar, topbar | ✅ Sebagian | Shell + sidebar + topbar tersedia |
+| shadcn/ui primitives | ⚠️ Sebagian | Primitive auth & layout dasar |
+| UI auth (login/register/etc.) | ⚠️ Sebagian | Stub klien di Pages karena static export |
+| Auth & session | 🟡 Diparkir | Kode ada, tidak di-wire |
+| Database/ORM/migrasi | ⛔ Belum | Belum ada koneksi |
+| Service layer / domain | ⚠️ Sebagian | Feature auth + contract service |
+| Server Actions & Route Handler | 🟡 Diparkir | `loginAction`/`logoutAction` ada, tidak di-import |
+| Loading/error/empty/not-found | ⚠️ Sebagian | Root fallback; coverage per segment belum |
+| Validasi & rate limit | ⚠️ Sebagian | Auth UI schema + in-memory limiter |
+| CSP, secure log, audit dep, monitoring | ⛔ Belum | Persyaratan produksi |
+| CI/CD & deploy | ⚠️ Sebagian | CI + security scan + Pages aktif; backend pipeline belum |
+
+Urutan pengembangan selanjutnya:
+1. Finalisasi identitas, kebutuhan, scope.
+2. Tambah shell dashboard & primitive UI seperlunya.
+3. Pasang host Node → aktifkan auth server-side (session terverifikasi, hashing, lockout).
+4. Service layer, database, schema, migrasi.
+5. Authorization pada route/action/handler/service.
+6. Validasi input, error handling, loading, empty state.
+7. CSP, secure logging, rate limiting, audit dependency.
+8. CI/CD, test, monitoring, deployment produksi.
+
+---
+
+## 🔁 Workflow Reuse Project
+
+Template dirancang sebagai **fondasi** yang di-recycle, bukan app siap pakai.
+
+1. Buat salinan repo baru — jangan ubah history asal. Ganti nama package, metadata, branding, deploy config.
+2. Verifikasi fondasi: `npm ci && npm run lint && npm run build`.
+3. Tentukan kebutuhan fitur (use case, actor, sumber data, authz, env, state UI).
+4. Ikuti [`docs/INTEGRATION.md`](docs/INTEGRATION.md) untuk hubungkan backend-mu.
+5. Buat struktur seperlunya (`src/app/`, `src/components/`, `src/features/<fitur>/`).
+6. Server sebagai satu-satunya pintu data — auth, DB, permission, ownership di server.
+7. Tambah auth bila dibutuhkan (library pilihanmu, session, guard).
+8. Tambah database bila dibutuhkan (ORM/driver, schema, migrasi).
+9. Komponen UI → Tailwind token; shadcn via generator lalu tinjau hasilnya.
+10. Validasi & keamanan pada boundary eksternal; jangan kirim secret/token/entity mentah ke client.
+11. State loading/error/empty/not-found sedekat mungkin dengan segment data lambat.
+12. Test sesuai risiko, update docs, jalankan lint/build/test, catat env baru di `.env.example` tanpa secret.
+
+Alur request yang diharapkan:
+```
+route/component → feature service → database/API → DTO minimal → UI
+```
+
+Server Component digunakan default. `"use client"` hanya pada bagian interaktif (state, event, browser API, dependency client-only).
+
+---
+
+## ✅ Verifikasi Lokal Minimum
 
 ```bash
 npm run lint
 npm run build
+npm test
 ```
-
 Jalankan `npm run start` hanya setelah build berhasil.
 
-## Struktur Project
+---
 
-Struktur aktual saat ini:
+## 🤝 Contributing
 
-```text
-.
-├── docs/                       # dokumentasi standar implementasi
-├── public/                     # aset statik
-├── src/
-│   ├── app/                    # App Router, layouts, dan routes
-│   ├── components/              # Layout, custom, dan UI primitives
-│   ├── config/                  # Config aplikasi dan halaman
-│   ├── features/                # Feature modules dan service layer
-│   └── lib/                     # Error, environment, logger, dan utilities
-├── components.json             # konfigurasi shadcn
-├── eslint.config.mjs           # konfigurasi lint
-├── next.config.ts              # konfigurasi Next.js dan security headers
-├── package.json
-├── postcss.config.mjs          # pipeline PostCSS
-└── tsconfig.json               # TypeScript dan alias @/*
-```
+Baca [CONTRIBUTING.md](CONTRIBUTING.md) sebelum berubah.
+- Branch: `feat/...` / `fix/...`
+- Conventional Commits: `feat(auth): add protected dashboard route`
+- Jangan commit secret, `.env.local`, generated output, atau perubahan tak terkait
 
-Folder `src/features/`, `src/components/`, dan `src/lib/` sudah dibuat. Service layer dan fitur domain berkembang sesuai kebutuhan nyata, bukan sebagai target yang harus diisi dengan data dummy.
+---
 
-## Dokumentasi
+## 📝 License
 
-| Dokumen | Isi |
-| --- | --- |
-| [Setup](docs/SETUP.md) | Prasyarat, instalasi, environment variable, command, dan checklist setup |
-| [Integration Handbook](docs/INTEGRATION.md) | **Panduan recycle: menghubungkan backend asli, checklist 30 menit** |
-| [Arsitektur](docs/ARCHITECTURE.md) | Prinsip, lifecycle request, RSC, Client Component, service layer, data flow, dan cache |
-| [Konvensi](docs/CONVENTIONS.md) | Naming, komponen, styling, TypeScript, route, data, API, dan Git |
-| [Keamanan](docs/SECURITY.md) | Checklist OWASP, authorization, input, secret, session, logging, dan SSRF |
-| [GOALS](docs/GOALS.md) | Visi, objective, fase, dan success criteria CMS-like |
-| [Performa](docs/PERFORMANCE.md) | Budget performa, rendering, data fetching, cache, bundle, dan monitoring |
-| [Security Presets](SECURITY_PRESETS.md) | Ringkasan baseline keamanan dan kontrol yang masih perlu ditambahkan |
-| [Contributing](CONTRIBUTING.md) | Workflow kontribusi, format commit, dan checklist pull request |
+Belum ada file `LICENSE` di repo ini — treat sebagai source reusable internal. Tambahkan license (mis. MIT) bila kamu publish.
 
-## Workflow Reuse Project
+---
 
-Template ini dirancang untuk dijadikan fondasi aplikasi baru, bukan aplikasi dashboard siap pakai. Ikuti workflow berikut saat mengustomisasi atau mengkloning template:
+<div align="center">
 
-1. **Buat salinan project atau repository baru.** Jangan mengubah history repository asal. Ganti nama package, metadata, branding, dan konfigurasi deployment sesuai aplikasi.
-2. **Verifikasi fondasi.** Jalankan `npm ci`, `npm run lint`, dan `npm run build` sebelum menambah fitur.
-3. **Tentukan kebutuhan fitur.** Tuliskan use case, actor, sumber data, aturan authorization, kebutuhan environment, dan state UI yang diperlukan.
-4. **Ikuti `docs/INTEGRATION.md` untuk menghubungkan backend-mu.**
-5. **Buat struktur seperlunya.** Tambahkan route di `src/app/`, komponen bersama di `src/components/`, dan logika domain di `src/features/<fitur>/` sesuai tanggung jawabnya.
-6. **Tambahkan service layer di server.** Semua akses database/API internal, session, permission, dan ownership check harus berada di server, bukan di komponen client atau presentasional.
-7. **Tambahkan autentikasi bila dibutuhkan.** Pilih library auth, definisikan session dan route privat, lalu lakukan guard awal sekaligus pemeriksaan ulang pada setiap boundary sensitif.
-8. **Tambahkan database bila dibutuhkan.** Pilih ORM atau driver, schema, migrasi, environment server, adapter, dan transaction boundary.
-9. **Tambahkan komponen UI seperlunya.** Gunakan Tailwind token yang ada. shadcn dapat digunakan melalui generator, tetapi hasil generate harus ditinjau dan dependency yang ditambahkan harus dicatat.
-10. **Tambahkan validasi dan keamanan.** Validasi params, search params, form, body, cookie, dan input eksternal di server. Jangan mengirim secret, token, atau entity database mentah ke client.
-11. **Tambahkan state loading, error, empty, dan not-found.** Letakkan fallback sedekat mungkin dengan segment atau bagian data yang lambat.
-12. **Uji dan dokumentasikan.** Tambahkan test sesuai risiko, perbarui dokumentasi, jalankan lint/build/test, lalu catat konfigurasi environment baru di `.env.example` tanpa secret.
+Built with ❤️ on **Next.js 16** · **React 19** · **TypeScript strict**
 
-Contoh alur request yang diharapkan:
+[⬆ Back to top](#-nextjs-dashboard-template)
 
-```text
-route/component → feature service → database/API → DTO minimal → UI
-```
-
-Server Component digunakan secara default. Tambahkan `"use client"` hanya pada bagian interaktif yang membutuhkan state, event handler, browser API, atau dependency client-only.
-
-## Keamanan
-
-Baseline yang seharusnya sudah diterapkan:
-
-- `X-DNS-Prefetch-Control: on`
-- `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload` (aktif pada deployment HTTPS)
-- `X-Frame-Options: DENY`
-- `X-Content-Type-Options: nosniff`
-- `Referrer-Policy: strict-origin-when-cross-origin`
-- `Permissions-Policy: camera=(), microphone=(), geolocation=()`
-
-**Verifikasi kondisi nyata:** `next.config.ts` saat ini **tidak mengirim satu pun** header di atas — blok `headers()` sudah tidak ada, dan pencarian `Content-Security-Policy`/`X-Frame-Options` di source, `nginx/nginx.conf`, maupun workflow CI tidak menemukan apa pun. Dulu header itu dipasang bersama `output: "export"` dan hilang bersamaan dengannya. Sampai blok `headers()` dipasang kembali, jangan menganggap list di atas sebagai baseline yang aktif; gap-nya juga sudah dicatat di `docs/ARCHITECTURE.md` §16.
-
-Control keamanan berikut **belum diimplementasikan**:
-
-- Autentikasi production: hashing password (DAL masih menyimpan kredensial demo sebagai string), session durable yang terverifikasi secara kriptografis, dan lockout akun.
-- RBAC, permission, ownership check, dan guard route privat di luar grup `(dashboard)`.
-- Database, schema, migrasi, dan parameterized query.
-- Content Security Policy (CSP).
-- Monitoring keamanan dan audit dependency.
-- Secret manager untuk runtime production.
-
-Fondasi yang sudah tersedia mencakup validasi input pada UI auth, rate limiting in-memory untuk auth UI, session mock di server dengan cookie `httpOnly` (kode ada di repo, **saat ini diparkir** — tidak di-wire ke app tree), logger terstruktur, dan typed environment. Session mock itu **bukan** session production: token hidup di memori proses, hilang saat restart, tidak konsisten lintas instance, dan tidak ada verifikasi signature maupun kunci server.
-
-Jangan menganggap security header yang tersedia sebagai pengganti autentikasi, authorization, validasi input, atau threat model. Lihat [docs/SECURITY.md](docs/SECURITY.md).
-
-## Roadmap dan Status
-
-Status di bawah memisahkan fondasi yang sudah tersedia dari pekerjaan yang belum dilakukan.
-
-| Area | Status | Catatan |
-| --- | --- | --- |
-| Next.js App Router dan route dasar | **Selesai** | `src/app/` tersedia |
-| React, TypeScript strict, Tailwind CSS, ESLint | **Selesai** | Fondasi dan konfigurasi tersedia |
-| Security header dasar | **Selesai** | Dikonfigurasi di `next.config.ts` |
-| Dokumentasi arsitektur dan standar implementasi | **Selesai** | Tersedia di `docs/` |
-| Dashboard shell, sidebar, topbar, dan navigasi | **Sebagian tersedia** | Shell, sidebar, topbar, `/dashboard`, `/users`, `/settings` tersedia; layout mobile dan detail navigasi menunggu verifikasi browser |
-| Komponen shadcn/ui | **Sebagian tersedia** | Primitive UI auth dan layout dasar tersedia |
-| UI autentikasi | **Sebagian tersedia** | Login/register/forgot/reset tersedia; login masih stub klien di situs Pages karena static export |
-| Autentikasi dan session | **Diparkir** | Kode session mock (`src/features/auth/session.ts`) dan guard ada di repo tetapi tidak di-wire ke app tree; aktif kembali butuh host Node |
-| Database, ORM, schema, dan migrasi | **Belum diimplementasikan** | Belum ada koneksi atau service database |
-| Service layer dan fitur domain | **Sebagian tersedia** | Feature auth dan contract service tersedia |
-| Server Actions dan Route Handler | **Diparkir** | `loginAction` dan `logoutAction` (`src/features/auth/actions.ts`) ada di repo tetapi tidak di-import oleh app tree; sisa UI auth memakai handler lokal dan endpoint database belum |
-| Loading, error, empty state, dan not-found | **Sebagian tersedia** | Root fallback tersedia; coverage per segment belum lengkap |
-| Validasi input dan rate limiting | **Sebagian tersedia** | Auth UI schema dan in-memory limiter tersedia |
-| CSP, logging keamanan, audit dependency, monitoring | **Belum diimplementasikan** | Persyaratan keamanan untuk fitur produksi |
-| CI/CD dan deployment | **Sebagian tersedia** | Workflow CI, security scan, dan deploy GitHub Pages aktif; pipeline backend/production belum |
-
-Urutan yang disarankan untuk pengembangan berikutnya:
-
-1. Finalisasi identitas, kebutuhan, dan scope aplikasi.
-2. Tambahkan shell dashboard dan primitive UI seperlunya.
-3. Pasang host Node, lalu aktifkan kembali auth server-side (session terverifikasi, hashing password, lockout akun) sesuai instruksi di `src/features/auth/actions.ts`.
-4. Tambahkan service layer, database, schema, dan migrasi.
-5. Implementasikan authorization pada route, action, handler, dan service.
-6. Tambahkan validasi input, error handling, loading, dan empty state.
-7. Tambahkan CSP, logging keamanan, rate limiting, dan audit dependency.
-8. Bangun CI/CD, test, monitoring, dan deployment produksi.
-
-## Kontribusi
-
-Baca [CONTRIBUTING.md](CONTRIBUTING.md) sebelum melakukan perubahan. Gunakan branch fitur/perbaikan dan Conventional Commits, misalnya `feat(auth): add protected dashboard route` atau `docs(security): document session cookie policy`. Jangan commit secret, `.env.local`, generated output, atau perubahan yang tidak terkait dalam commit yang sama.
+</div>
