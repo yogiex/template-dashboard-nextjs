@@ -1,4 +1,4 @@
-import { Bell, LayoutDashboard, Network, Settings, ShieldCheck, Users, type LucideIcon } from "lucide-react";
+import { Bell, KeyRound, LayoutDashboard, Network, Plug, Settings, ShieldCheck, Users, type LucideIcon } from "lucide-react";
 
 import { env } from "@/lib/env";
 
@@ -58,6 +58,8 @@ export const sidebarNav: NavGroup[] = [
       { title: "Team", href: "/team", icon: Users },
       { title: "Organisasi", href: "/organization", icon: Network },
       { title: "Roles", href: "/roles", icon: ShieldCheck },
+      { title: "Integrasi", href: "/integrations", icon: Plug },
+      { title: "API Keys", href: "/api-keys", icon: KeyRound },
       { title: "Settings", href: "/settings", icon: Settings },
     ],
   },

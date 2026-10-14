@@ -39,8 +39,8 @@ jobs:
       - name: Build static export
         run: npm run build
         env:
-          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
-          NEXT_PUBLIC_APP_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+          NEXT_PUBLIC_BASE_PATH: "${{ github.event.repository.name == format('{0}.github.io', github.repository_owner) && '' || format('/{0}', github.event.repository.name) }}"
+          NEXT_PUBLIC_APP_URL: "${{ format('https://{0}.github.io{1}', github.repository_owner, github.event.repository.name == format('{0}.github.io', github.repository_owner) && '' || format('/{0}', github.event.repository.name)) }}"
           NODE_ENV: production
 
       # Fail-fast sebelum upload artifact. Kalau `output: "export"` hilang dari
@@ -75,3 +75,30 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  smoke:
+    name: smoke (public pages + assets)
+    needs: deploy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Determine Pages URL
+        id: url
+        run: |
+          if [ "${{ github.event.repository.name }}" = "${{ github.repository_owner }}.github.io" ]; then
+            url="https://${{ github.repository_owner }}.github.io"
+          else
+            url="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+          fi
+          echo "pages_url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Smoke test root
+        run: curl -fsSL "${{ steps.url.outputs.pages_url }}/" >/dev/null
+
+      - name: Smoke test dashboard
+        run: curl -fsSL "${{ steps.url.outputs.pages_url }}/dashboard" >/dev/null
+
+      - name: Smoke test about
+        run: curl -fsSL "${{ steps.url.outputs.pages_url }}/about" >/dev/null

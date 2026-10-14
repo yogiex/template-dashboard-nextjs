@@ -98,6 +98,19 @@ function FormLabel({ className, ...props }: React.ComponentProps<typeof Label>) 
   );
 }
 
+function FormDescription({ className, ...props }: React.ComponentProps<"p">) {
+  const { formDescriptionId } = useFormField();
+
+  return (
+    <p
+      data-slot="form-description"
+      id={formDescriptionId}
+      className={`text-sm text-muted-foreground ${className ?? ""}`}
+      {...props}
+    />
+  );
+}
+
 function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
   const { error, formMessageId } = useFormField();
   const body = error ? String(error?.message ?? "") : null;
@@ -121,6 +134,7 @@ function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
 export {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,

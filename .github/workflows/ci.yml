@@ -41,7 +41,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
+          NEXT_PUBLIC_BASE_PATH: "${{ github.event.repository.name == format('{0}.github.io', github.repository_owner) && '' || format('/{0}', github.event.repository.name) }}"
 
       # CI memvalidasi kontrak deploy yang sama dengan deploy.yml: build harus
       # menghasilkan static export. Kalau tidak, PR/ push gagal di sini lebih
