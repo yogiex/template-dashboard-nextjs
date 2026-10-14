@@ -4,9 +4,11 @@ export const NOTIFICATION_PAGE_CONFIG = {
   emptyTitle: "Tidak ada notifikasi",
   emptyDescription: "Notifikasi akan muncul di sini.",
   markAllRead: "Tandai Semua Dibaca",
-  markAllReadConfirm: "Yakin tandai semua notifikasi dibaca?",
   unreadLabel: "Belum dibaca",
   allLabel: "Semua",
+  newLabel: "Baru",
+  markAsReadLabel: "Tandai Dibaca",
+  viewLinkLabel: "Lihat",
   filterLabels: {
     info: "Info",
     success: "Berhasil",

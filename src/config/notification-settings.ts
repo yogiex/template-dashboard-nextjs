@@ -4,6 +4,7 @@ export const NOTIFICATION_SETTINGS_CONFIG = {
   savedLabel: "Preferensi tersimpan (lokal).",
   saveLabel: "Simpan Preferensi",
   savingLabel: "Menyimpan…",
+  channelsSectionTitle: "Kanal",
   channels: {
     inApp: "Notifikasi dalam aplikasi",
     email: "Notifikasi email",
@@ -15,6 +16,8 @@ export const NOTIFICATION_SETTINGS_CONFIG = {
     start: "Mulai",
     end: "Selesai",
   },
+  quietToggleLabel: "Aktifkan jam tenang",
+  timeFormatHint: "Format HH:mm",
   infoAlert:
     "Mode demo — preferensi hanya tersimpan di browser ini.",
 } as const;

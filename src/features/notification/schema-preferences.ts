@@ -7,12 +7,12 @@ export const notificationPreferencesSchema = z.object({
   quietHoursEnabled: z.boolean(),
   quietStart: z
     .string()
-    .regex(/^\\d{2}:\\d{2}$/, "Format HH:mm")
+    .regex(/^\d{2}:\d{2}$/, "Format HH:mm")
     .optional()
     .or(z.literal("")),
   quietEnd: z
     .string()
-    .regex(/^\\d{2}:\\d{2}$/, "Format HH:mm")
+    .regex(/^\d{2}:\d{2}$/, "Format HH:mm")
     .optional()
     .or(z.literal("")),
 });

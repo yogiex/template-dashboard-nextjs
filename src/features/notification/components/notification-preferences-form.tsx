@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
-
+import { clientLogger } from "@/lib/logger-client";
+import {
+  NOTIFICATION_SETTINGS_CONFIG,
+} from "@/config/notification-settings";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -18,7 +20,6 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { NOTIFICATION_SETTINGS_CONFIG } from "@/config/notification-settings";
 import {
   notificationPreferencesSchema,
   type NotificationPreferences,
@@ -26,48 +27,78 @@ import {
 
 const STORAGE_KEY = "notification.prefs";
 
+const DEFAULT_PREFS: NotificationPreferences = {
+  inApp: true,
+  email: true,
+  push: false,
+  quietHoursEnabled: false,
+  quietStart: "22:00",
+  quietEnd: "07:00",
+};
+
 function loadPrefs(): NotificationPreferences {
-  const defaults: NotificationPreferences = {
-    inApp: true,
-    email: true,
-    push: false,
-    quietHoursEnabled: false,
-    quietStart: "22:00",
-    quietEnd: "07:00",
-  };
-  if (typeof window === "undefined") return defaults;
+  if (typeof window === "undefined") return DEFAULT_PREFS;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return defaults;
-    return { ...defaults, ...JSON.parse(raw) };
-  } catch {
-    return defaults;
+    if (!raw) return DEFAULT_PREFS;
+    const parsedJson: unknown = JSON.parse(raw);
+    const merged =
+      typeof parsedJson === "object" && parsedJson !== null
+        ? { ...DEFAULT_PREFS, ...parsedJson }
+        : DEFAULT_PREFS;
+    const result = notificationPreferencesSchema.safeParse(merged);
+    if (!result.success) {
+      clientLogger.warn("notification.prefs.invalid", {
+        issues: result.error.flatten(),
+      });
+      return DEFAULT_PREFS;
+    }
+    return result.data;
+  } catch (error) {
+    clientLogger.error("notification.prefs.load_failed", error);
+    return DEFAULT_PREFS;
   }
 }
 
 function savePrefs(prefs: NotificationPreferences) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
+  } catch (error) {
+    clientLogger.error("notification.prefs.save_failed", error);
+    throw error;
+  }
+}
+
+const channelKeys = ["inApp", "email", "push"] as const;
+type ChannelKey = (typeof channelKeys)[number];
+
+function channelFieldKey(key: ChannelKey): "inApp" | "email" | "push" {
+  return key;
 }
 
 export function NotificationPreferencesForm() {
-  const [saved, setSaved] = useState(false);
   const form = useForm<NotificationPreferences>({
     resolver: zodResolver(notificationPreferencesSchema),
     defaultValues: loadPrefs(),
   });
-  const isSubmitting = form.formState.isSubmitting;
 
   useEffect(() => {
     form.reset(loadPrefs());
-  }, [form]);
+    // intentional mount-only sync; `form` reference is stable across renders
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onSubmit = async (values: NotificationPreferences) => {
-    setSaved(false);
-    savePrefs(values);
-    setSaved(true);
-    toast.success(NOTIFICATION_SETTINGS_CONFIG.savedLabel);
+    try {
+      savePrefs(values);
+      toast.success(NOTIFICATION_SETTINGS_CONFIG.savedLabel);
+    } catch {
+      toast.error("Gagal menyimpan preferensi notifikasi.");
+    }
   };
+
+  const C = NOTIFICATION_SETTINGS_CONFIG;
 
   return (
     <Form {...form}>
@@ -77,57 +108,42 @@ export function NotificationPreferencesForm() {
         noValidate
         autoComplete="off"
       >
-        {saved ? (
-          <Alert role="status">
-            <AlertDescription>
-              {NOTIFICATION_SETTINGS_CONFIG.savedLabel}
-            </AlertDescription>
-          </Alert>
-        ) : null}
-
         <Alert>
-          <AlertDescription>
-            {NOTIFICATION_SETTINGS_CONFIG.infoAlert}
-          </AlertDescription>
+          <AlertDescription>{C.infoAlert}</AlertDescription>
         </Alert>
 
         <section className="space-y-3">
-          <h2 className="text-base font-semibold">Kanal</h2>
-          {(Object.keys(NOTIFICATION_SETTINGS_CONFIG.channels) as Array<
-            keyof typeof NOTIFICATION_SETTINGS_CONFIG.channels
-          >).map((key) => {
-            const fieldKey = key === "inApp" ? "inApp" : key === "email" ? "email" : "push";
-            return (
-              <FormField
-                key={key}
-                control={form.control}
-                name={fieldKey}
-                render={({ field }) => (
-                  <FormItem className="flex items-start space-x-3 space-y-0 rounded-md border p-3">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value as boolean}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel className="text-sm font-normal">
-                        {NOTIFICATION_SETTINGS_CONFIG.channels[key]}
-                      </FormLabel>
-                    </div>
-                  </FormItem>
-                )}
-              />
-            );
-          })}
+          <h2 className="text-base font-semibold">
+            {C.channelsSectionTitle}
+          </h2>
+          {channelKeys.map((key) => (
+            <FormField
+              key={key}
+              control={form.control}
+              name={channelFieldKey(key)}
+              render={({ field }) => (
+                <FormItem className="flex items-start space-x-3 space-y-0 rounded-md border p-3">
+                  <FormControl>
+                    <Checkbox
+                      checked={Boolean(field.value)}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel className="text-sm font-normal">
+                      {C.channels[key]}
+                    </FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+          ))}
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-base font-semibold">
-            {NOTIFICATION_SETTINGS_CONFIG.quietHours.label}
-          </h2>
+          <h2 className="text-base font-semibold">{C.quietHours.label}</h2>
           <p className="text-sm text-muted-foreground">
-            {NOTIFICATION_SETTINGS_CONFIG.quietHours.description}
+            {C.quietHours.description}
           </p>
           <FormField
             control={form.control}
@@ -136,12 +152,12 @@ export function NotificationPreferencesForm() {
               <FormItem className="flex items-center space-x-3 space-y-0">
                 <FormControl>
                   <Checkbox
-                    checked={field.value as boolean}
+                    checked={Boolean(field.value)}
                     onCheckedChange={field.onChange}
                   />
                 </FormControl>
                 <FormLabel className="text-sm font-normal">
-                  Aktifkan jam tenang
+                  {C.quietToggleLabel}
                 </FormLabel>
               </FormItem>
             )}
@@ -152,11 +168,11 @@ export function NotificationPreferencesForm() {
               name="quietStart"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{NOTIFICATION_SETTINGS_CONFIG.quietHours.start}</FormLabel>
+                  <FormLabel>{C.quietHours.start}</FormLabel>
                   <FormControl>
-                    <Input className="h-10" {...field} />
+                    <Input type="time" className="h-10" {...field} />
                   </FormControl>
-                  <FormDescription>Format HH:mm</FormDescription>
+                  <FormDescription>{C.timeFormatHint}</FormDescription>
                 </FormItem>
               )}
             />
@@ -165,24 +181,19 @@ export function NotificationPreferencesForm() {
               name="quietEnd"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{NOTIFICATION_SETTINGS_CONFIG.quietHours.end}</FormLabel>
+                  <FormLabel>{C.quietHours.end}</FormLabel>
                   <FormControl>
-                    <Input className="h-10" {...field} />
+                    <Input type="time" className="h-10" {...field} />
                   </FormControl>
-                  <FormDescription>Format HH:mm</FormDescription>
+                  <FormDescription>{C.timeFormatHint}</FormDescription>
                 </FormItem>
               )}
             />
           </div>
         </section>
 
-        <Button type="submit" disabled={isSubmitting} className="h-10">
-          {isSubmitting ? (
-            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-          ) : null}
-          {isSubmitting
-            ? NOTIFICATION_SETTINGS_CONFIG.savingLabel
-            : NOTIFICATION_SETTINGS_CONFIG.saveLabel}
+        <Button type="submit" className="h-10">
+          {C.saveLabel}
         </Button>
       </form>
     </Form>

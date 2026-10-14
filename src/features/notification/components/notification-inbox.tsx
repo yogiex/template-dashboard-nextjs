@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AlertTriangle, CheckCircle2, Info, Megaphone, Search } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Info } from "lucide-react";
 import Link from "next/link";
 
 import { EmptyState } from "@/components/custom/empty-state";
@@ -18,7 +18,6 @@ const TYPE_ICON: Record<Notification["type"], typeof Info> = {
   success: CheckCircle2,
   warning: AlertTriangle,
   error: AlertTriangle,
-  default: Info,
 };
 
 const TYPE_COLOR: Record<Notification["type"], string> = {
@@ -26,7 +25,6 @@ const TYPE_COLOR: Record<Notification["type"], string> = {
   success: "text-success",
   warning: "text-risk-medium",
   error: "text-destructive",
-  default: "text-muted-foreground",
 };
 
 function formatRelative(date: Date, now: Date): string {
@@ -116,7 +114,7 @@ export function NotificationInbox() {
         </div>
       </div>
 
-      <p className="text-sm text-muted-foreground">
+      <p className="text-sm text-muted-foreground" aria-live="polite">
         {unreadCount} {NOTIFICATION_PAGE_CONFIG.unreadLabel.toLowerCase()}
       </p>
 
@@ -143,7 +141,7 @@ export function NotificationInbox() {
                   {n.title}
                   {!n.isRead ? (
                     <Badge variant="outline" className="ml-1">
-                      Baru
+                      {NOTIFICATION_PAGE_CONFIG.newLabel}
                     </Badge>
                   ) : null}
                 </AlertTitle>
@@ -159,7 +157,7 @@ export function NotificationInbox() {
                         variant="ghost"
                         onClick={() => markAsRead(n.id)}
                       >
-                        Tandai Dibaca
+                        {NOTIFICATION_PAGE_CONFIG.markAsReadLabel}
                       </Button>
                     ) : null}
                     {n.href ? (
@@ -167,7 +165,7 @@ export function NotificationInbox() {
                         href={n.href}
                         className="text-sm font-medium text-primary hover:underline"
                       >
-                        Lihat
+                        {NOTIFICATION_PAGE_CONFIG.viewLinkLabel}
                       </Link>
                     ) : null}
                   </div>
