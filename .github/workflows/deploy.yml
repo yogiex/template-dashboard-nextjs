@@ -94,14 +94,19 @@ jobs:
           fi
           echo "pages_url=$url" >> "$GITHUB_OUTPUT"
 
+      # GitHub Pages CDN belum tentu sudah propagate saat job ini mulai
+      # (langkah tepat setelah `deploy-pages`). Jalankan curl dengan retry:
+      # `--retry-all-errors` ikut me-retry 5xx (503 saat warming), bukan hanya
+      # error transien jaringan. Tanpa ini smoke test flaky: kadang 503 di
+      # route yang belum kena cache CDN meski artifact sudah ter-upload.
       - name: Smoke test root
-        run: curl -fsSL "${{ steps.url.outputs.pages_url }}/" >/dev/null
+        run: curl -fsSL --max-time 30 --retry 8 --retry-delay 5 --retry-all-errors "${{ steps.url.outputs.pages_url }}/" >/dev/null
 
       - name: Smoke test dashboard
-        run: curl -fsSL "${{ steps.url.outputs.pages_url }}/dashboard" >/dev/null
+        run: curl -fsSL --max-time 30 --retry 8 --retry-delay 5 --retry-all-errors "${{ steps.url.outputs.pages_url }}/dashboard" >/dev/null
 
       - name: Smoke test about
-        run: curl -fsSL "${{ steps.url.outputs.pages_url }}/about" >/dev/null
+        run: curl -fsSL --max-time 30 --retry 8 --retry-delay 5 --retry-all-errors "${{ steps.url.outputs.pages_url }}/about" >/dev/null
 
       - name: Smoke test favicon
-        run: curl -fsSL "${{ steps.url.outputs.pages_url }}/favicon.ico" >/dev/null
+        run: curl -fsSL --max-time 30 --retry 8 --retry-delay 5 --retry-all-errors "${{ steps.url.outputs.pages_url }}/favicon.ico" >/dev/null
