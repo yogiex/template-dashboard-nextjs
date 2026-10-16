@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { AUDIT_PAGE_CONFIG } from "@/config/audit-page";
+import { BLOG_CMS_CONFIG } from "@/config/blog";
 import { codeGraphConfig } from "@/config/code-graph";
 import { LOG_MANAGEMENT_PAGE_CONFIG } from "@/config/log-management";
 import { cn } from "cn";
@@ -20,6 +21,7 @@ export const SETTINGS_TABS = [
   { title: "UEBA", href: "/settings/ueba" },
   { title: codeGraphConfig.title, href: "/settings/code-graph" },
   { title: LOG_MANAGEMENT_PAGE_CONFIG.title, href: LOG_MANAGEMENT_PAGE_CONFIG.sections.forecast.href },
+  { title: BLOG_CMS_CONFIG.tabTitle, href: "/settings/blog" },
 ] as const;
 
 export function SettingsNav() {
