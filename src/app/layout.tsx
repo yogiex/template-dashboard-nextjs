@@ -29,7 +29,6 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   metadataBase: new URL(siteConfig.url),
-  icons: { icon: "/favicon-logo.png", shortcut: "/favicon-logo.png", apple: "/favicon-logo.png" },
 };
 
 export default function RootLayout({
